@@ -6,8 +6,7 @@ let currentFen = startingFen
 
 /* Gets the current players turn from a fen */
 const getTurn = (fen) => {
-    let boardArray = fen.split("/")
-    let stateDataArray = boardArray[7].split(" ")
+    let stateDataArray = fen.split(" ")
     return stateDataArray[1]
 }
 
