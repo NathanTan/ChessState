@@ -1,10 +1,11 @@
-const startingFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+const constants = require('constants')
 
-console.log(startingFen)
-let currentFen = startingFen
+console.log(constants)
+let currentFen = constants.startingFen
 
 let state = {
-    "debug": false
+    "debug": false,
+    "gameType": "standard"
 }
 
 /* Gets the current players turn from a fen */
@@ -15,6 +16,7 @@ const getTurn = (fen) => {
 
 /* Returns a new fen based on the pgn */
 const executeTurn = (state, fen, pgn) => {
+    let newFen
     if (pgn) {
         if (state.debug)
             console.log("PGN provided: " + pgn)
@@ -47,10 +49,11 @@ const executeTurn = (state, fen, pgn) => {
                 case "K": // King move
                 break
                 default: // Pawn move
-                console.log("Default")
+                newFen = movePawn(state, fen, pgn)
+                // TODO: deal with fen's en passant
             }
         }
-        let newFen = updateTurn(fen)
+        newFen = updateTurn(fen, null, null)
 
     }
 
@@ -60,22 +63,69 @@ const executeTurn = (state, fen, pgn) => {
 }
 
 /* Returns a new fen where the turn has been toggled */
-const updateTurn = (fen) => {
+/* Parameters: 
+ *    fen - Fen string to be updated
+ *    enPassant - if enPassant is availible (The last move was a 2 space pawn move), then the location that the capturning pawn is this varianle, otherwise it's null
+ *    halfmove - either increments or resets the number of halfmoves since the capture of a piece, or the movemenet of a pawn
+ */
+const updateTurn = (fen, enPassant, halfmove) => {
     console.log(fen)
     /* Deconstruct fen */
     let stateDataArray = fen.split(" ")
-    if (stateDataArray[1] === "w")
+    if (stateDataArray[1] === "w") {
+        
         stateDataArray[1] = "b"
-    else if (stateDataArray[1] === "b")
+    }
+
+    else if (stateDataArray[1] === "b") {
+
         stateDataArray[1] = "w"
+        stateDataArray[5] = +stateDataArray[5] + 1 // Increment the move count
+    }
+
+    /* Deal with halfmove */
+    if (halfmove) {
+        // Not a pawn move and no capture
+        stateDataArray[4] = +stateDataArray[4] + 1 // Increment the move count
+        
+    }
+
+    else {
+        // Pawn was moved or piece was captured
+        stateDataArray[5] = 0 // Reset halfmove count        
+    }
+
+    /* Deal with en passant */
+    // TODO
     
     /* Reconstruct fen */
     return stateDataArray.join(" ")
 }
 
+const movePawn = (state, fen, pgn)  => {
+    let boardArray = fen.split(" ").split("/")
+    switch (state.gameType) {
+        case "standard":
+            /* Check for a double space move */
+            if (pgn.includes("4") && getTurn(fen) === "w") {
+                // if (boardArray[5])
+            }
 
-console.log(getTurn(currentFen))
+            if ( pgn.includes("3") && getTurn(fen) === "b") {
+
+            }
+        break
+        default:
+        console.log("Error")
+    }
+
+}
+
+
+//console.log(getTurn(currentFen))
 console.log(currentFen)
 //executeTurn(state, null, "f7")
-currentFen = updateTurn(currentFen)
+currentFen = updateTurn(currentFen, null, null)
+console.log(currentFen)
+currentFen = updateTurn(currentFen, null, null)
 console.log(currentFen)
