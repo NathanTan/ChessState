@@ -122,6 +122,27 @@ const movePawn = (state, fen, pgn)  => {
 }
 
 
+const getValidMoves = (piece, loc_raw, fen) => {
+   loc = processLoc(loc_raw);
+}
+
+const processLoc = (loc) => {
+   column = loc[0]
+   row = loc[1]
+   let newloc = ""
+  
+   // Convert the column letter to a number. i.e. a = 0, b = 1, g = 7 
+   newloc.append(loc[0].charCodeAt(0) - 97)   
+   newloc.append(loc[1] - 1) // TODO: make sure this returns an int.
+
+   return newloc
+}
+
+
+
+
+
+
 //console.log(getTurn(currentFen))
 console.log(currentFen)
 //executeTurn(state, null, "f7")
