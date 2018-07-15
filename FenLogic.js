@@ -1,8 +1,5 @@
 const constants = require('constants')
 
-console.log(constants)
-let currentFen = constants.startingFen
-
 let state = {
     "debug": false,
     "gameType": "standard"
@@ -22,36 +19,36 @@ const executeTurn = (state, fen, pgn) => {
             console.log("PGN provided: " + pgn)
 
         // Determine the pgn move
-        switch(pgn) {
+        switch (pgn) {
 
             case "O-O": // King side castle
-            //TODO: add validation
+                //TODO: add validation
 
-            break
+                break
 
             case "O-O-O": //Queen side castle
-            break
+                break
 
             default: // Normal move           
-            
-            switch(pgn[0]) {
-                case "N": // Knight move
-                
-                
-                break
-                
-                case "B": // Bishop move
-                break
-                case "R": // Rook move
-                break
-                case "Q": // Queen move
-                break
-                case "K": // King move
-                break
-                default: // Pawn move
-                newFen = movePawn(state, fen, pgn)
-                // TODO: deal with fen's en passant
-            }
+
+                switch (pgn[0]) {
+                    case "N": // Knight move
+
+
+                        break
+
+                    case "B": // Bishop move
+                        break
+                    case "R": // Rook move
+                        break
+                    case "Q": // Queen move
+                        break
+                    case "K": // King move
+                        break
+                    default: // Pawn move
+                        newFen = movePawn(state, fen, pgn)
+                    // TODO: deal with fen's en passant
+                }
         }
         newFen = updateTurn(fen, null, null)
 
@@ -73,7 +70,7 @@ const updateTurn = (fen, enPassant, halfmove) => {
     /* Deconstruct fen */
     let stateDataArray = fen.split(" ")
     if (stateDataArray[1] === "w") {
-        
+
         stateDataArray[1] = "b"
     }
 
@@ -87,7 +84,7 @@ const updateTurn = (fen, enPassant, halfmove) => {
     if (halfmove) {
         // Not a pawn move and no capture
         stateDataArray[4] = +stateDataArray[4] + 1 // Increment the move count
-        
+
     }
 
     else {
@@ -97,12 +94,12 @@ const updateTurn = (fen, enPassant, halfmove) => {
 
     /* Deal with en passant */
     // TODO
-    
+
     /* Reconstruct fen */
     return stateDataArray.join(" ")
 }
 
-const movePawn = (state, fen, pgn)  => {
+const movePawn = (state, fen, pgn) => {
     let boardArray = fen.split(" ").split("/")
     switch (state.gameType) {
         case "standard":
@@ -111,42 +108,74 @@ const movePawn = (state, fen, pgn)  => {
                 // if (boardArray[5])
             }
 
-            if ( pgn.includes("3") && getTurn(fen) === "b") {
+            if (pgn.includes("3") && getTurn(fen) === "b") {
 
             }
-        break
+            break
         default:
-        console.log("Error")
+            console.log("Error")
     }
 
 }
 
 
 const getValidMoves = (piece, loc_raw, fen) => {
-   loc = processLoc(loc_raw);
+    loc = processLoc(loc_raw);
 }
 
 const processLoc = (loc) => {
-   column = loc[0]
-   row = loc[1]
-   let newloc = ""
-  
-   // Convert the column letter to a number. i.e. a = 0, b = 1, g = 7 
-   newloc.append(loc[0].charCodeAt(0) - 97)   
-   newloc.append(loc[1] - 1) // TODO: make sure this returns an int.
+    column = loc[0]
+    row = loc[1]
+    let newloc = ""
 
-   return newloc
+    // Convert the column letter to a number. i.e. a = 0, b = 1, g = 7 
+    newloc.append(loc[0].charCodeAt(0) - 97)
+    newloc.append(loc[1] - 1) // TODO: make sure this returns an int.
+
+    return newloc
 }
 
+/* Helper function */
+const isNumeric = (n) => {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+/* Prints a ascii board based on a standard fen string */
+const printBoard = (fen) => {
+    let positionString = fen.split("/")
+    let lastRow = positionString.pop()
+    positionString.push(lastRow.split(" ")[0])
+    console.log("-----------------") // Print first line
+    fen.forEach(function (positionString) {
+        process.stdout.write("|") // Print without new line
+
+        positionString.split("").forEach(function (piece) {
+            // If a number is found, print that many spaces
+            if (isNumeric(piece))
+                for (let i = 0; i < +piece; i++)
+                    process.stdout.write(" |") // Print without new line
+            // Else print the piece letter
+            else
+                process.stdout.write(piece + "|") // Print without new line
+        })
+        console.log("\n-----------------") // Print last line
+    })
+}
+
+// let fen = "rnbqkbnr/pppppppp/8/8/3p4/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+// let row = fen.split("/")
+// let lastRow = row.pop()
+// row.push(lastRow.split(" ")[0])
+
+let currentFen = constants.startingFen
+console.log(constants)
+printBoard(currentFen)
 
 
-
-
-
-//console.log(getTurn(currentFen))
-console.log(currentFen)
-//executeTurn(state, null, "f7")
-currentFen = updateTurn(currentFen, null, null)
-console.log(currentFen)
-currentFen = updateTurn(currentFen, null, null)
-console.log(currentFen)
+// //console.log(getTurn(currentFen))
+// console.log(currentFen)
+// //executeTurn(state, null, "f7")
+// currentFen = updateTurn(currentFen, null, null)
+// console.log(currentFen)
+// currentFen = updateTurn(currentFen, null, null)
+// console.log(currentFen)
