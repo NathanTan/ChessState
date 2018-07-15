@@ -1,47 +1,30 @@
 {
   "name": "chessstate",
   "version": "1.0.0",
-<<<<<<< HEAD
-  "description": "A chess game state manager.",
-  "main": "FenLogic.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-=======
   "description": "A chess game state manager",
   "main": "FenLogic.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
     "start": "node ./bundles/ChessState.min.js"
->>>>>>> 6d06c192457394516fcdc6bb022dc81589bc5b7f
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/NathanTan/ChessState.git"
   },
   "keywords": [
-<<<<<<< HEAD
-    "Chess",
-    "Game",
-    "State"
-=======
     "chess",
     "variants",
     "bughouse"
->>>>>>> 6d06c192457394516fcdc6bb022dc81589bc5b7f
   ],
   "author": "Nathan Tan",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/NathanTan/ChessState/issues"
   },
-<<<<<<< HEAD
-  "homepage": "https://github.com/NathanTan/ChessState#readme"
-=======
   "homepage": "https://github.com/NathanTan/ChessState#readme",
   "dependencies": {
     "webpack": "^4.14.0",
     "webpack-cli": "^3.0.8"
   }
->>>>>>> 6d06c192457394516fcdc6bb022dc81589bc5b7f
 }
