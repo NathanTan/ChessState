@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
-    "start": "node ./bundles/ChessState.min.js"
+    "start": "node ./bundles/ChessState.min.js",
+    "super": "webpack; npm start"
   },
   "repository": {
     "type": "git",
