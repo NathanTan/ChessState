@@ -7,11 +7,6 @@ class Errors {
             console.log("-Error: Unrecognized variant type-")
             console.log("----------------------------------")
         }
-        else {
-            console.log(
-                "No errors here!"
-            )
-        }
         return null
     }
 }

@@ -3,17 +3,21 @@ import constants from './constants'
 import Errors from './Errors'
 import HelperFunctions from './HelperFunctions'
 import TestGame from './PGNTestGame'
+import ExecuteTurn from './MoveProcessor'
 
 class ChessState {
     constructor(gameType) {
         this.gameType = constants.GameTypesEnum[gameType]
         this.board = constants.startingFen // Fen representation of the game
-        this.history = "" // History in pgn moves, or fen states
+        this.history = {"fen": [constants.startingFen], "pgn": [""]} // History in pgn moves, or fen states
         this.gameOver = false
         this.turn = 0
+
+        Errors.checkGameType(this)
     }
 
     play() {
+        let moveIsValid = false
         while (!this.gameOver) {
 
             // 1. Print Info
@@ -26,15 +30,27 @@ class ChessState {
             }
             boardPrinter.printBoard(this)
 
-            // 2. Get move
-            let move = HelperFunctions.getMove(TestGame[this.turn])
-            console.log("Move entered: " + move)
 
-            // 3. Check to see if move is valid
+            let move = ""
+            while (!moveIsValid) {
+                // 2. Get move
+                move = HelperFunctions.getMove(TestGame[this.turn])
+                console.log("Move entered: " + move)
+                
+                // 3. Check to see if move is valid
+                moveIsValid = true
+            }
 
             // 4. Execute move
+            ExecuteTurn(this, move)
+            
+            // Update History
+            this.history.pgn.push(move)
+            this.history.fen.push(this.board)
+
+            // 5. Check for end of game
             if (this.turn < TestGame.length)
-                this.gameOver = true
+                this.gameOver = true // For testing purposes
 
             boardPrinter.printBoard(this)
         }
