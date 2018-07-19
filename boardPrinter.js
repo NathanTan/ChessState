@@ -4,24 +4,23 @@ import HelperFunctions from './HelperFunctions'
 class boardPrinter {
 
     /* Prints a ascii board based on a standard fen string */
-    static printBoard(fenn) {
+    static printBoard(state) {
         let board = ""
-        console.log(JSON.stringify(fenn))
-        let fen = fenn.split("/")
-        board += "-----------------"
-        fen.forEach(function (row) {
+        let fenBoard = state.getModBoard().split("/")
+        board += "---------------------------------\n"
+        fenBoard.forEach(function (row) {
             board += "|"
 
             row.split("").forEach(function (piece) {
                 // If a number is found, print that many spaces
                 if (HelperFunctions.isNumeric(piece))
                     for (let i = 0; i < +piece; i++)
-                        board += " |"
+                        board += "   |"
                 // Else print the piece letter
                 else
-                    board += piece + "|"
+                    board += " " + piece + " |"
             })
-            board += "\n-----------------"
+            board += "\n---------------------------------\n"
         })
         console.log(board)
     }
