@@ -27,7 +27,7 @@ const ExecuteTurn = (game, pgn) => {
                         break
                     default: // Pawn move
                         console.log("Pawn Move")
-                        //newFen = movePawn(state, fen, pgn)
+                        newFen = movePawn(fen, pgn)
                     // TODO: deal with fen's en passant
                 }
         }
@@ -42,14 +42,53 @@ const ExecuteTurn = (game, pgn) => {
 
 export default ExecuteTurn
 
+// Params: - Moded Fen string of chess state
+//         - Pgn move
+//         - Players turn (w/b)
 // Done with pgn, returns new moded fen
-const movePawn = (fen, pgn) => {
+// Note: Doesn't work with bug house when finind piece location
+const movePawn = (fen, pgn, turn) => {
+    console.log("PGN: " + pgn)
     // If this move has a capture
     if (pgn.indexOf("x") !== -1) {
         console.log("TODO: add pawn capture functionality")
     }
 
     else {
+        // Get loc
+        const col = pgn[0]
+        console.log("COL: " + col)
+        const convertedCol = col.charCodeAt(0) - 98
+        let piecesInCol = []
+        fen.split("/").forEach((row) => {
+            console.log(row)
+            piecesInCol.push(row[convertedCol])
+        })  // Maps a to 0
+        console.log(piecesInCol.join(", "))
+        const locatedPieceCol = -1
+        let index = 0
+        
+        for (let col in piecesInCol) {
+            let piece = ""
+            console.log("PIECE: " + piece)
+            fen.split("").forEach((p) => {
+                piece = p
+            })
+            // White's turn
+            // TODO: Fix the logic to get the location.
+            if ('w' === turn && piece === 'P') {
+                locatedPieceCol = index
+                break
+
+            }
+            else if ('b' === turn && piece === 'p') {
+                locatedPieceCol = index
+                break
+            }
+            index++
+        }
+        console.log("Piece's location")
+        console.log("(" + convertedCol + "," + locatedPieceCol + ")")
         // Find pawns starting pointto determine pawn's functionality
         // TODO: pick up here
     }

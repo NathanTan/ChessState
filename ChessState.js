@@ -7,6 +7,8 @@ import ExecuteTurn from './MoveProcessor'
 
 class ChessState {
     constructor(gameType) {
+        this.debug = true
+
         this.gameType = constants.GameTypesEnum[gameType]
         this.board = constants.startingFen // Fen representation of the game
         this.history = {"fen": [constants.startingFen], "pgn": [""]} // History in pgn moves, or fen states
