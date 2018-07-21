@@ -28,7 +28,7 @@ class ChessState {
             }
 
             else {
-                console.log("TODO: add for bughouse")
+                Error("TODO: add for bughouse")
             }
             boardPrinter.printBoard(this)
 
@@ -37,7 +37,6 @@ class ChessState {
             while (!moveIsValid) {
                 // 2. Get move
                 move = HelperFunctions.getMove(TestGame[this.turn])
-                console.log("Move entered: " + move)
                 
                 // 3. Check to see if move is valid
                 moveIsValid = true

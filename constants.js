@@ -13,8 +13,10 @@ const constants = {
     "startingFen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
 
     "GameTypesEnum": Object.freeze({
-        "standard":1, 
-        "bughouse":2, })
+        "standard": 1,
+        "bughouse": 2,
+        "plunder": 3,
+    })
 }
 
 export default constants

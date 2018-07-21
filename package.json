@@ -4,7 +4,7 @@
   "description": "A chess game state manager",
   "main": "FenLogic.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha",
     "build": "webpack",
     "start": "node ./bundles/ChessState.min.js",
     "super": "webpack; npm start"
@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/NathanTan/ChessState#readme",
   "dependencies": {
+    "mocha": "^5.2.0",
     "webpack": "^4.14.0",
     "webpack-cli": "^3.0.8"
   }

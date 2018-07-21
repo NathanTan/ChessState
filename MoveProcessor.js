@@ -1,3 +1,6 @@
+import constants from './constants'
+import HelperFunctions from './HelperFunctions'
+
 const ExecuteTurn = (game, pgn) => {
     let newFen = ""
     let fen = game.getModBoard()
@@ -26,8 +29,9 @@ const ExecuteTurn = (game, pgn) => {
                     case "K": // King move
                         break
                     default: // Pawn move
-                        console.log("Pawn Move")
-                        newFen = movePawn(fen, pgn)
+                        if (game.debug)
+                            console.log("Pawn Move")
+                        newFen = movePawn(fen, pgn, game.getTurn())
                     // TODO: deal with fen's en passant
                 }
         }
@@ -36,7 +40,7 @@ const ExecuteTurn = (game, pgn) => {
     }
 
     else {
-        console.log("Error: no pgn provided")
+        Error("Error: no pgn provided")
     }
 }
 
@@ -48,48 +52,55 @@ export default ExecuteTurn
 // Done with pgn, returns new moded fen
 // Note: Doesn't work with bug house when finind piece location
 const movePawn = (fen, pgn, turn) => {
-    console.log("PGN: " + pgn)
+    let piece = (turn === "w") ? "P" : "p" // TODO: Change this for non-standard varients
     // If this move has a capture
     if (pgn.indexOf("x") !== -1) {
-        console.log("TODO: add pawn capture functionality")
+        Error("TODO: add pawn capture functionality")
     }
 
     else {
-        // Get loc
-        const col = pgn[0]
-        console.log("COL: " + col)
-        const convertedCol = col.charCodeAt(0) - 98
-        let piecesInCol = []
-        fen.split("/").forEach((row) => {
-            console.log(row)
-            piecesInCol.push(row[convertedCol])
-        })  // Maps a to 0
-        console.log(piecesInCol.join(", "))
-        const locatedPieceCol = -1
-        let index = 0
-        
-        for (let col in piecesInCol) {
-            let piece = ""
-            console.log("PIECE: " + piece)
-            fen.split("").forEach((p) => {
-                piece = p
-            })
-            // White's turn
-            // TODO: Fix the logic to get the location.
-            if ('w' === turn && piece === 'P') {
-                locatedPieceCol = index
-                break
+        // Get piece src & dest
+        let loc = getPieceLocation(fen, pgn, piece)
+        let dest = HelperFunctions.pgnToGridCordinates(pgn, null)
 
-            }
-            else if ('b' === turn && piece === 'p') {
-                locatedPieceCol = index
-                break
-            }
-            index++
-        }
         console.log("Piece's location")
-        console.log("(" + convertedCol + "," + locatedPieceCol + ")")
-        // Find pawns starting pointto determine pawn's functionality
-        // TODO: pick up here
+        console.log("(" + loc.col + "," + loc.row + ")")
+        console.log("Piece's Destination")
+        console.log("(" + dest.col + "," + dest.row + ")")
+    }
+}
+
+/* 
+ * Parameters: 
+ *      - Moded fen string
+ *      - PGN move
+ *      - Piece to find
+ *      - game type [OPTIONAL]
+ */
+const getPieceLocation = (fen, pgn, piece, gameType) => {
+    // Get loc
+    const convertedCol = pgn[0].charCodeAt(0) - 97 // Maps a to 0
+    let piecesInCol = []
+    fen.split("/").forEach((row) => {
+        piecesInCol.push(row[convertedCol])
+    })
+    let locatedPieceCol = -1
+    let index = 0
+
+    if (gameType == undefined || gameType === constants["GameTypesEnum"]["standard"]) {
+        piecesInCol.reverse().forEach((p) => {
+            if (p === piece) {
+                locatedPieceCol = index
+            }
+            index++;
+        })
+    }
+
+    else {
+        Error("ERROR: TODO: Implement for non-standard game variants")
+    }
+    return {
+        "col": convertedCol,
+        "row": locatedPieceCol
     }
 }

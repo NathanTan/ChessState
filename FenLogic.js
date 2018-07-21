@@ -55,7 +55,7 @@ const executeTurn = (state, fen, pgn) => {
     }
 
     else {
-        console.log("Error: no pgn provided")
+       Error("Error: no pgn provided")
     }
 }
 
@@ -66,7 +66,6 @@ const executeTurn = (state, fen, pgn) => {
  *    halfmove - either increments or resets the number of halfmoves since the capture of a piece, or the movemenet of a pawn
  */
 const updateTurn = (fen, enPassant, halfmove) => {
-    console.log(fen)
     /* Deconstruct fen */
     let stateDataArray = fen.split(" ")
     if (stateDataArray[1] === "w") {
