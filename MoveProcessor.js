@@ -52,6 +52,8 @@ export default ExecuteTurn
 // Done with pgn, returns new moded fen
 // Note: Doesn't work with bug house when finind piece location
 const movePawn = (fen, pgn, turn) => {
+    let loc = null;
+    let dest = null;
     let piece = (turn === "w") ? "P" : "p" // TODO: Change this for non-standard varients
     // If this move has a capture
     if (pgn.indexOf("x") !== -1) {
@@ -60,14 +62,60 @@ const movePawn = (fen, pgn, turn) => {
 
     else {
         // Get piece src & dest
-        let loc = getPieceLocation(fen, pgn, piece)
-        let dest = HelperFunctions.pgnToGridCordinates(pgn, null)
+        loc = getPieceLocation(fen, pgn, piece)
+        dest = HelperFunctions.pgnToGridCordinates(pgn, null)
 
         console.log("Piece's location")
         console.log("(" + loc.col + "," + loc.row + ")")
         console.log("Piece's Destination")
         console.log("(" + dest.col + "," + dest.row + ")")
     }
+
+    console.log("piece " + piece)
+    
+    
+    
+    let board = fen.split("/")
+    let newBoard = ""
+    console.log(board.reverse()[loc.row].split(""))
+
+    let foo = []
+
+    for (let i in board) {
+        // console.log(board[i])
+        // console.log(board[i].split(""))
+        for (let j in board[i].split("")) {
+            let splitRow = board[i].split("")
+            let symbol = splitRow[j]
+            
+            // If the piece source square
+            if (i === loc.row && j === loc.col) {
+                symbol = "_"
+
+            }
+
+            else if (HelperFunctions.isNumeric(symbol) || i === dest.row && j === dest.col) {
+                if ( i === dest.row && j === dest.col) {
+                    
+                    symbol = "FUCK"
+                }
+                console.log(symbol)
+            }
+            //console.log(splitRow[j])
+            foo.push(symbol)
+        }
+    }
+    console.log(foo)
+
+    // console.log( board[loc.row].split("")[loc.col]    )
+
+    // // Remove the piece from the move source
+    // board[loc.row].split("")[loc.col] = "X" 
+
+    // // Place the piece in it's destination
+    // board[dest.col].split("")[dest.col] = piece
+
+    console.log(board)
 }
 
 /* 
