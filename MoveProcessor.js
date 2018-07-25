@@ -51,6 +51,7 @@ export default ExecuteTurn
 //         - Players turn (w/b)
 // Done with pgn, returns new moded fen
 // Note: Doesn't work with bug house when finind piece location
+// Return: New moded board as a string
 const movePawn = (fen, pgn, turn) => {
     let loc = null;
     let dest = null;
@@ -72,9 +73,9 @@ const movePawn = (fen, pgn, turn) => {
     }
 
     console.log("piece " + piece)
-    
-    
-    
+
+
+
     let board = fen.split("/")
     let newBoard = ""
     console.log(board.reverse()[loc.row].split(""))
@@ -82,40 +83,82 @@ const movePawn = (fen, pgn, turn) => {
     let foo = []
 
     for (let i in board) {
+        let row = []
         // console.log(board[i])
         // console.log(board[i].split(""))
         for (let j in board[i].split("")) {
             let splitRow = board[i].split("")
             let symbol = splitRow[j]
-            
+            // console.log("[" + i + "][" + j + "]")
+            // console.log("?: " + loc.row + loc.col)
+            // console.log((i === loc.row))
+            // console.log((j === loc.col))
+            // console.log("-----------------")
+
             // If the piece source square
-            if (i === loc.row && j === loc.col) {
-                symbol = "_"
+            if (i == loc.row && j == loc.col) { // Forgive me Father, for I have sinned.
+                symbol = " "
+                //console.log("SYMBOL" + symbol)
 
             }
+
+            // TODO: Pick up here
+            // TODO: Fix condition of when this block runs, I need to get the correct row to geed to test  placePieceInRow
 
             else if (HelperFunctions.isNumeric(symbol) || i === dest.row && j === dest.col) {
-                if ( i === dest.row && j === dest.col) {
-                    
-                    symbol = "FUCK"
-                }
-                console.log(symbol)
+                // if (i === dest.row && j === dest.col) {
+                    console.log("ROW: " + board[i])
+                    let newRow = placePieceInRow(board[i], piece, dest.col)
+
+
+                symbol = "FUCK"
+                //  }
             }
-            //console.log(splitRow[j])
-            foo.push(symbol)
+            row.push(symbol)
         }
+        foo.push(row)
     }
-    console.log(foo)
+    console.log(foo.reverse())
 
-    // console.log( board[loc.row].split("")[loc.col]    )
+}
+/*
+ * Parameters:
+ *      - Row to insert piece in                as an array
+ *      - Piece to place in row                 as a string
+ *      - Column that the piece should go in    as a number\?
+ * Returns: A row with the piece inserted       as a string
+ */
 
-    // // Remove the piece from the move source
-    // board[loc.row].split("")[loc.col] = "X" 
+const placePieceInRow = (row, piece, col) => {
+    let newRow = ""
+    let leftNumber = 0
+    let rightNumber = 0
+    let numberOfPiece = 0
+    if (row === "8") {
+        for (let i = 0; i < 8; i++)
+            if (isNaN(row[i])) {
+                numberOfPiece++
+            }
+            
+            else {
+                if (col === i) {
+                    newRow[i + 1] = row[i] - 1 // Assuming it is a number
+                    i++ 
+                }
+            }
+        //     if (i < col) {
+        //         leftNumber++
+        //     }
 
-    // // Place the piece in it's destination
-    // board[dest.col].split("")[dest.col] = piece
+        // if (i 　>= col) {
+        //     right
+        // }
+        console.log("NEW ROW: " + newRow)
+    }
 
-    console.log(board)
+return -7
+    //Error("No yet implemented")
+
 }
 
 /* 
