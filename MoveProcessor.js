@@ -78,7 +78,7 @@ const movePawn = (fen, pgn, turn) => {
 
     let board = fen.split("/")
     let newBoard = ""
-    console.log(board.reverse()[loc.row].split(""))
+    // console.log(board.reverse()[loc.row].split(""))
 
     let foo = []
 
@@ -89,63 +89,85 @@ const movePawn = (fen, pgn, turn) => {
         for (let j in board[i].split("")) {
             let splitRow = board[i].split("")
             let symbol = splitRow[j]
+            let newRow = ""
             // console.log("[" + i + "][" + j + "]")
             // console.log("?: " + loc.row + loc.col)
             // console.log((i === loc.row))
             // console.log((j === loc.col))
-            // console.log("-----------------")
-
+            //  console.log("-----------------")
+            // console.log("i: " + i)
+            //     console.log("dest.row: " + dest.row)
+            //     console.log(HelperFunctions.isNumeric(symbol) && i == dest.row)
             // If the piece source square
             if (i == loc.row && j == loc.col) { // Forgive me Father, for I have sinned.
                 symbol = " "
+
+                newRow = generateNewRow(board[i], dest.col, false)
                 //console.log("SYMBOL" + symbol)
+               // console.log("\t\t\tANITHAT")
 
             }
 
-            // TODO: Pick up here
             // TODO: Fix condition of when this block runs, I need to get the correct row to geed to test  placePieceInRow
 
-            else if (HelperFunctions.isNumeric(symbol) || i === dest.row && j === dest.col) {
-                // if (i === dest.row && j === dest.col) {
-                    console.log("ROW: " + board[i])
-                    let newRow = placePieceInRow(board[i], piece, dest.col)
+            else if (HelperFunctions.isNumeric(symbol) && i == dest.row) {
+                // if (i === dest.row && j === dest.col) {2
+                //console.log("i: " + i)
+                //console.log("dest.row: " + dest.row)
+                // console.log("\t\t\tHIT")
+                // console.log("ROW: " + board[i])
+                newRow = placePieceInRow(board[i], piece, dest.col)
 
 
                 symbol = "FUCK"
                 //  }
             }
-            row.push(symbol)
+
+            if (newRow === "") {
+
+                row.push(symbol)
+            }
+
+            else {
+                row.push(newRow)
+                newRow = ""
+                break
+            }
         }
         foo.push(row)
     }
     console.log(foo.reverse())
-
 }
+
 /*
  * Parameters:
  *      - Row to insert piece in                as an array
  *      - Piece to place in row                 as a string
  *      - Column that the piece should go in    as a number\?
- * Returns: A row with the piece inserted       as a string
+ * Returns: A row with the piece inserted       as an array
  */
 
 const placePieceInRow = (row, piece, col) => {
-    let newRow = ""
+    let newRow = []
     let leftNumber = 0
     let rightNumber = 0
     let numberOfPiece = 0
     if (row === "8") {
-        for (let i = 0; i < 8; i++)
-            if (isNaN(row[i])) {
-                numberOfPiece++
+        for (let i = 0; i < 8; i++) {
+            if (i < col) {
+                leftNumber++
             }
-            
-            else {
-                if (col === i) {
-                    newRow[i + 1] = row[i] - 1 // Assuming it is a number
-                    i++ 
-                }
+
+            else if (i > col) {
+                rightNumber++
             }
+
+        }
+
+        newRow.push(leftNumber)
+        newRow.push(piece)
+        newRow.push(rightNumber)
+
         //     if (i < col) {
         //         leftNumber++
         //     }
@@ -153,12 +175,63 @@ const placePieceInRow = (row, piece, col) => {
         // if (i 　>= col) {
         //     right
         // }
-        console.log("NEW ROW: " + newRow)
+        //console.log("NEW ROW: " + newRow)
     }
 
-return -7
+    return newRow
     //Error("No yet implemented")
 
+}
+
+/*
+ * Parameters:
+ *      - Row to insert piece in                as an array
+ *      - Column that the piece should go in    as a number\?
+ *      - The piece is being placed             as a boolean
+ * Returns: A row with the piece removed        as an array
+ */
+const generateNewRow = (row, col, isDest) => {
+    // TODO: Pick up here
+    let newRow = []
+    if (isDest === false) {
+        let leftNumber = 0;
+        let rightNumber = 0;
+        for (let i = 0; i < 8; i++) {
+            console.log("--------- ")
+    // console.log("COL: " + col)
+            console.log("i: " + i)
+            console.log(row[i])
+            console.log(!HelperFunctions.isNumeric(row[i]))
+            console.log("newRow: " + newRow.join())
+            
+
+            if (i ===col || !HelperFunctions.isNumeric(row[i])){
+                let placeHolderNumber = row[i]
+                // Might not need the < 8 comparison
+                if (i < 7 && !HelperFunctions.isNumeric(row[i + 1]) && (i + 1 == col)) {
+                    newRow.push(placeHolderNumber + 1)
+                    i++
+                    continue
+                }
+
+            }
+
+            if (!HelperFunctions.isNumeric(row[i])) {
+                newRow.push(row[i])
+                leftNumber = 1
+                console.log("CONINUE")
+                continue
+            }
+
+        }
+
+        if (leftNumber === 0 && rightNumber === 0) {
+            newRow = row
+            newRow[col] = 1
+        }
+    }
+    console.log("NEW ROW: " + newRow.join())
+    return newRow
 }
 
 /* 
