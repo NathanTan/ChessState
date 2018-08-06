@@ -1,9 +1,11 @@
 import constants from './constants'
 import HelperFunctions from './HelperFunctions'
+import FenLogic from './FenLogic'
 
 const ExecuteTurn = (game, pgn) => {
-    let newFen = ""
-    let fen = game.getModBoard()
+    let newBoard = ""
+    let moveCord = null
+    //let fen = game.getModBoard()
     if (pgn) {
         if (game.debug)
             console.log("PGN provided: " + pgn)
@@ -31,9 +33,12 @@ const ExecuteTurn = (game, pgn) => {
                     default: // Pawn move
                         if (game.debug)
                             console.log("Pawn Move")
-                        newFen = movePawn(fen, pgn, game.getTurn())
+                        console.log("FEN: " + JSON.stringify(FenLogic.BoardToFen(game.board)))
+                        moveCord = pgnToCordPawn(FenLogic.BoardToFen(game.board), pgn, game.getTurn())
                     // TODO: deal with fen's en passant
                 }
+                console.log("HeRe")
+                game.board = updateBoardByCord(game.board, moveCord)
         }
         //newFen = updateTurn(fen, null, null)
 
@@ -46,15 +51,38 @@ const ExecuteTurn = (game, pgn) => {
 
 export default ExecuteTurn
 
+/*
+ * Parameters:
+ *      - Row to insert piece in                as an array
+ *      - Piece to place in row                 as a string
+ *      - Column that the piece should go in    as a number\?
+ * Returns: A row with the piece inserted       as an array
+ */
+
+/*
+ * Params:
+ *      - The board as a 2d array
+ *      - an object holding the the source and destination of the move
+ * Returns: A new 2d array with 1 piece in a different place
+ */
+const updateBoardByCord = (board, moveCord) => {
+    let newBoard = { ...board }
+    console.log("NewBoard" + JSON.stringify(newBoard))
+
+
+}
+
 // Params: - Moded Fen string of chess state
 //         - Pgn move
 //         - Players turn (w/b)
-// Done with pgn, returns new moded fen
+// Done with pgn, returns cordinates of piece source and desination
 // Note: Doesn't work with bug house when finind piece location
 // Return: New moded board as a string
-const movePawn = (fen, pgn, turn) => {
-    let loc = null;
-    let dest = null;
+const pgnToCordPawn = (fen, pgn, turn) => {
+    let moveObj = {
+        loc: null,
+        dest: null
+    }
     let piece = (turn === "w") ? "P" : "p" // TODO: Change this for non-standard varients
     // If this move has a capture
     if (pgn.indexOf("x") !== -1) {
@@ -63,18 +91,19 @@ const movePawn = (fen, pgn, turn) => {
 
     else {
         // Get piece src & dest
-        loc = getPieceLocation(fen, pgn, piece)
-        dest = HelperFunctions.pgnToGridCordinates(pgn, null)
+        moveObj.loc = getPieceLocation(fen, pgn, piece)
+        moveObj.dest = HelperFunctions.pgnToGridCordinates(pgn, null)
 
         console.log("Piece's location")
-        console.log("(" + loc.col + "," + loc.row + ")")
+        console.log("(" + moveObj.loc.col + "," + moveObj.loc.row + ")")
         console.log("Piece's Destination")
-        console.log("(" + dest.col + "," + dest.row + ")")
+        console.log("(" + moveObj.dest.col + "," + moveObj.dest.row + ")")
     }
 
     console.log("piece " + piece)
 
 
+    return moveObj
 
     let board = fen.split("/")
     let newBoard = ""
@@ -104,7 +133,7 @@ const movePawn = (fen, pgn, turn) => {
 
                 newRow = generateNewRow(board[i], dest.col, false)
                 //console.log("SYMBOL" + symbol)
-               // console.log("\t\t\tANITHAT")
+                // console.log("\t\t\tANITHAT")
 
             }
 
@@ -191,21 +220,20 @@ const placePieceInRow = (row, piece, col) => {
  * Returns: A row with the piece removed        as an array
  */
 const generateNewRow = (row, col, isDest) => {
-    // TODO: Pick up here
     let newRow = []
     if (isDest === false) {
         let leftNumber = 0;
         let rightNumber = 0;
         for (let i = 0; i < 8; i++) {
             console.log("--------- ")
-    // console.log("COL: " + col)
+            // console.log("COL: " + col)
             console.log("i: " + i)
             console.log(row[i])
             console.log(!HelperFunctions.isNumeric(row[i]))
             console.log("newRow: " + newRow.join())
-            
 
-            if (i ===col || !HelperFunctions.isNumeric(row[i])){
+
+            if (i === col || !HelperFunctions.isNumeric(row[i])) {
                 let placeHolderNumber = row[i]
                 // Might not need the < 8 comparison
                 if (i < 7 && !HelperFunctions.isNumeric(row[i + 1]) && (i + 1 == col)) {
