@@ -166,6 +166,7 @@ const pgnToCordPawn = (fen, pgn, turn) => {
         foo.push(row)
     }
     console.log(foo.reverse())
+    console.log("CoW CIty")
 }
 
 /*

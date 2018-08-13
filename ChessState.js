@@ -9,6 +9,7 @@ import ExtraFenData from './models/ExtraFenData'
 
 class ChessState {
     constructor(gameType) {
+        console.log("In ChessState Constructor")
         this.debug = true
 
         this.gameType = constants.GameTypesEnum[gameType]
@@ -16,16 +17,25 @@ class ChessState {
         this.gameOver = false
         this.turn = 0
 
+
         Errors.checkGameType(this)
         switch (this.gameType) {
             case constants.GameTypesEnum["standard"]:
                 this.fenExtras = new ExtraFenData("w", "KQkq", "-", "0", "1")
+                this.fenExtras = {
+                    "turn": "w",
+                    "castling": "KQkq",
+                    "enPassant": "-",
+                    "halfMoves": 0,
+                    "fullMoves": 1
+                }
                 this.board = FenLogic.FenToBoard(constants.startingFen) // Board as a 2d array of chars
             default:
                 this.fenExtras = null
                 this.board = null
         }
-        console.log("fenExtras: " + JSON.stringify(this.fenExtras.turn))
+        console.log("Here yo")
+        console.log("fenExtras: " + JSON.stringify(this.fenExtras))
     }
 
     play() {
@@ -50,7 +60,7 @@ class ChessState {
                 move = HelperFunctions.getMove(TestGame[this.turn])
 
                 // 3. Check to see if move is valid
-                moveIsValid = true
+                moveIsValid = true // TODO: Implement
             }
 
             // 4. Execute move
@@ -79,9 +89,11 @@ class ChessState {
     }
 
     getTurn() {
+        console.log("Getting turn, ")
         switch (this.gameType) {
             /* Standard */
             case 1:
+                console.log(this.fenExtras)
                 return this.fenExtras.turn
             default:
                 return "Error, variant not recognized" // Should never get here

@@ -257,6 +257,9 @@ class FenLogic {
             fen += fenRow
         })
 
+        console.log("Built Fen" + fen)
+        return fen
+
     }
 }
 
