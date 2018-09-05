@@ -283,10 +283,15 @@ const generateNewRow = (row, col, isDest) => {
  */
 const getPieceLocation = (fen, pgn, piece, gameType) => {
     // Get loc
-    const convertedCol = pgn[0].charCodeAt(0) - 97 // Maps a to 0
+
+
+    const col = getPGNColumn(pgn)
+
+
+    // TODO Next: Figure out what's going on down below and fix it to use the new board
     let piecesInCol = []
     fen.split("/").forEach((row) => {
-        piecesInCol.push(row[convertedCol])
+        piecesInCol.push(row[col])
     })
     let locatedPieceCol = -1
     let index = 0
@@ -304,7 +309,33 @@ const getPieceLocation = (fen, pgn, piece, gameType) => {
         Error("ERROR: TODO: Implement for non-standard game variants")
     }
     return {
-        "col": convertedCol,
+        "col": col,
         "row": locatedPieceCol
+    }
+}
+
+/*
+ * Parameters:
+ *    - pgn notation 
+ * Returns:
+ *    Numeric mapped value corresponding to the letter column of the board
+ */
+const getPGNColumn = pgn => {
+
+    // If the first letter of the pgn is upper case, then it is the piece that is moving.
+    if (pgn[0] === pgn[0].toUpperCase()) { //Check if is upper case
+        // If capture
+        if(pgn[1] === "x") {
+            pgn[2].charCodeAt(0) - 97 // Return column as a number ( 'a' mapped to 0)
+        }
+
+        // No capture
+        else {
+            pgn[1].charCodeAt(0) - 97 // Return column as a number ( 'a' mapped to 0)
+        }
+    }
+
+    else {
+        return pgn[0].charCodeAt(0) - 97 // Return column as a number ( 'a' mapped to 0)
     }
 }

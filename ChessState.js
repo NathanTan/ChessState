@@ -83,7 +83,10 @@ class ChessState {
             if (this.turn < TestGame.length)
                 this.gameOver = true // For testing purposes
 
-            boardPrinter.printBoard(this)
+            if (this.debug === true)
+                boardPrinter.printBoardDebug(this)
+            else
+                boardPrinter.printBoard(this)
             this.updateFenExtras()
         }
     }
