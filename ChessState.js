@@ -30,12 +30,21 @@ class ChessState {
                     "fullMoves": 1
                 }
                 this.board = FenLogic.FenToBoard(constants.startingFen) // Board as a 2d array of chars
+                break
             default:
                 this.fenExtras = null
                 this.board = null
+                if (this.debug) {
+                    console.log("Game type: ")
+                    console.log(this.gameType)
+                    console.log("Standard game type")
+                    console.log(constants.GameTypesEnum["standard"])
+                }
         }
-        console.log("Here yo")
-        console.log("fenExtras: " + JSON.stringify(this.fenExtras))
+        if (this.debug) {
+            console.log("fenExtras: " + JSON.stringify(this.fenExtras))
+            console.log("GameState initalized\n")
+        }
     }
 
     play() {
@@ -88,6 +97,10 @@ class ChessState {
         return modedBoard
     }
 
+    getBoardArray() {
+        return this.board
+    }
+
     getTurn() {
         console.log("Getting turn, ")
         switch (this.gameType) {
@@ -96,6 +109,7 @@ class ChessState {
                 console.log(this.fenExtras)
                 return this.fenExtras.turn
             default:
+                Error("Error, variant not recognized")
                 return "Error, variant not recognized" // Should never get here
 
         }

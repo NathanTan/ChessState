@@ -5,24 +5,28 @@ class boardPrinter {
 
     /* Prints a ascii board based on a standard fen string */
     static printBoard(state) {
-        let board = ""
-        let fenBoard = state.getModBoard().split("/")
-        board += "---------------------------------\n"
-        fenBoard.forEach(function (row) {
-            board += "|"
+        let boardString = "" // String for printing to the console.
+        let board = state.getBoardArray()
 
-            row.split("").forEach(function (piece) {
+        boardString += "---------------------------------\n"
+        board.forEach(function (row) {
+            boardString += "|"
+
+            row.forEach(function (piece) {
                 // If a number is found, print that many spaces
                 if (HelperFunctions.isNumeric(piece))
                     for (let i = 0; i < +piece; i++)
-                        board += "   |"
+                        boardString += "   |"
+                else if (piece === "X") // Value used for blanck space
+                    boardString += "   |"
+
                 // Else print the piece letter
                 else
-                    board += " " + piece + " |"
+                    boardString += " " + piece + " |"
             })
-            board += "\n---------------------------------\n"
+            boardString += "\n---------------------------------\n"
         })
-        console.log(board)
+        console.log(boardString)
     }
 
 }

@@ -33,11 +33,13 @@ const ExecuteTurn = (game, pgn) => {
                     default: // Pawn move
                         if (game.debug)
                             console.log("Pawn Move")
+                        console.log(game.board)
                         console.log("FEN: " + JSON.stringify(FenLogic.BoardToFen(game.board)))
                         moveCord = pgnToCordPawn(FenLogic.BoardToFen(game.board), pgn, game.getTurn())
                     // TODO: deal with fen's en passant
                 }
                 console.log("HeRe")
+                console.log(JSON.stringify(moveCord))
                 game.board = updateBoardByCord(game.board, moveCord)
         }
         //newFen = updateTurn(fen, null, null)
@@ -66,8 +68,17 @@ export default ExecuteTurn
  * Returns: A new 2d array with 1 piece in a different place
  */
 const updateBoardByCord = (board, moveCord) => {
-    let newBoard = { ...board }
+    let newBoard = board 
+    console.log("peeed")
+    console.log(board[moveCord.dest.col][moveCord.dest.row])
+    console.log("->")
+    console.log(board[moveCord.loc.col][moveCord.loc.row])
+
+    newBoard[moveCord.dest.col][moveCord.dest.row] = board[moveCord.loc.col][moveCord.loc.row]
+    newBoard[moveCord.loc.col][moveCord.loc.row] = "X"
     console.log("NewBoard" + JSON.stringify(newBoard))
+
+    return newBoard
 
 
 }
