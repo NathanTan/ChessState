@@ -5,7 +5,7 @@ import FenLogic from './FenLogic'
 const ExecuteTurn = (game, pgn) => {
     let newBoard = ""
     let moveCord = null
-    //let fen = game.getModBoard()
+
     if (pgn) {
         if (game.debug)
             console.log("PGN provided: " + pgn)
@@ -33,17 +33,11 @@ const ExecuteTurn = (game, pgn) => {
                     default: // Pawn move
                         if (game.debug)
                             console.log("Pawn Move")
-                        console.log(game.board)
-                        console.log("FEN: " + JSON.stringify(FenLogic.BoardToFen(game.board)))
-                        moveCord = pgnToCordPawn(game.board, pgn, game.getTurn())
+                        moveCord = pgnToCordPawn(game.board, pgn, game.getTurn(), game.gameType)
                     // TODO: deal with fen's en passant
                 }
-                console.log("HeRe")
-                console.log(JSON.stringify(moveCord))
                 game.board = updateBoardByCord(game.board, moveCord, game.debug)
         }
-        //newFen = updateTurn(fen, null, null)
-
     }
 
     else {
@@ -62,12 +56,12 @@ export default ExecuteTurn
  * Returns: A new 2d array with 1 piece in a different place
  */
 const updateBoardByCord = (board, moveCord, debug) => {
-    let newBoard = board 
+    let newBoard = board
     if (debug) {
         console.log(JSON.stringify(moveCord))
         console.log("Executing move: ")
-        console.log(board[moveCord.loc.row][moveCord.loc.col] + " -> " 
-        + board[moveCord.dest.row][moveCord.dest.col])
+        console.log(board[moveCord.loc.row][moveCord.loc.col] + " -> "
+            + board[moveCord.dest.row][moveCord.dest.col])
     }
 
     newBoard[moveCord.dest.row][moveCord.dest.col] = board[moveCord.loc.row][moveCord.loc.col]
@@ -79,15 +73,28 @@ const updateBoardByCord = (board, moveCord, debug) => {
 // Params: - Board as a 2d array
 //         - Pgn move
 //         - Players turn (w/b)
+//         - Game variant type
 // Done with pgn, returns cordinates of piece source and desination
 // Note: Doesn't work with bug house when finind piece location
 // Return: New moded board as a string
-const pgnToCordPawn = (board, pgn, turn) => {
+const pgnToCordPawn = (board, pgn, turn, gameType) => {
     let moveObj = {
         loc: null,
         dest: null
     }
-    let piece = (turn === "w") ? "P" : "p" // TODO: Change this for non-standard varients
+    let piece = ""
+    switch (gameType) {
+        case 1:
+            if (turn === "w") {
+                piece = "p"
+            }
+            else {
+                piece = "P"
+            }
+            break
+        default:
+            Error("Game variant '" + gameType + "' not yet implemented.")
+    }
     // If this move has a capture
     if (pgn.indexOf("x") !== -1) {
         Error("TODO: add pawn capture functionality")
@@ -224,7 +231,7 @@ const getPieceLocation = (board, pgn, piece, gameType) => {
     let index = 0
 
     if (gameType == undefined || gameType === constants["GameTypesEnum"]["standard"]) {
-        piecesInCol.reverse().forEach((p) => {
+        piecesInCol.forEach((p) => {
             if (p === piece) {
                 locatedPieceCol = index
             }
@@ -252,7 +259,7 @@ const getPGNColumn = pgn => {
     // If the first letter of the pgn is upper case, then it is the piece that is moving.
     if (pgn[0] === pgn[0].toUpperCase()) { //Check if is upper case
         // If capture
-        if(pgn[1] === "x") {
+        if (pgn[1] === "x") {
             pgn[2].charCodeAt(0) - 97 // Return column as a number ( 'a' mapped to 0)
         }
 

@@ -1,4 +1,4 @@
-import boardPrinter from './boardPrinter'
+import BoardPrinter from './boardPrinter'
 import constants from './constants'
 import Errors from './Errors'
 import HelperFunctions from './HelperFunctions'
@@ -8,9 +8,18 @@ import FenLogic from './FenLogic'
 import ExtraFenData from './models/ExtraFenData'
 
 class ChessState {
-    constructor(gameType) {
-        console.log("In ChessState Constructor")
-        this.debug = true
+    /*
+    * Params:
+    *      - [OPTIONAL] game variant type
+    *      - [OPTIONAL] starting fen position
+    *      - [OPTIONAL] flag for debugging printing
+    * Returns: A new 2d array with 1 piece in a different place
+    */
+    constructor(gameType, fen, debug) {
+        this.debug = debug
+        if (fen != null) {
+            this.fen = FenLogic.FenToBoard(fen)
+        }
 
         this.gameType = constants.GameTypesEnum[gameType]
         this.history = { "fen": [constants.startingFen], "pgn": [""] } // History in pgn moves, or fen states
@@ -29,7 +38,8 @@ class ChessState {
                     "halfMoves": 0,
                     "fullMoves": 1
                 }
-                this.board = FenLogic.FenToBoard(constants.startingFen) // Board as a 2d array of chars
+                if (this.fen == null)
+                    this.board = FenLogic.FenToBoard(constants.startingFen) // Board as a 2d array of chars
                 break
             default:
                 this.fenExtras = null
@@ -45,11 +55,14 @@ class ChessState {
             console.log("fenExtras: " + JSON.stringify(this.fenExtras))
             console.log("GameState initalized\n")
         }
+        BoardPrinter.printBoard(this)
     }
 
     play() {
-        let moveIsValid = false
         while (!this.gameOver) {
+            let moveIsValid = false
+            if (this.debug)
+                console.log("/////////////////////// Turn " + this.turn + " ///////////////////////")
 
             // 1. Print Info
             if (this.gameType === constants.GameTypesEnum["standard"]) {
@@ -59,9 +72,6 @@ class ChessState {
             else {
                 Error("TODO: add for bughouse")
             }
-            console.log("HEHEHRE")
-            boardPrinter.printBoard(this)
-
 
             let move = ""
             while (!moveIsValid) {
@@ -80,14 +90,21 @@ class ChessState {
             this.history.fen.push(this.board)
 
             // 5. Check for end of game
-            if (this.turn < TestGame.length)
+            if (this.turn === TestGame.length) {
+                console.log("GAME OVER")
                 this.gameOver = true // For testing purposes
+            }
+            this.turn++
 
             if (this.debug === true)
-                boardPrinter.printBoardDebug(this)
+                BoardPrinter.printBoardDebug(this)
             else
-                boardPrinter.printBoard(this)
+                BoardPrinter.printBoard(this)
             this.updateFenExtras()
+
+            if (this.debug) {
+                console.log(this.fenExtras)
+            }
         }
     }
 
@@ -105,11 +122,9 @@ class ChessState {
     }
 
     getTurn() {
-        console.log("Getting turn, ")
         switch (this.gameType) {
             /* Standard */
             case 1:
-                console.log(this.fenExtras)
                 return this.fenExtras.turn
             default:
                 Error("Error, variant not recognized")
@@ -118,12 +133,43 @@ class ChessState {
         }
     }
 
-    updateFenExtras() {
+    getFen() {
         Error("Not Yet Implemented")
+    }
+
+    /*
+     * Update turn
+     */
+    updateFenExtras() {
+        switch (this.gameType) {
+            /* Standard */
+            case 1:
+                this.fenExtras.turn === "w" ?           // Toggle turn.
+                    this.fenExtras.turn = "b" :
+                    this.fenExtras.turn = "w"
+                this.checkForCastling()                 // Update available castling.
+                this.checkForEnPassant()                // Update available En Passant.
+                this.fenExtras.halfMoves++;             // Increment number of half moves.
+                if (this.fenExtras.halfMoves === 2) {   // Check to increment full moves.
+                    this.fenExtras.halfMoves = 0
+                    this.fenExtras.fullMoves++
+                }
+                break
+            default:
+                Error("Variant Not Yet Implemented")
+        }
+        Error("Not Yet Implemented")
+    }
+
+    checkForCastling() {
+        console.log("checkForCastling Not Yet Implemented")
+    }
+    checkForEnPassant() {
+        console.log("checkForEnPassant Not Yet Implemented")
     }
 }
 
-let state = new ChessState("standard")
+let state = new ChessState("standard", null, true)
 
 console.log("        ---Game Start---\n")
 

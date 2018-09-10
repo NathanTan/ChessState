@@ -188,7 +188,6 @@ class FenLogic {
             let board = []
             fen.split("/").forEach((row) => {
                 let rowArr = []
-                console.log("ROW: " + JSON.stringify(row))
                 let j = 0;
 
                 row.split("").forEach((piece) => {
@@ -219,6 +218,7 @@ class FenLogic {
      * Returns: A fen string representing the game
      */
     static BoardToFen(board, extraFenData) {
+        new Error("Depricated: Use ChessState's '.getFen' method.")
         let fen = ""
         let rowNum = 0
         board.forEach(row => {
@@ -259,7 +259,6 @@ class FenLogic {
 
         console.log("Built Fen" + fen)
         return fen
-
     }
 }
 

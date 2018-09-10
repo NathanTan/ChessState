@@ -1,5 +1,6 @@
 const TestGame = [
-    "e4",
+    "e4",   // w
+    "e5",   // b
 ]
 
 export default TestGame
