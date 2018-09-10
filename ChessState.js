@@ -2,7 +2,6 @@ import BoardPrinter from './boardPrinter'
 import constants from './constants'
 import Errors from './Errors'
 import HelperFunctions from './HelperFunctions'
-import TestGame from './PGNTestGame'
 import ExecuteTurn from './MoveProcessor'
 import FenLogic from './FenLogic'
 import ExtraFenData from './models/ExtraFenData'
@@ -13,10 +12,12 @@ class ChessState {
     *      - [OPTIONAL] game variant type
     *      - [OPTIONAL] starting fen position
     *      - [OPTIONAL] flag for debugging printing
+    *      - [TESTING] game for testing (as array of pgns)
     * Returns: A new 2d array with 1 piece in a different place
     */
-    constructor(gameType, fen, debug) {
+    constructor(gameType, fen, debug, testGame) {
         this.debug = debug
+        this.testGame = testGame
         if (fen != null) {
             this.fen = FenLogic.FenToBoard(fen)
         }
@@ -76,7 +77,7 @@ class ChessState {
             let move = ""
             while (!moveIsValid) {
                 // 2. Get move from user
-                move = HelperFunctions.getMove(TestGame[this.turn]) // TODO: replace with some sort of prompt
+                move = HelperFunctions.getMove(this.testGame[this.turn]) // TODO: replace with some sort of prompt
 
                 // 3. Check to see if move is valid
                 moveIsValid = true // TODO: Implement
@@ -90,7 +91,7 @@ class ChessState {
             this.history.fen.push(this.board)
 
             // 5. Check for end of game
-            if (this.turn === TestGame.length) {
+            if (this.turn === this.testGame.length) {
                 console.log("GAME OVER")
                 this.gameOver = true // For testing purposes
                 break
@@ -170,8 +171,4 @@ class ChessState {
     }
 }
 
-let state = new ChessState("standard", null, true)
-
-console.log("        ---Game Start---\n")
-
-state.play()
+export default ChessState

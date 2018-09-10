@@ -1,6 +1,8 @@
-const TestGame = [
-    "e4",   // w
-    "e5",   // b
-]
+const TestGames = {
+    "FourMove": [
+        "e4",   // w
+        "e5",   // b
+    ]
+}
 
-export default TestGame
+export default TestGames
