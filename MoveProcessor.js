@@ -40,7 +40,7 @@ const ExecuteTurn = (game, pgn) => {
                 }
                 console.log("HeRe")
                 console.log(JSON.stringify(moveCord))
-                game.board = updateBoardByCord(game.board, moveCord)
+                game.board = updateBoardByCord(game.board, moveCord, game.debug)
         }
         //newFen = updateTurn(fen, null, null)
 
@@ -65,14 +65,17 @@ export default ExecuteTurn
  * Params:
  *      - The board as a 2d array
  *      - an object holding the the source and destination of the move
+ *      - [OPTIONAL] flag for debugging printing
  * Returns: A new 2d array with 1 piece in a different place
  */
-const updateBoardByCord = (board, moveCord) => {
+const updateBoardByCord = (board, moveCord, debug) => {
     let newBoard = board 
-    console.log("peeed")
-    console.log(board[moveCord.dest.col][moveCord.dest.row])
-    console.log("->")
-    console.log(board[moveCord.loc.col][moveCord.loc.row])
+    if (debug) {
+        console.log("Executing move: ")
+        console.log(board[moveCord.dest.col][moveCord.dest.row])
+        console.log("->")
+        console.log(board[moveCord.loc.col][moveCord.loc.row])
+    }
 
     newBoard[moveCord.dest.col][moveCord.dest.row] = board[moveCord.loc.col][moveCord.loc.row]
     newBoard[moveCord.loc.col][moveCord.loc.row] = "X"
