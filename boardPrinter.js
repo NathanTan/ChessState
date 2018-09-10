@@ -4,12 +4,22 @@ import HelperFunctions from './HelperFunctions'
 class boardPrinter {
 
     /* Prints a ascii board based on a standard fen string */
-    static printBoard(state) {
+    static printBoard(state, prospective) {
         let boardString = "" // String for printing to the console.
         let board = state.getBoardArray()
 
         boardString += "---------------------------------\n"
-        board.forEach(function (row) {
+        let boardForPrinting = null
+
+        if (prospective === "w") {
+            boardForPrinting = board
+        }
+
+        else if (prospective === "b") {
+            boardForPrinting = board.reverse()
+        }
+        
+        boardForPrinting.forEach(function (row) {
             boardString += "|"
 
             row.forEach(function (piece) {
@@ -29,16 +39,15 @@ class boardPrinter {
         console.log(boardString)
     }
 
-    static printBoardDebug(state) {
+    /* Prints an ascii board based on game state for debugging */
+    // NOTE: debug print is always from black's perspective
+    static printBoardDebug(state, prospective) {
         let boardString = "" // String for printing to the console.
         let board = state.getBoardArray()
 
-        boardString += "\n    A   B   C   D   E   F   G   H\n"
-
-        boardString += "  ---------------------------------\n"
+        boardString += "\n  ---------------------------------\n"
 
         board.forEach(function (row, i) {
-
             boardString += (i + " ")
             boardString += "|"
 
@@ -56,9 +65,9 @@ class boardPrinter {
             })
             boardString += "\n  ---------------------------------\n"
         })
+        boardString += "    A   B   C   D   E   F   G   H\n"
         console.log(boardString)
     }
-
 }
 
 export default boardPrinter

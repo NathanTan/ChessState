@@ -55,7 +55,7 @@ class ChessState {
             console.log("fenExtras: " + JSON.stringify(this.fenExtras))
             console.log("GameState initalized\n")
         }
-        BoardPrinter.printBoard(this)
+        BoardPrinter.printBoard(this, "w")
     }
 
     play() {
@@ -93,11 +93,12 @@ class ChessState {
             if (this.turn === TestGame.length) {
                 console.log("GAME OVER")
                 this.gameOver = true // For testing purposes
+                break
             }
             this.turn++
 
             if (this.debug === true)
-                BoardPrinter.printBoardDebug(this)
+                BoardPrinter.printBoardDebug(this, "b")
             else
                 BoardPrinter.printBoard(this)
             this.updateFenExtras()
