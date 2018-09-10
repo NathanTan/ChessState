@@ -65,14 +65,14 @@ class ChessState {
 
             let move = ""
             while (!moveIsValid) {
-                // 2. Get move
-                move = HelperFunctions.getMove(TestGame[this.turn])
+                // 2. Get move from user
+                move = HelperFunctions.getMove(TestGame[this.turn]) // TODO: replace with some sort of prompt
 
                 // 3. Check to see if move is valid
                 moveIsValid = true // TODO: Implement
             }
 
-            // 4. Execute move
+            // 4. Execute move (pgn)
             ExecuteTurn(this, move)
 
             // Update History

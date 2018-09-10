@@ -35,7 +35,7 @@ const ExecuteTurn = (game, pgn) => {
                             console.log("Pawn Move")
                         console.log(game.board)
                         console.log("FEN: " + JSON.stringify(FenLogic.BoardToFen(game.board)))
-                        moveCord = pgnToCordPawn(FenLogic.BoardToFen(game.board), pgn, game.getTurn())
+                        moveCord = pgnToCordPawn(game.board, pgn, game.getTurn())
                     // TODO: deal with fen's en passant
                 }
                 console.log("HeRe")
@@ -53,13 +53,6 @@ const ExecuteTurn = (game, pgn) => {
 
 export default ExecuteTurn
 
-/*
- * Parameters:
- *      - Row to insert piece in                as an array
- *      - Piece to place in row                 as a string
- *      - Column that the piece should go in    as a number\?
- * Returns: A row with the piece inserted       as an array
- */
 
 /*
  * Params:
@@ -71,28 +64,25 @@ export default ExecuteTurn
 const updateBoardByCord = (board, moveCord, debug) => {
     let newBoard = board 
     if (debug) {
+        console.log(JSON.stringify(moveCord))
         console.log("Executing move: ")
-        console.log(board[moveCord.dest.col][moveCord.dest.row])
-        console.log("->")
-        console.log(board[moveCord.loc.col][moveCord.loc.row])
+        console.log(board[moveCord.loc.row][moveCord.loc.col] + " -> " 
+        + board[moveCord.dest.row][moveCord.dest.col])
     }
 
-    newBoard[moveCord.dest.col][moveCord.dest.row] = board[moveCord.loc.col][moveCord.loc.row]
-    newBoard[moveCord.loc.col][moveCord.loc.row] = "X"
-    console.log("NewBoard" + JSON.stringify(newBoard))
+    newBoard[moveCord.dest.row][moveCord.dest.col] = board[moveCord.loc.row][moveCord.loc.col]
+    newBoard[moveCord.loc.row][moveCord.loc.col] = "X"
 
     return newBoard
-
-
 }
 
-// Params: - Moded Fen string of chess state
+// Params: - Board as a 2d array
 //         - Pgn move
 //         - Players turn (w/b)
 // Done with pgn, returns cordinates of piece source and desination
 // Note: Doesn't work with bug house when finind piece location
 // Return: New moded board as a string
-const pgnToCordPawn = (fen, pgn, turn) => {
+const pgnToCordPawn = (board, pgn, turn) => {
     let moveObj = {
         loc: null,
         dest: null
@@ -105,7 +95,7 @@ const pgnToCordPawn = (fen, pgn, turn) => {
 
     else {
         // Get piece src & dest
-        moveObj.loc = getPieceLocation(fen, pgn, piece)
+        moveObj.loc = getPieceLocation(board, pgn, piece)
         moveObj.dest = HelperFunctions.pgnToGridCordinates(pgn, null)
 
         console.log("Piece's location")
@@ -118,69 +108,6 @@ const pgnToCordPawn = (fen, pgn, turn) => {
 
 
     return moveObj
-
-    let board = fen.split("/")
-    let newBoard = ""
-    // console.log(board.reverse()[loc.row].split(""))
-
-    let foo = []
-
-    for (let i in board) {
-        let row = []
-        // console.log(board[i])
-        // console.log(board[i].split(""))
-        for (let j in board[i].split("")) {
-            let splitRow = board[i].split("")
-            let symbol = splitRow[j]
-            let newRow = ""
-            // console.log("[" + i + "][" + j + "]")
-            // console.log("?: " + loc.row + loc.col)
-            // console.log((i === loc.row))
-            // console.log((j === loc.col))
-            //  console.log("-----------------")
-            // console.log("i: " + i)
-            //     console.log("dest.row: " + dest.row)
-            //     console.log(HelperFunctions.isNumeric(symbol) && i == dest.row)
-            // If the piece source square
-            if (i == loc.row && j == loc.col) { // Forgive me Father, for I have sinned.
-                symbol = " "
-
-                newRow = generateNewRow(board[i], dest.col, false)
-                //console.log("SYMBOL" + symbol)
-                // console.log("\t\t\tANITHAT")
-
-            }
-
-            // TODO: Fix condition of when this block runs, I need to get the correct row to geed to test  placePieceInRow
-
-            else if (HelperFunctions.isNumeric(symbol) && i == dest.row) {
-                // if (i === dest.row && j === dest.col) {2
-                //console.log("i: " + i)
-                //console.log("dest.row: " + dest.row)
-                // console.log("\t\t\tHIT")
-                // console.log("ROW: " + board[i])
-                newRow = placePieceInRow(board[i], piece, dest.col)
-
-
-                symbol = "FUCK"
-                //  }
-            }
-
-            if (newRow === "") {
-
-                row.push(symbol)
-            }
-
-            else {
-                row.push(newRow)
-                newRow = ""
-                break
-            }
-        }
-        foo.push(row)
-    }
-    console.log(foo.reverse())
-    console.log("CoW CIty")
 }
 
 /*
@@ -279,23 +206,20 @@ const generateNewRow = (row, col, isDest) => {
 
 /* 
  * Parameters: 
- *      - Moded fen string
+ *      - board as 2d array
  *      - PGN move
  *      - Piece to find
  *      - game type [OPTIONAL]
  */
-const getPieceLocation = (fen, pgn, piece, gameType) => {
+const getPieceLocation = (board, pgn, piece, gameType) => {
     // Get loc
 
-
     const col = getPGNColumn(pgn)
-
-
-    // TODO Next: Figure out what's going on down below and fix it to use the new board
     let piecesInCol = []
-    fen.split("/").forEach((row) => {
+    board.forEach((row) => {
         piecesInCol.push(row[col])
     })
+
     let locatedPieceCol = -1
     let index = 0
 
