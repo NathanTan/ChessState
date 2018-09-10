@@ -1,3 +1,5 @@
+[IN DEVELOPEMENT]
+
 A chess game state manager that is intended to be variant friendly.
 
 Notes:
@@ -13,27 +15,23 @@ Build Then Run:
 npm run super
 
 
-Library Terminology:
-Moded Fen, ModFen, Moded Board, ModBoard => the normal fen string, just with the game start information ripped off the last row.
-
-
 Standard Chess Grid:
 
+    A   B   C   D   E   F   G   H
   ---------------------------------
-7 | r | n | b | q | k | b | n | r |
+0 | r | n | b | q | k | b | n | r |
   ---------------------------------
-6 | p | p | p | p | p | p | p | p |
-  ---------------------------------
-5 |   |   |   |   |   |   |   |   |
-  ---------------------------------
-4 |   |   |   |   |   |   |   |   |
-  ---------------------------------
-3 |   |   |   |   |   |   |   |   |
+1 | p | p | p | p | p | p | p | p |
   ---------------------------------
 2 |   |   |   |   |   |   |   |   |
   ---------------------------------
-1 | P | P | P | P | P | P | P | P |
+3 |   |   |   |   |   |   |   |   |
   ---------------------------------
-0 | R | N | B | Q | K | B | N | R |
+4 |   |   |   |   |   |   |   |   |
   ---------------------------------
-    0   1   2   3   4   5   6   7
+5 |   |   |   |   |   |   |   |   |
+  ---------------------------------
+6 | P | P | P | P | P | P | P | P |
+  ---------------------------------
+7 | R | N | B | Q | K | B | N | R |
+  ---------------------------------
