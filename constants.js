@@ -16,7 +16,25 @@ const constants = {
         "standard": 1,
         "bughouse": 2,
         "plunder": 3,
-    })
+    }),
+
+    /* Only intended for standard games */
+    "PieceLogic": {
+        "Knight": [
+            { "row": 2, "col": -1 },
+            { "row": 2, "col": 1 },
+            { "row": 1, "col": 2 },
+            { "row": -1, "col": 2 },
+            { "row": -2, "col": 1 },
+            { "row": -2, "col": -1 },
+            { "row": -1, "col": -2 },
+            { "row": 1, "col": -2 },
+        ]
+    },
+
+    /* Only intended for standard games */
+    "BoardWidth": 8,
+    "BoardHeight": 8,
 }
 
 export default constants
