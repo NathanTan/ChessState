@@ -232,11 +232,15 @@ const getPieceLocation = (board, pgn, piece, gameType) => {
     let possibleCol = []
     let possibleCords = []
     if (piece === "p" || piece === "P") {
+        console.log("----------op 1")
         col = getPGNDropColumn(pgn)
     }
     else {
-        let possibleCordss = getAllPossiblePieceLocations()
-        
+        console.log("----------op 2")
+        console.log(board.length)
+        console.log(board[0])
+        let possibleCordss = getAllPossiblePieceLocations(board, piece, gameType)
+
     }
 
     let piecesInCol = []
@@ -274,40 +278,46 @@ const getPieceLocation = (board, pgn, piece, gameType) => {
  */
 const getAllPieceLocations = (board, piece, gameType) => {
     let possibleCords = []
+    gc()
+    console.log(board[0])
     /* Find all locations of all pieces that match 'piece', the chosen piece */
     board.forEach((row, indexRow) => {
+    // for (let i = 0; i < board.length; i++) {
+        // let row = board[i]
+        console.log("Row: " + JSON.stringify(row))
         row.forEach((p, indexCol) => {
             if (p === piece) {
                 possibleCords.push({ "row": indexRow, "col": indexCol })
             }
         })
 
-        /* Optimizations */
-        if (gameType != null && gameType === constants.GameTypesEnum.standard) {
-            let breakFromLoop = false // Indicates that all pieces have been found
-            switch (piece) {
-                case "k":   // White King
-                case "K":   // Black King
-                case "q":   // White Queen
-                case "Q":   // Black Queen
-                    if (possibleCords === 1)        // Only one allowed on board
-                        breakFromLoop = true
-                    break
-                case "r":   // White Rook
-                case "R":   // Black Rook
-                case "n":   // White Knight
-                case "N":   // Black Knight
-                case "b":   // White Bishop
-                case "B":   // Black Bishop
-                    if (possibleCol.length === 2)   // Only 2 allowed on board
-                        breakFromLoop = true
-                    break
-                default:
-                    Error("Unknown Piece")
-            }
-            if (breakFromLoop)
-                break
-        }
+        // /* Optimizations */
+        // if (gameType != null && gameType === constants.GameTypesEnum.standard) {
+        //     let breakFromLoop = false // Indicates that all pieces have been found
+        //     switch (piece) {
+        //         case "k":   // White King
+        //         case "K":   // Black King
+        //         case "q":   // White Queen
+        //         case "Q":   // Black Queen
+        //             if (possibleCords === 1)        // Only one allowed on board
+        //                 breakFromLoop = true
+        //             break
+        //         case "r":   // White Rook
+        //         case "R":   // Black Rook
+        //         case "n":   // White Knight
+        //         case "N":   // Black Knight
+        //         case "b":   // White Bishop
+        //         case "B":   // Black Bishop
+        //             if (possibleCol.length === 2)   // Only 2 allowed on board
+        //                 breakFromLoop = true
+        //             break
+        //         default:
+        //             Error("Unknown Piece")
+        //     }
+        //     if (breakFromLoop) {
+        //         break;
+        //     }
+        // }
     })
     return possibleCords
 }
@@ -319,9 +329,9 @@ const getAllPieceLocations = (board, piece, gameType) => {
  *      - game type [OPTIONAL]
  */
 const getAllPossiblePieceLocations = (board, piece, gameType) => {
-    const pieceLocations = getAllPossiblePieceLocations(board, piece, gameType)
+    const pieceLocations = getValidMoves(board, piece, gameType)
     console.log("Possible Cords: " + JSON.stringify(pieceLocations))
-    
+
     let possibleLocations = []
     pieceLocations.forEach((loc) => {
         let validMoves = getValidMoves(board, piece, loc, gameType)
@@ -331,22 +341,34 @@ const getAllPossiblePieceLocations = (board, piece, gameType) => {
 }
 
 const getValidMoves = (board, piece, loc, gameType) => {
-    let moves = constants["PieceLogic"][piece]
+    console.log("consts: " + JSON.stringify(constants["PieceLogic"]))
+    console.log("piece: " + piece)
+    const pieceName =  constants["PiecePGNToName"][piece]
+    console.log("Piece name: " + pieceName)
+    let moves = constants["PieceLogic"][pieceName]
     let legalMoves = []
+    console.log("HEERHE")
+    console.log("LOC: " + JSON.stringify(loc))
 
     // note: apply (add) a move to a piece location to get the destination
+    // console.log("move: " + JSON.stringify(moves))
 
     /* Find all legal moves */
     moves.forEach((move) => {
-        let num = loc.row + move.row
+        console.log("Move: " + JSON.stringify(move))
+        let num = loc.row + moverow
         let num2 = loc.col + move.col
+        console.log("num1: " + JSON.stringify(num) + "\nnum2:" + JSON.stringify(num2))
         if (num < constants.BoardWidth || num >= 0 ||
-            num2 < constants.BoardHeight || num2 >= 0) {  
-                legalMoves.push(move)
+            num2 < constants.BoardHeight || num2 >= 0) {
+            legalMoves.push(move)
         }
     })
+    console.log("Legal Moves:")
+    console.log(legalMoves)
     // TODO: Pick up here
-    return null    
+    // TODO: Make loc (the piece source) have a value.
+    return null
 }
 
 

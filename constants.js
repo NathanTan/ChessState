@@ -35,6 +35,21 @@ const constants = {
     /* Only intended for standard games */
     "BoardWidth": 8,
     "BoardHeight": 8,
+
+    "PiecePGNToName": {
+        "p": "Pawn",
+        "P": "Pawn",
+        "n": "Knight",
+        "N": "Knight",
+        "b": "Bishop",
+        "B": "Bishop",
+        "r": "Rook",
+        "R": "Rook",
+        "q": "Queen",
+        "Q": "Queen",
+        "k": "King",
+        "K": "King",
+    }
 }
 
 export default constants
