@@ -4,7 +4,20 @@ var webpack = require('webpack');
 module.exports = {
   context: __dirname,
   devtool: debug ? "inline-sourcemap" : null,
-  entry: "./Index.js",
+  
+  entry: "./Index.ts",
+  module: {
+     rules: [
+     {
+        test: /\.ts?$,
+        use: 'ts-loader',
+        exclude: /node_modules/
+     }
+     ]
+  },
+  resolve: {
+     extensions: ['.ts', '.js']
+  },
   output: {
     path: __dirname + "/bundles",
     filename: "ChessState.min.js"

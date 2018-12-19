@@ -329,11 +329,17 @@ const getAllPieceLocations = (board, piece, gameType) => {
  *      - game type [OPTIONAL]
  */
 const getAllPossiblePieceLocations = (board, piece, gameType) => {
+    console.log("getAllPossiblePieceLocations~")
+    console.log("board: " + JSON.stringify(board))
+    console.log("piece: " + JSON.stringify(piece))
+    console.log("gameType: " + JSON.stringify(gameType))
+
     const pieceLocations = getValidMoves(board, piece, gameType)
     console.log("Possible Cords: " + JSON.stringify(pieceLocations))
 
     let possibleLocations = []
     pieceLocations.forEach((loc) => {
+        console.log("LLLOOOOCCC: " + JSON.stringify(loc))
         let validMoves = getValidMoves(board, piece, loc, gameType)
 
     })
