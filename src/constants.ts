@@ -17,6 +17,7 @@ const constants = {
         "bughouse": 2,
         "plunder": 3,
     }),
+   
 
     /* Only intended for standard games */
     "PieceLogic": {

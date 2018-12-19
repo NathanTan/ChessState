@@ -1,10 +1,10 @@
 import BoardPrinter from './boardPrinter';
 import constants from './constants';
 import Errors from './Errors';
-import HelperFunctions from '../HelperFunctions';
-import ExecuteTurn from '../MoveProcessor';
+import HelperFunctions from './HelperFunctions';
+import ExecuteTurn from './MoveProcessor';
 import FenLogic from './FenLogic';
-import ExtraFenData from '../models/ExtraFenData';
+import ExtraFenData from './models/ExtraFenData';
 var ChessState = (function () {
     /*
     * Params:

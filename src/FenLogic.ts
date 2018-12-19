@@ -181,8 +181,9 @@ import HelperFunctions from './HelperFunctions';
 // console.log(currentFen)
 
 
+// Turns a fen string into a 2d array representation of a board
 class FenLogic {
-    static FenToBoard(fen) {
+    static FenToBoard(fen: string) {
         if (fen != null) {
             // TODO: Add fen validation
             let board = []

@@ -4,9 +4,19 @@ import Errors from './Errors'
 import HelperFunctions from './HelperFunctions'
 import ExecuteTurn from './MoveProcessor'
 import FenLogic from './FenLogic'
-import ExtraFenData from '../models/ExtraFenData'
+import ExtraFenData from './models/ExtraFenData'
+import State from './Interfaces/State'
+import GameType from './Interfaces/Enums'
 
 class ChessState {
+    /* Properties */
+    private debug: boolean;
+    private testGame: any;  // Object holding pre-set game moves for testing.
+                            // TODO: move this out to testing.
+    private gameType: GameType;
+    private state: State;
+
+
     /*
     * Params:
     *      - [OPTIONAL] game variant type
@@ -15,18 +25,26 @@ class ChessState {
     *      - [TESTING] game for testing (as array of pgns)
     * Returns: A new 2d array with 1 piece in a different place
     */
-    constructor(gameType, fen, debug, testGame) {
-        this.debug = debug
-        this.testGame = testGame
-        if (fen != null) {
-            this.fen = FenLogic.FenToBoard(fen)
+    constructor(gameType: GameType, fen: string, debug: boolean, testGame: any) {
+        this.debug = debug;
+        this.testGame = testGame;
+        this.gameType = gameType;
+
+        // Check for provided fen.
+        if (fen == null) {
+            fen = constants.startingFen;    // Default case
         }
 
-        this.gameType = constants.GameTypesEnum[gameType]
-        this.history = { "fen": [constants.startingFen], "pgn": [""] } // History in pgn moves, or fen states
-        this.gameOver = false
-        this.turn = 0
-
+        // Initalize state.
+        this.state = {
+            board: FenLogic.FenToBoard(fen),
+            history: {
+                fen: [fen],
+                pgn: []
+            },
+            gameOver: false,    // TODO: check initalizing with a game over fen
+            turn: 0
+        }
 
         Errors.checkGameType(this)
         switch (this.gameType) {
