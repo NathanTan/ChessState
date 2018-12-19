@@ -4,7 +4,7 @@ import Errors from './Errors'
 import HelperFunctions from './HelperFunctions'
 import ExecuteTurn from './MoveProcessor'
 import FenLogic from './FenLogic'
-import ExtraFenData from './models/ExtraFenData'
+import ExtraFenData from '../models/ExtraFenData'
 
 class ChessState {
     /*
