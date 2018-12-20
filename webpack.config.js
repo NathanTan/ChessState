@@ -5,11 +5,11 @@ module.exports = {
   context: __dirname,
   devtool: debug ? "inline-sourcemap" : null,
   
-  entry: "./Index.ts",
+  entry: "./src/Index.ts",
   module: {
      rules: [
      {
-        test: /\.ts?$,
+        test: "/\.ts?$",
         use: 'ts-loader',
         exclude: /node_modules/
      }
