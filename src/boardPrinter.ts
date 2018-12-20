@@ -1,10 +1,11 @@
 /* boardPrinter.js */
 import HelperFunctions from './HelperFunctions'
+import ChessState from './ChessState';
 
 class boardPrinter {
 
     /* Prints a ascii board based on a standard fen string */
-    static printBoard(state, prospective) {
+    static printBoard(state: ChessState, prospective: string) {
         let boardString = "" // String for printing to the console.
         let board = state.getBoardArray()
 
