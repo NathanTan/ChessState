@@ -1,7 +1,7 @@
 {
    "compilerOptions": {
       "outDir": "./dist",
-      "noImplicitAny": true,
+      "noImplicitAny": false, // Change to true later
       "module": "es6",
       "target": "es5", 
       "allowJs": true

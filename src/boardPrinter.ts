@@ -42,7 +42,7 @@ class boardPrinter {
 
     /* Prints an ascii board based on game state for debugging */
     // NOTE: debug print is always from black's perspective
-    static printBoardDebug(state, prospective) {
+    static printBoardDebug(state: ChessState, prospective: string) {
         let boardString = "" // String for printing to the console.
         let board = state.getBoardArray()
 

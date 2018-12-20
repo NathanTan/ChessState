@@ -187,15 +187,15 @@ class FenLogic {
     static FenToBoard(fen: string) {
         if (fen != null) {
             // TODO: Add fen validation
-            let board = []
+            let board: Array<Array<string>>
             fen.split("/").forEach((row) => {
-                let rowArr = []
+                let rowArr: string[]
                 let j = 0;
 
                 row.split("").forEach((piece) => {
                     if (j < 8) {
                         if (HelperFunctions.isNumeric(piece)) {
-                            for (let i = 0; i < piece; i++) {
+                            for (let i = 0; i < Number(piece); i++) {
                                 rowArr.push("X")
                             }
                         }
@@ -248,7 +248,11 @@ class FenLogic {
             }
 
             if (rowNum === 7) {
-                fenRow += extraFenData.getFenTail() // Add extra game state info
+                fenRow += extraFenData.turn + " " +
+                extraFenData.castling + " " +
+                extraFenData.enPassant + " " +
+                extraFenData.halfMoves + " " +
+                extraFenData.fullMoves
             }
 
             else {

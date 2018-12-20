@@ -21,7 +21,7 @@ const ExecuteTurn = (game, pgn) => {
             default: // Normal move           
                 switch (pgn[0]) {
                     case "N": // Knight move
-                        console.log(getPieceLocation(game.board, pgn, "n"))
+                        console.log(getPieceLocation(game.board, pgn, "n", null))
                         new Error("Knight not yet implemented")
                         break
                     case "B": // Bishop move
@@ -108,8 +108,8 @@ const pgnToCordPawn = (board, pgn, turn, gameType) => {
 
     else {
         // Get piece src & dest
-        moveObj.loc = getPieceLocation(board, pgn, piece)
-        moveObj.dest = HelperFunctions.pgnToGridCordinates(pgn, null)
+        moveObj.loc = getPieceLocation(board, pgn, piece, null)
+        moveObj.dest = HelperFunctions.pgnToGridCordinates(pgn, null, null)
 
         console.log("Piece's location")
         console.log("(" + moveObj.loc.col + "," + moveObj.loc.row + ")")
@@ -278,7 +278,6 @@ const getPieceLocation = (board, pgn, piece, gameType) => {
  */
 const getAllPieceLocations = (board, piece, gameType) => {
     let possibleCords = []
-    gc()
     console.log(board[0])
     /* Find all locations of all pieces that match 'piece', the chosen piece */
     board.forEach((row, indexRow) => {
@@ -334,7 +333,7 @@ const getAllPossiblePieceLocations = (board, piece, gameType) => {
     console.log("piece: " + JSON.stringify(piece))
     console.log("gameType: " + JSON.stringify(gameType))
 
-    const pieceLocations = getValidMoves(board, piece, gameType)
+    const pieceLocations = getValidMoves(board, piece, null, gameType)
     console.log("Possible Cords: " + JSON.stringify(pieceLocations))
 
     let possibleLocations = []
@@ -362,7 +361,7 @@ const getValidMoves = (board, piece, loc, gameType) => {
     /* Find all legal moves */
     moves.forEach((move) => {
         console.log("Move: " + JSON.stringify(move))
-        let num = loc.row + moverow
+        let num = loc.row + move.row
         let num2 = loc.col + move.col
         console.log("num1: " + JSON.stringify(num) + "\nnum2:" + JSON.stringify(num2))
         if (num < constants.BoardWidth || num >= 0 ||

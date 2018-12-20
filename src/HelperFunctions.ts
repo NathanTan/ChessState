@@ -1,12 +1,14 @@
+import GameTypes from "./Interfaces/Enums";
+
 /* Helper function */
 class HelperFunctions {
 
-    static isNumeric(n) {
+    static isNumeric(n: any) {
         return !isNaN(parseFloat(n)) && isFinite(n);
     }
 
     // Has one optional parameter for testing
-    static getMove(opt) {
+    static getMove(opt: string) {
         if (opt) {
             return opt
         }
@@ -18,11 +20,11 @@ class HelperFunctions {
      *      - Which plays turn it is
      *      - game type [OPTIONAL]
      */
-    static pgnToGridCordinates(pgn, turn, gameType) {
+    static pgnToGridCordinates(pgn: any, turn: any, gameType: GameTypes) {
         let foo = { "row": "", "col": "" }
         
-        if (gameType != undefined || gameType !== "standard") {
-            Error("pgnToGridCordinate is not yet implemented for " + gameType + " variant")
+        if (gameType != undefined || gameType !== GameTypes.standard) {
+            Error("pgnToGridCordinate is not yet implemented for " + gameType.toString() + " variant")
         }
         
         switch (pgn[0]) {
@@ -42,8 +44,8 @@ class HelperFunctions {
                 Error("King not yet implemented")
                 break
             default: // Pawn
-                foo.col = pgn[0].charCodeAt(0) - 97
-                foo.row = pgn[1] - 1
+                foo.col = (pgn[0].charCodeAt(0) - 97).toString()
+                foo.row = (pgn[1] - 1).toString()
         }
         return foo
     }
