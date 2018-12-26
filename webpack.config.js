@@ -5,7 +5,7 @@ module.exports = {
   context: __dirname,
   devtool: debug ? "inline-sourcemap" : null,
   
-  entry: "./src/Index.ts",
+  entry: "./dist/src/Index.js",
   module: {
      rules: [
      {
@@ -15,12 +15,15 @@ module.exports = {
      }
      ]
   },
+  optimization: {
+    minimize: false
+  },
   resolve: {
      extensions: ['.ts', '.js']
   },
   output: {
     path: __dirname + "/bundles",
-    filename: "ChessState.min.js"
+    filename: "ChessState.js"
   },
   plugins: debug ? [] : [
     new webpack.optimize.DedupePlugin(),
