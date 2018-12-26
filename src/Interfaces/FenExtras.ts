@@ -1,6 +1,8 @@
+import StandardTurn from "./Enums/StandardTurns";
+
 interface FenExtras {
     
-    turn: string;
+    turn: StandardTurn;
     castling: string;
     enPassant: string;
     halfMoves: number;

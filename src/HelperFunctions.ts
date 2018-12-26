@@ -1,4 +1,5 @@
-import GameTypes from "./Interfaces/Enums";
+import GameTypes from "./Interfaces/Enums/GameTypes";
+import StandardTurns from "./Interfaces/Enums/StandardTurns";
 
 /* Helper function */
 class HelperFunctions {
@@ -20,11 +21,13 @@ class HelperFunctions {
      *      - Which plays turn it is
      *      - game type [OPTIONAL]
      */
-    static pgnToGridCordinates(pgn: any, turn: any, gameType: GameTypes) {
+    static pgnToGridCordinates(pgn: string, turn: StandardTurns, gameType: GameTypes) {
         let foo = { "row": "", "col": "" }
         
-        if (gameType != undefined || gameType !== GameTypes.standard) {
-            Error("pgnToGridCordinate is not yet implemented for " + gameType.toString() + " variant")
+        if (gameType != undefined && gameType !== GameTypes.standard) {
+            console.log("gameType: ")
+            console.log(gameType)
+            throw new Error("pgnToGridCordinate is not yet implemented for " + gameType.toString() + " variant")
         }
         
         switch (pgn[0]) {
@@ -45,7 +48,7 @@ class HelperFunctions {
                 break
             default: // Pawn
                 foo.col = (pgn[0].charCodeAt(0) - 97).toString()
-                foo.row = (pgn[1] - 1).toString()
+                foo.row = (turn === StandardTurns.white) ? (+pgn[1]).toString() : (8 - +pgn[1]).toString()
         }
         return foo
     }

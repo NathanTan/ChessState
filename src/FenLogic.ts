@@ -187,9 +187,9 @@ class FenLogic {
     static FenToBoard(fen: string) {
         if (fen != null) {
             // TODO: Add fen validation
-            let board: Array<Array<string>>
+            let board = Array<Array<string>>()
             fen.split("/").forEach((row) => {
-                let rowArr: string[]
+                let rowArr = Array<string>()
                 let j = 0;
 
                 row.split("").forEach((piece) => {

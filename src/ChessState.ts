@@ -5,7 +5,8 @@ import HelperFunctions from './HelperFunctions'
 import ExecuteTurn from './MoveProcessor'
 import FenLogic from './FenLogic'
 import State from './Interfaces/State'
-import GameType from './Interfaces/Enums'
+import GameType from './Interfaces/Enums/GameTypes'
+import StandardTurns from './Interfaces/Enums/StandardTurns';
 
 class ChessState {
     /* Properties */
@@ -35,7 +36,7 @@ class ChessState {
             // No provided fen string means a default start.
             fen = constants.startingFen;
             fenExtras = {
-                turn: "w",
+                turn: StandardTurns.white,
                 castling: "KQkq",
                 enPassant: "-",
                 halfMoves: 0,
@@ -94,6 +95,15 @@ class ChessState {
             // 4. Execute move (pgn)
             ExecuteTurn(this, move)
 
+            // Toggle turn
+            // switch(this.gameType) {
+            //     case GameType.standard:
+                
+            //             break
+            //     default:
+            //         throw new Error("Unimplemented game type.")
+            // }
+
             // Update History
             this.state.history.pgn.push(move)
             this.state.history.fen.push(FenLogic.BoardToFen(this.state.board, this.state.fenExtras))
@@ -132,15 +142,13 @@ class ChessState {
         return this.state.board
     }
 
-    getTurn() {
+    getTurn(): StandardTurns {
         switch (this.gameType) {
             /* Standard */
-            case 1:
+            case GameType.standard:
                 return this.state.fenExtras.turn
             default:
-                Error("Error, variant not recognized")
-                return "Error, variant not recognized" // Should never get here
-
+                throw new Error("Error, variant not recognized")
         }
     }
 
@@ -152,12 +160,16 @@ class ChessState {
      * Update turn
      */
     updateFenExtras() {
+        console.log("updateFenExtras~")
         switch (this.gameType) {
             /* Standard */
-            case 1:
-                this.state.fenExtras.turn === "w" ?           // Toggle turn.
-                    this.state.fenExtras.turn = "b" :
-                    this.state.fenExtras.turn = "w"
+            case GameType.standard:
+                // Toggle turn
+                if (this.state.fenExtras.turn === StandardTurns.white) 
+                    this.state.fenExtras.turn = StandardTurns.black
+                else 
+                    this.state.fenExtras.turn = StandardTurns.white
+
                 this.checkForCastling()                 // Update available castling.
                 this.checkForEnPassant()                // Update available En Passant.
                 this.state.fenExtras.halfMoves++;             // Increment number of half moves.
@@ -167,7 +179,7 @@ class ChessState {
                 }
                 break
             default:
-                Error("Variant Not Yet Implemented")
+                throw new Error("Variant Not Yet Implemented")
         }
         Error("Not Yet Implemented")
     }
