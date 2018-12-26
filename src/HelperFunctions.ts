@@ -1,5 +1,6 @@
 import GameTypes from "./Interfaces/Enums/GameTypes";
 import StandardTurns from "./Interfaces/Enums/StandardTurns";
+import BoardLoaction from "./Interfaces/BoardLocation";
 
 /* Helper function */
 class HelperFunctions {
@@ -21,8 +22,8 @@ class HelperFunctions {
      *      - Which plays turn it is
      *      - game type [OPTIONAL]
      */
-    static pgnToGridCordinates(pgn: string, turn: StandardTurns, gameType: GameTypes) {
-        let foo = { "row": "", "col": "" }
+    static pgnToGridCordinates(pgn: string, turn: StandardTurns, gameType: GameTypes): BoardLoaction {
+        let foo :BoardLoaction = { "row": -1, "column": -1 }
         
         if (gameType != undefined && gameType !== GameTypes.standard) {
             console.log("gameType: ")
@@ -47,8 +48,8 @@ class HelperFunctions {
                 Error("King not yet implemented")
                 break
             default: // Pawn
-                foo.col = (pgn[0].charCodeAt(0) - 97).toString()
-                foo.row = (turn === StandardTurns.white) ? (+pgn[1]).toString() : (8 - +pgn[1]).toString()
+                foo.column = (pgn[0].charCodeAt(0) - 97)
+                foo.row = (turn === StandardTurns.white) ? (+pgn[1]) : (8 - +pgn[1])
         }
         return foo
     }

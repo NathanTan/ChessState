@@ -4,10 +4,11 @@ import FenLogic from './FenLogic'
 import GameTypes from './Interfaces/Enums/GameTypes';
 import BoardLoaction from './Interfaces/BoardLocation';
 import StandardTurns from './Interfaces/Enums/StandardTurns';
+import Move from './Interfaces/Move'
 
 const ExecuteTurn = (game, pgn) => {
     let newBoard = ""
-    let moveCord = null
+    let moveCord: Move = null
 
     if (pgn) {
         if (game.debug)
@@ -17,8 +18,10 @@ const ExecuteTurn = (game, pgn) => {
         switch (pgn) {
             case "O-O": // King side castle
                 //TODO: add validation
+                throw new Error("Castling not yet implemented")
                 break
-            case "O-O-O": //Queen side castle
+                case "O-O-O": //Queen side castle
+                throw new Error("Castling not yet implemented")
                 break
 
             default: // Normal move           
@@ -51,7 +54,7 @@ const ExecuteTurn = (game, pgn) => {
     }
 
     else {
-        Error("Error: no pgn provided")
+        throw new Error("Error: no pgn provided")
     }
 }
 
@@ -87,13 +90,11 @@ const updateBoardByCord = (board, moveCord, debug) => {
 // Done with pgn, returns cordinates of piece source and desination
 // Note: Doesn't work with bug house when finind piece location
 // Return: New moded board as a string
-const pgnToCordPawn = (board, pgn, turn: StandardTurns, gameType: GameTypes) => {
+const pgnToCordPawn = (board, pgn: string, turn: StandardTurns, gameType: GameTypes) => {
     console.log("pgnToCordPawn~")
     console.log("turn: " + StandardTurns[turn])
-    let moveObj = {
-        loc: null,
-        dest: null
-    }
+    let moveObj: Move;
+    
     let piece = ""
     switch (gameType) {
         case GameTypes.standard:
@@ -114,17 +115,16 @@ const pgnToCordPawn = (board, pgn, turn: StandardTurns, gameType: GameTypes) => 
 
     else {
         // Get piece src & dest
-        moveObj.loc = getPieceLocation(board, pgn, piece, gameType)
+        moveObj.source = getPieceLocation(board, pgn, piece, gameType)
         moveObj.dest = HelperFunctions.pgnToGridCordinates(pgn, turn, gameType)
 
         console.log("Piece's location")
-        console.log("(" + moveObj.loc.col + "," + moveObj.loc.row + ")")
+        console.log("(" + moveObj.source.column + "," + moveObj.source.row + ")")
         console.log("Piece's Destination")
-        console.log("(" + moveObj.dest.col + "," + moveObj.dest.row + ")")
+        console.log("(" + moveObj.dest.column + "," + moveObj.dest.row + ")")
     }
 
     console.log("piece " + piece)
-
 
     return moveObj
 }
@@ -231,7 +231,7 @@ const generateNewRow = (row, col, isDest) => {
  *      - game type [OPTIONAL]F
  */
 // TODO: Deal with situtation where there are 2 pieces in the same column that can move to the same square.
-const getPieceLocation = (board: Array<Array<string>>, pgn: string, piece: string, gameType: GameTypes) => {
+const getPieceLocation = (board: Array<Array<string>>, pgn: string, piece: string, gameType: GameTypes): BoardLoaction => {
     // Get loc
     console.log("getPieceLocation~")
     console.log("piece: " + piece)
@@ -248,6 +248,27 @@ const getPieceLocation = (board: Array<Array<string>>, pgn: string, piece: strin
     }
     else {
         console.log("----------op 2")
+
+        // TODO: add validation to make sure the user didn't input correctly
+        // Only one piece that can go to the dest square
+        if (pgn.length === 3) {
+            let b: BoardLoaction
+            //b.column
+            //b.row
+            // TODO: pick up here
+            
+        }
+
+        // Two pieces (in standard) can land on the dest square
+        else if (pgn.length === 4) {
+
+        }
+        else {
+            throw new Error("Something's wrong in the neighborhood. Who you gonna call???")
+        }
+
+
+        
         col = getPGNDropColumn(pgn)
         console.log(board.length)
         console.log(board[0])
@@ -283,7 +304,7 @@ const getPieceLocation = (board: Array<Array<string>>, pgn: string, piece: strin
     console.log("locatedPieceCol: ")
     console.log(locatedPieceRow)
     return {
-        "col": col,
+        "column": col,
         "row": locatedPieceRow
     }
 }
