@@ -7,7 +7,7 @@
     "test": "mocha",
     "build": "webpack",
     "start": "node ./bundles/ChessState.js",
-    "super": "tsc; webpack; npm start",
+    "super": "tsc; if [ 0 -eq $? ]; then webpack; npm start; fi;",
     "transpile": "babel src/Index.ts --out-file src/index-transpiled.js"
   },
   "repository": {
