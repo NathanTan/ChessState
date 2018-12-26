@@ -1,7 +1,9 @@
 /* Errors.js */
 
 class Errors {
-    static checkGameType(state) {
+
+    // TODO: Update this.
+    static checkGameType(state: any): any {
         if (typeof (state.gameType) === "undefined") {
             console.log("----------------------------------")
             console.log("-Error: Unrecognized variant type-")

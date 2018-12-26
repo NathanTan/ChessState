@@ -6,8 +6,9 @@
   "scripts": {
     "test": "mocha",
     "build": "webpack",
-    "start": "node ./bundles/ChessState.min.js",
-    "super": "webpack; npm start"
+    "start": "node ./bundles/ChessState.js",
+    "super": "tsc; if [ 0 -eq $? ]; then webpack; npm start; fi;",
+    "transpile": "babel src/Index.ts --out-file src/index-transpiled.js"
   },
   "repository": {
     "type": "git",
@@ -27,6 +28,12 @@
   "dependencies": {
     "mocha": "^5.2.0",
     "webpack": "^4.14.0",
-    "webpack-cli": "^3.0.8"
+    "webpack-cli": "^3.1.2"
+  },
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-cli": "^6.26.0",
+    "ts-loader": "^5.3.1",
+    "typescript": "^3.2.2"
   }
 }

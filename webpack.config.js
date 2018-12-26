@@ -4,10 +4,26 @@ var webpack = require('webpack');
 module.exports = {
   context: __dirname,
   devtool: debug ? "inline-sourcemap" : null,
-  entry: "./Index.js",
+  
+  entry: "./dist/src/Index.js",
+  module: {
+     rules: [
+     {
+        test: "/\.ts?$",
+        use: 'ts-loader',
+        exclude: /node_modules/
+     }
+     ]
+  },
+  optimization: {
+    minimize: false
+  },
+  resolve: {
+     extensions: ['.ts', '.js']
+  },
   output: {
     path: __dirname + "/bundles",
-    filename: "ChessState.min.js"
+    filename: "ChessState.js"
   },
   plugins: debug ? [] : [
     new webpack.optimize.DedupePlugin(),

@@ -1,4 +1,5 @@
 import HelperFunctions from './HelperFunctions';
+import ExtraFenData from './Interfaces/FenExtras';
 
 
 // let state = {
@@ -181,19 +182,20 @@ import HelperFunctions from './HelperFunctions';
 // console.log(currentFen)
 
 
+// Turns a fen string into a 2d array representation of a board
 class FenLogic {
-    static FenToBoard(fen) {
+    static FenToBoard(fen: string) {
         if (fen != null) {
             // TODO: Add fen validation
-            let board = []
+            let board = Array<Array<string>>()
             fen.split("/").forEach((row) => {
-                let rowArr = []
+                let rowArr = Array<string>()
                 let j = 0;
 
                 row.split("").forEach((piece) => {
                     if (j < 8) {
                         if (HelperFunctions.isNumeric(piece)) {
-                            for (let i = 0; i < piece; i++) {
+                            for (let i = 0; i < Number(piece); i++) {
                                 rowArr.push("X")
                             }
                         }
@@ -217,7 +219,7 @@ class FenLogic {
      *      - Extra fen information as an object
      * Returns: A fen string representing the game
      */
-    static BoardToFen(board, extraFenData) {
+    static BoardToFen(board: Array<Array<string>>, extraFenData: ExtraFenData) {
         new Error("Depricated: Use ChessState's '.getFen' method.")
         let fen = ""
         let rowNum = 0
@@ -246,7 +248,11 @@ class FenLogic {
             }
 
             if (rowNum === 7) {
-                fenRow += extraFenData.getFenTail() // Add extra game state info
+                fenRow += extraFenData.turn + " " +
+                extraFenData.castling + " " +
+                extraFenData.enPassant + " " +
+                extraFenData.halfMoves + " " +
+                extraFenData.fullMoves
             }
 
             else {

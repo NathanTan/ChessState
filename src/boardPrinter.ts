@@ -1,10 +1,11 @@
 /* boardPrinter.js */
 import HelperFunctions from './HelperFunctions'
+import ChessState from './ChessState';
 
 class boardPrinter {
 
     /* Prints a ascii board based on a standard fen string */
-    static printBoard(state, prospective) {
+    static printBoard(state: ChessState, prospective: string) {
         let boardString = "" // String for printing to the console.
         let board = state.getBoardArray()
 
@@ -41,15 +42,17 @@ class boardPrinter {
 
     /* Prints an ascii board based on game state for debugging */
     // NOTE: debug print is always from black's perspective
-    static printBoardDebug(state, prospective) {
+    static printBoardDebug(state: ChessState, prospective: string) {
         let boardString = "" // String for printing to the console.
         let board = state.getBoardArray()
+        let firstRowOnUserFacingBoard = 8;
 
         boardString += "\n  ---------------------------------\n"
 
         board.forEach(function (row, i) {
-            boardString += (i + " ")
+            boardString += (firstRowOnUserFacingBoard.toString() + " " + i + " ")
             boardString += "|"
+            firstRowOnUserFacingBoard--
 
             row.forEach(function (piece) {
                 // If a number is found, print that many spaces
@@ -65,7 +68,8 @@ class boardPrinter {
             })
             boardString += "\n  ---------------------------------\n"
         })
-        boardString += "    A   B   C   D   E   F   G   H\n"
+        boardString += "      0   1   2   3   4   5   6   7\n"
+        boardString += "      A   B   C   D   E   F   G   H\n"
         console.log(boardString)
     }
 }

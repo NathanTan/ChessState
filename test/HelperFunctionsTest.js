@@ -1,5 +1,5 @@
 var assert = require('assert');
-let HelperFunctions = require("../HelperFunctions")
+let HelperFunctions = require("../src/HelperFunctions")
 describe('pgnToGjdjdridCordinates', function () {
     it('Should transform e4 [string] to (3, 3) [obj]', () => {
         const pgn = "e4"

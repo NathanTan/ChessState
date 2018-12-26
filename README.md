@@ -35,3 +35,5 @@ Standard Chess Grid:
   ---------------------------------
 7 | R | N | B | Q | K | B | N | R |
   ---------------------------------
+
+NOTE: white's pieces are upper case and black's pieces are lower case.

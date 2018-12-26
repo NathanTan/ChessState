@@ -1,6 +1,9 @@
 import constants from './constants'
 import HelperFunctions from './HelperFunctions'
 import FenLogic from './FenLogic'
+import GameTypes from './Interfaces/Enums/GameTypes';
+import BoardLoaction from './Interfaces/BoardLocation';
+import StandardTurns from './Interfaces/Enums/StandardTurns';
 
 const ExecuteTurn = (game, pgn) => {
     let newBoard = ""
@@ -21,7 +24,7 @@ const ExecuteTurn = (game, pgn) => {
             default: // Normal move           
                 switch (pgn[0]) {
                     case "N": // Knight move
-                        console.log(getPieceLocation(game.board, pgn, "n"))
+                        console.log(getPieceLocation(game.state.board, pgn, "n", game.gameType))
                         new Error("Knight not yet implemented")
                         break
                     case "B": // Bishop move
@@ -38,11 +41,12 @@ const ExecuteTurn = (game, pgn) => {
                         break
                     default: // Pawn move
                         if (game.debug)
-                            console.log("Pawn Move")
-                        moveCord = pgnToCordPawn(game.board, pgn, game.getTurn(), game.gameType)
+                            console.log("==Pawn Move")
+                        moveCord = pgnToCordPawn(game.state.board, pgn, game.getTurn(), game.gameType)
                     // TODO: deal with fen's en passant
                 }
-                game.board = updateBoardByCord(game.board, moveCord, game.debug)
+                // TODO: move this function into the gameState such that only the game state can update the board.
+                game.state.board = updateBoardByCord(game.state.board, moveCord, game.debug)
         }
     }
 
@@ -83,15 +87,17 @@ const updateBoardByCord = (board, moveCord, debug) => {
 // Done with pgn, returns cordinates of piece source and desination
 // Note: Doesn't work with bug house when finind piece location
 // Return: New moded board as a string
-const pgnToCordPawn = (board, pgn, turn, gameType) => {
+const pgnToCordPawn = (board, pgn, turn: StandardTurns, gameType: GameTypes) => {
+    console.log("pgnToCordPawn~")
+    console.log("turn: " + StandardTurns[turn])
     let moveObj = {
         loc: null,
         dest: null
     }
     let piece = ""
     switch (gameType) {
-        case 1:
-            if (turn === "w") {
+        case GameTypes.standard:
+            if (turn === StandardTurns.black) {
                 piece = "p"
             }
             else {
@@ -99,17 +105,17 @@ const pgnToCordPawn = (board, pgn, turn, gameType) => {
             }
             break
         default:
-            Error("Game variant '" + gameType + "' not yet implemented.")
+            throw new Error("Game variant '" + gameType + "' not yet implemented.")
     }
     // If this move has a capture
     if (pgn.indexOf("x") !== -1) {
-        Error("TODO: add pawn capture functionality")
+        throw new Error("TODO: add pawn capture functionality")
     }
 
     else {
         // Get piece src & dest
-        moveObj.loc = getPieceLocation(board, pgn, piece)
-        moveObj.dest = HelperFunctions.pgnToGridCordinates(pgn, null)
+        moveObj.loc = getPieceLocation(board, pgn, piece, gameType)
+        moveObj.dest = HelperFunctions.pgnToGridCordinates(pgn, turn, gameType)
 
         console.log("Piece's location")
         console.log("(" + moveObj.loc.col + "," + moveObj.loc.row + ")")
@@ -222,51 +228,63 @@ const generateNewRow = (row, col, isDest) => {
  *      - board as 2d array
  *      - PGN move
  *      - Piece to find
- *      - game type [OPTIONAL]
+ *      - game type [OPTIONAL]F
  */
 // TODO: Deal with situtation where there are 2 pieces in the same column that can move to the same square.
-const getPieceLocation = (board, pgn, piece, gameType) => {
+const getPieceLocation = (board: Array<Array<string>>, pgn: string, piece: string, gameType: GameTypes) => {
     // Get loc
+    console.log("getPieceLocation~")
+    console.log("piece: " + piece)
 
-    let col = null
+    let col: number = null
     let possibleCol = []
     let possibleCords = []
+
+    // If pawn
     if (piece === "p" || piece === "P") {
         console.log("----------op 1")
         col = getPGNDropColumn(pgn)
+        console.log("col: " + col + " pgn: " + pgn)
     }
     else {
         console.log("----------op 2")
+        col = getPGNDropColumn(pgn)
         console.log(board.length)
         console.log(board[0])
-        let possibleCordss = getAllPossiblePieceLocations(board, piece, gameType)
+        let pieceSource: BoardLoaction = null;
+        console.log("COLL: " + col.toString())
+        pieceSource.column = +col
+        pieceSource.row = -1;
+        let possibleCordss = getAllPossiblePieceLocations(board, piece, pieceSource, gameType)
 
     }
 
-    let piecesInCol = []
+    let piecesInCol: string[] = []
     board.forEach((row) => {
         piecesInCol.push(row[col])
     })
 
-    let locatedPieceCol = -1
+    let locatedPieceRow = -1
     let index = 0
 
-    if (gameType == undefined || gameType === constants["GameTypesEnum"]["standard"]) {
+    if (gameType == undefined || gameType === GameTypes.standard) {
         piecesInCol.forEach((p) => {
             console.log("p: " + p)
             if (p === piece) {
-                locatedPieceCol = index
+                locatedPieceRow = index
             }
             index++;
         })
     }
 
     else {
-        Error("ERROR: TODO: Implement for non-standard game variants")
+        throw new Error("ERROR: TODO: Implement for non-standard game variants")
     }
+    console.log("locatedPieceCol: ")
+    console.log(locatedPieceRow)
     return {
         "col": col,
-        "row": locatedPieceCol
+        "row": locatedPieceRow
     }
 }
 
@@ -278,7 +296,6 @@ const getPieceLocation = (board, pgn, piece, gameType) => {
  */
 const getAllPieceLocations = (board, piece, gameType) => {
     let possibleCords = []
-    gc()
     console.log(board[0])
     /* Find all locations of all pieces that match 'piece', the chosen piece */
     board.forEach((row, indexRow) => {
@@ -328,19 +345,25 @@ const getAllPieceLocations = (board, piece, gameType) => {
  *      - Piece to find
  *      - game type [OPTIONAL]
  */
-const getAllPossiblePieceLocations = (board, piece, gameType) => {
-    const pieceLocations = getValidMoves(board, piece, gameType)
+const getAllPossiblePieceLocations = (board: Array<Array<string>>, piece: string, source: BoardLoaction, gameType: GameTypes) => {
+    console.log("getAllPossiblePieceLocations~")
+    console.log("board: " + JSON.stringify(board))
+    console.log("piece: " + JSON.stringify(piece))
+    console.log("gameType: " + JSON.stringify(gameType))
+
+    const pieceLocations = getValidMoves(board, piece, null, gameType)
     console.log("Possible Cords: " + JSON.stringify(pieceLocations))
 
     let possibleLocations = []
     pieceLocations.forEach((loc) => {
+        console.log("LLLOOOOCCC: " + JSON.stringify(loc))
         let validMoves = getValidMoves(board, piece, loc, gameType)
 
     })
 
 }
 
-const getValidMoves = (board, piece, loc, gameType) => {
+const getValidMoves = (board: Array<Array<string>>, piece, loc, gameType: GameTypes) => {
     console.log("consts: " + JSON.stringify(constants["PieceLogic"]))
     console.log("piece: " + piece)
     const pieceName =  constants["PiecePGNToName"][piece]
@@ -356,7 +379,7 @@ const getValidMoves = (board, piece, loc, gameType) => {
     /* Find all legal moves */
     moves.forEach((move) => {
         console.log("Move: " + JSON.stringify(move))
-        let num = loc.row + moverow
+        let num = loc.row + move.row
         let num2 = loc.col + move.col
         console.log("num1: " + JSON.stringify(num) + "\nnum2:" + JSON.stringify(num2))
         if (num < constants.BoardWidth || num >= 0 ||
@@ -378,7 +401,7 @@ const getValidMoves = (board, piece, loc, gameType) => {
  * Returns:
  *    Numeric mapped value corresponding to the letter column of the board
  */
-const getPGNDropColumn = pgn => {
+const getPGNDropColumn = (pgn: string): number => {
 
     // If the first letter of the pgn is upper case, then it is the piece that is moving.
     if (pgn[0] === pgn[0].toUpperCase()) { //Check if is upper case
