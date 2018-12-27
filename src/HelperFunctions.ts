@@ -23,7 +23,7 @@ class HelperFunctions {
      *      - game type [OPTIONAL]
      */
     // Use this to find piece start locations
-    static pgnToGridCordinates(pgn: string, turn: StandardTurns, gameType: GameTypes, debug?: boolean): BoardLoaction {
+    static pgnToGridCordinates(pgn: string, turn: StandardTurns, gameType: GameTypes, capture: boolean, debug?: boolean): BoardLoaction {
         let location: BoardLoaction = { "row": -1, "column": -1 }
         
         if (gameType != undefined && gameType !== GameTypes.standard) {
@@ -58,9 +58,16 @@ class HelperFunctions {
             default: // Pawn
                 if(debug)
                     console.log("==pawn")
-                location.column = (pgn[0].charCodeAt(0) - 97)
-                location.row = (turn === StandardTurns.white) ? (+pgn[1]) : (8 - +pgn[1])
-        }
+                if (!capture) {
+
+                    location.column = (pgn[0].charCodeAt(0) - 97)
+                    location.row = (turn === StandardTurns.white) ? (+pgn[1]) : (8 - +pgn[1])
+                }
+                else {
+                    location.column = (pgn[2].charCodeAt(0) - 97)
+                    location.row = (turn === StandardTurns.white) ? (+pgn[3]) : (8 - +pgn[3])
+                }
+            }
         return location
     }
 }

@@ -18,6 +18,7 @@ const ExecuteTurn = (game, pgn) => {
             row: -1
         }
     }
+    let capture = (pgn.indexOf("x") !== -1)
 
     if (pgn) {
         if (game.debug)
@@ -34,16 +35,16 @@ const ExecuteTurn = (game, pgn) => {
                 break
 
             default: // Normal move  
-            let piece: string         
+                let piece: string
                 switch (pgn[0]) {
                     case "N": // Knight move
                         piece = (game.getTurn() === StandardTurns.white) ? 'N' : 'n'
-                        moveCord.dest = HelperFunctions.pgnToGridCordinates(pgn, game.getTurn(), game.gameType)
+                        moveCord.dest = HelperFunctions.pgnToGridCordinates(pgn, game.getTurn(), game.gameType, capture)
                         moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
                         break
                     case "B": // Bishop move
                         piece = (game.getTurn() === StandardTurns.white) ? 'B' : 'b'
-                        moveCord.dest = HelperFunctions.pgnToGridCordinates(pgn, game.getTurn(), game.gameType)
+                        moveCord.dest = HelperFunctions.pgnToGridCordinates(pgn, game.getTurn(), game.gameType, capture)
                         moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
                         break
                     case "R": // Rook move
@@ -103,7 +104,7 @@ const updateBoardByCord = (board: string[][], moveCord: Move, debug: boolean) =>
 // Done with pgn, returns cordinates of piece source and desination
 // Note: Doesn't work with bug house when finind piece location
 // Return: New moded board as a string
-const pgnToCordPawn = (board, pgn: string, turn: StandardTurns, gameType: GameTypes) => {
+const pgnToCordPawn = (board, pgn: string, turn: StandardTurns, gameType: GameTypes, debug?: boolean) => {
     console.log("pgnToCordPawn~")
     console.log("turn: " + StandardTurns[turn])
     let moveObj: Move = {
@@ -116,7 +117,7 @@ const pgnToCordPawn = (board, pgn: string, turn: StandardTurns, gameType: GameTy
             row: -1
         }
     }
-
+    let capture = (pgn.indexOf("x") !== -1)
 
     let piece = ""
     switch (gameType) {
@@ -131,27 +132,21 @@ const pgnToCordPawn = (board, pgn: string, turn: StandardTurns, gameType: GameTy
         default:
             throw new Error("Game variant '" + gameType + "' not yet implemented.")
     }
-    // If this move has a capture
-    if (pgn.indexOf("x") !== -1) {
-        throw new Error("TODO: add pawn capture functionality")
+
+    moveObj.dest = HelperFunctions.pgnToGridCordinates(pgn, turn, gameType, capture)
+
+    if (piece === "p" || piece === "P")
+        moveObj.source = getPieceLocation(board, pgn, piece, gameType)
+    else {
+        moveObj.source = findPieceSource(board, pgn, piece, moveObj.dest, gameType)
     }
 
-    else {
-        // Get piece src & dest
-        moveObj.dest = HelperFunctions.pgnToGridCordinates(pgn, turn, gameType)
-        if (piece === "p" || piece === "P")
-            moveObj.source = getPieceLocation(board, pgn, piece, gameType)
-        else {
-            moveObj.source = findPieceSource(board, pgn, piece, moveObj.dest, gameType)
-        }
-
+    if (debug) {
         console.log("Piece's location")
         console.log("(" + moveObj.source.column + "," + moveObj.source.row + ")")
         console.log("Piece's Destination")
         console.log("(" + moveObj.dest.column + "," + moveObj.dest.row + ")")
     }
-
-    console.log("piece " + piece)
 
     return moveObj
 }
@@ -200,55 +195,6 @@ const placePieceInRow = (row, piece, col) => {
 
 }
 
-/*
- * Parameters:
- *      - Row to insert piece in                as an array
- *      - Column that the piece should go in    as a number\?
- *      - The piece is being placed             as a boolean
- * Returns: A row with the piece removed        as an array
- */
-const generateNewRow = (row, col, isDest) => {
-    let newRow = []
-    if (isDest === false) {
-        let leftNumber = 0;
-        let rightNumber = 0;
-        for (let i = 0; i < 8; i++) {
-            console.log("--------- ")
-            // console.log("COL: " + col)
-            console.log("i: " + i)
-            console.log(row[i])
-            console.log(!HelperFunctions.isNumeric(row[i]))
-            console.log("newRow: " + newRow.join())
-
-
-            if (i === col || !HelperFunctions.isNumeric(row[i])) {
-                let placeHolderNumber = row[i]
-                // Might not need the < 8 comparison
-                if (i < 7 && !HelperFunctions.isNumeric(row[i + 1]) && (i + 1 == col)) {
-                    newRow.push(placeHolderNumber + 1)
-                    i++
-                    continue
-                }
-
-            }
-
-            if (!HelperFunctions.isNumeric(row[i])) {
-                newRow.push(row[i])
-                leftNumber = 1
-                console.log("CONINUE")
-                continue
-            }
-
-        }
-
-        if (leftNumber === 0 && rightNumber === 0) {
-            newRow = row
-            newRow[col] = 1
-        }
-    }
-    console.log("NEW ROW: " + newRow.join())
-    return newRow
-}
 
 /* 
  * Parameters: 
@@ -284,8 +230,6 @@ const getPieceLocation = (board: Array<Array<string>>, pgn: string, piece: strin
             b.column = charToColumnNumber(pgn[1])
             //b.column
             b.row = 8 - +pgn[2]
-
-
         }
 
         // Two pieces (in standard) can land on the dest square
@@ -338,56 +282,6 @@ const getPieceLocation = (board: Array<Array<string>>, pgn: string, piece: strin
     }
 }
 
-/* 
- * Parameters: 
- *      - board as 2d array
- *      - Piece to find
- *      - game type [OPTIONAL]
- */
-const getAllPieceLocations = (board, piece, gameType) => {
-    let possibleCords = []
-    console.log(board[0])
-    /* Find all locations of all pieces that match 'piece', the chosen piece */
-    board.forEach((row, indexRow) => {
-        // for (let i = 0; i < board.length; i++) {
-        // let row = board[i]
-        console.log("Row: " + JSON.stringify(row))
-        row.forEach((p, indexCol) => {
-            if (p === piece) {
-                possibleCords.push({ "row": indexRow, "col": indexCol })
-            }
-        })
-
-        // /* Optimizations */
-        // if (gameType != null && gameType === constants.GameTypesEnum.standard) {
-        //     let breakFromLoop = false // Indicates that all pieces have been found
-        //     switch (piece) {
-        //         case "k":   // White King
-        //         case "K":   // Black King
-        //         case "q":   // White Queen
-        //         case "Q":   // Black Queen
-        //             if (possibleCords === 1)        // Only one allowed on board
-        //                 breakFromLoop = true
-        //             break
-        //         case "r":   // White Rook
-        //         case "R":   // Black Rook
-        //         case "n":   // White Knight
-        //         case "N":   // Black Knight
-        //         case "b":   // White Bishop
-        //         case "B":   // Black Bishop
-        //             if (possibleCol.length === 2)   // Only 2 allowed on board
-        //                 breakFromLoop = true
-        //             break
-        //         default:
-        //             Error("Unknown Piece")
-        //     }
-        //     if (breakFromLoop) {
-        //         break;
-        //     }
-        // }
-    })
-    return possibleCords
-}
 
 /* 
  * Parameters: 
@@ -469,7 +363,6 @@ const findPieceSource = (board: string[][], pgn: string, piece: string, dest: Bo
                 console.log(board[possibleSource.row][possibleSource.column])
                 if (board[possibleSource.row][possibleSource.column] === piece) {
                     ans.push(possibleSource)
-                    console.log("Pusohing")
                 }
             })
 
@@ -502,7 +395,7 @@ const findPieceSource = (board: string[][], pgn: string, piece: string, dest: Bo
                 }
 
                 // Just a little bit of error checking 
-                if (count <= 0) 
+                if (count <= 0)
                     throw new Error("No piece found capabile of moving to the destination.")
                 if (count !== 1)
                     throw new Error("Something went wrong and too many possible piece sources were for this move")
