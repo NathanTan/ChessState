@@ -8,7 +8,16 @@ import Move from './Interfaces/Move'
 
 const ExecuteTurn = (game, pgn) => {
     let newBoard = ""
-    let moveCord: Move = null
+    let moveCord: Move = {
+        source: {
+            column: -1,
+            row: -1
+        },
+        dest: {
+            column: -1,
+            row: -1
+        }
+    }
 
     if (pgn) {
         if (game.debug)
@@ -20,14 +29,16 @@ const ExecuteTurn = (game, pgn) => {
                 //TODO: add validation
                 throw new Error("Castling not yet implemented")
                 break
-                case "O-O-O": //Queen side castle
+            case "O-O-O": //Queen side castle
                 throw new Error("Castling not yet implemented")
                 break
 
             default: // Normal move           
                 switch (pgn[0]) {
                     case "N": // Knight move
-                        console.log(getPieceLocation(game.state.board, pgn, "n", game.gameType))
+                        let piece = (game.getTurn() === StandardTurns.white) ? 'N' : 'n'
+                        moveCord.dest = HelperFunctions.pgnToGridCordinates(pgn, game.getTurn(), game.gameType)
+                        moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
                         new Error("Knight not yet implemented")
                         break
                     case "B": // Bishop move
@@ -68,17 +79,17 @@ export default ExecuteTurn
  *      - [OPTIONAL] flag for debugging printing
  * Returns: A new 2d array with 1 piece in a different place
  */
-const updateBoardByCord = (board, moveCord, debug) => {
+const updateBoardByCord = (board: string[][], moveCord: Move, debug: boolean) => {
     let newBoard = board
     if (debug) {
         console.log(JSON.stringify(moveCord))
         console.log("Executing move: ")
-        console.log(board[moveCord.loc.row][moveCord.loc.col] + " -> "
-            + board[moveCord.dest.row][moveCord.dest.col])
+        console.log(board[moveCord.source.row][moveCord.source.column] + " -> "
+            + board[moveCord.dest.row][moveCord.dest.column])
     }
 
-    newBoard[moveCord.dest.row][moveCord.dest.col] = board[moveCord.loc.row][moveCord.loc.col]
-    newBoard[moveCord.loc.row][moveCord.loc.col] = "X"
+    newBoard[moveCord.dest.row][moveCord.dest.column] = board[moveCord.source.row][moveCord.source.column]
+    newBoard[moveCord.source.row][moveCord.source.column] = "X"
 
     return newBoard
 }
@@ -93,8 +104,18 @@ const updateBoardByCord = (board, moveCord, debug) => {
 const pgnToCordPawn = (board, pgn: string, turn: StandardTurns, gameType: GameTypes) => {
     console.log("pgnToCordPawn~")
     console.log("turn: " + StandardTurns[turn])
-    let moveObj: Move;
-    
+    let moveObj: Move = {
+        source: {
+            column: -1,
+            row: -1
+        },
+        dest: {
+            column: -1,
+            row: -1
+        }
+    }
+
+
     let piece = ""
     switch (gameType) {
         case GameTypes.standard:
@@ -115,8 +136,12 @@ const pgnToCordPawn = (board, pgn: string, turn: StandardTurns, gameType: GameTy
 
     else {
         // Get piece src & dest
-        moveObj.source = getPieceLocation(board, pgn, piece, gameType)
         moveObj.dest = HelperFunctions.pgnToGridCordinates(pgn, turn, gameType)
+        if (piece === "p" || piece === "P")
+            moveObj.source = getPieceLocation(board, pgn, piece, gameType)
+        else {
+            moveObj.source = findPieceSource(board, pgn, piece, moveObj.dest, gameType)
+        }
 
         console.log("Piece's location")
         console.log("(" + moveObj.source.column + "," + moveObj.source.row + ")")
@@ -247,16 +272,18 @@ const getPieceLocation = (board: Array<Array<string>>, pgn: string, piece: strin
         console.log("col: " + col + " pgn: " + pgn)
     }
     else {
+        // TODO: remove everything in this condition.
         console.log("----------op 2")
 
         // TODO: add validation to make sure the user didn't input correctly
         // Only one piece that can go to the dest square
         if (pgn.length === 3) {
-            let b: BoardLoaction
+            let b: BoardLoaction = { column: -1, row: -1 }
+            b.column = charToColumnNumber(pgn[1])
             //b.column
-            //b.row
-            // TODO: pick up here
-            
+            b.row = 8 - +pgn[2]
+
+
         }
 
         // Two pieces (in standard) can land on the dest square
@@ -268,7 +295,7 @@ const getPieceLocation = (board: Array<Array<string>>, pgn: string, piece: strin
         }
 
 
-        
+
         col = getPGNDropColumn(pgn)
         console.log(board.length)
         console.log(board[0])
@@ -320,7 +347,7 @@ const getAllPieceLocations = (board, piece, gameType) => {
     console.log(board[0])
     /* Find all locations of all pieces that match 'piece', the chosen piece */
     board.forEach((row, indexRow) => {
-    // for (let i = 0; i < board.length; i++) {
+        // for (let i = 0; i < board.length; i++) {
         // let row = board[i]
         console.log("Row: " + JSON.stringify(row))
         row.forEach((p, indexCol) => {
@@ -387,7 +414,7 @@ const getAllPossiblePieceLocations = (board: Array<Array<string>>, piece: string
 const getValidMoves = (board: Array<Array<string>>, piece, loc, gameType: GameTypes) => {
     console.log("consts: " + JSON.stringify(constants["PieceLogic"]))
     console.log("piece: " + piece)
-    const pieceName =  constants["PiecePGNToName"][piece]
+    const pieceName = constants["PiecePGNToName"][piece]
     console.log("Piece name: " + pieceName)
     let moves = constants["PieceLogic"][pieceName]
     let legalMoves = []
@@ -415,6 +442,81 @@ const getValidMoves = (board: Array<Array<string>>, piece, loc, gameType: GameTy
     return null
 }
 
+const findPieceSource = (board: string[][], pgn: string, piece: string, dest: BoardLoaction, gameType: GameTypes): BoardLoaction => {
+    switch (gameType) {
+        case GameTypes.standard:
+
+            let possibleSources: BoardLoaction[] = []
+            // Find all possible sources on the map.
+            constants.PieceLogic.Knight.forEach((square) => {
+
+                if (square.column + dest.column < 8 &&
+                    square.column + dest.column >= 0 &&
+                    square.row + dest.row < 8 &&
+                    square.row + dest.row >= 0)
+                    possibleSources.push({
+                        column: square.column + dest.column,
+                        row: square.row + dest.row
+                    })
+            })
+
+            let ans: BoardLoaction[] = []
+            console.log("piece: " + piece)
+            possibleSources.forEach((possibleSource: BoardLoaction) => {
+                console.log(board[possibleSource.row][possibleSource.column])
+                if (board[possibleSource.row][possibleSource.column] === piece) {
+                    ans.push(possibleSource)
+                    console.log("Pusohing")
+                }
+            })
+
+            // Complex senario
+            if (ans.length !== 1) {
+                let answer: BoardLoaction
+                let count = 0
+                // If there is an extra character in the pgn and it's a letter, thus representing the source column, use that column
+                if (pgn.length === 4 && !HelperFunctions.isNumeric(pgn[1])) {
+
+                    ans.forEach((possibleSource) => {
+                        if (possibleSource.column === charToColumnNumber(pgn[1])) {
+                            count++;
+                            console.log(possibleSource)
+                            answer = possibleSource
+                        }
+                    })
+                }
+
+                // If there is an extra character in the pgn and it's a number, thus representing the source row, use that row
+                else if (pgn.length === 4 && HelperFunctions.isNumeric(pgn[1])) {
+                    ans.forEach((possibleSource) => {
+                        // TODO: unit test this
+                        if (possibleSource.row === +pgn[1]) {
+                            count++;
+                            answer = possibleSource
+                            console.log(possibleSource)
+                        }
+                    })
+                }
+
+                // Just a little bit of error checking 
+                if (count !== 1)
+                    throw new Error("Something went wrong and too many possible piece sources were for this move")
+                return answer
+
+                throw new Error("Having two or more pieces that can move to the same space needs to be handled")
+            }
+            else {
+                console.log("BAM")
+                console.log(ans[0])
+                return ans[0]
+            }
+            //}
+            break
+        default:
+            throw new Error("Game type " + gameType + " not yet implemented.")
+    }
+}
+
 
 /*
  * Parameters:
@@ -440,4 +542,8 @@ const getPGNDropColumn = (pgn: string): number => {
     else {
         return pgn[0].charCodeAt(0) - 97 // Return column as a number ( 'a' mapped to 0)
     }
+}
+
+const charToColumnNumber = (char: string): number => {
+    return char[0].charCodeAt(0) - 97;
 }

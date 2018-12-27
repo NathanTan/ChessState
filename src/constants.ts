@@ -1,3 +1,5 @@
+import BoardLoaction from "./Interfaces/BoardLocation";
+
 const constants = {
     /* Column constants */
     "a": 0,
@@ -22,15 +24,15 @@ const constants = {
     /* Only intended for standard games */
     "PieceLogic": {
         "Knight": [
-            { "row": 2, "col": -1 },
-            { "row": 2, "col": 1 },
-            { "row": 1, "col": 2 },
-            { "row": -1, "col": 2 },
-            { "row": -2, "col": 1 },
-            { "row": -2, "col": -1 },
-            { "row": -1, "col": -2 },
-            { "row": 1, "col": -2 },
-        ]
+            { "row": 2, "column": -1 } as BoardLoaction,
+            { "row": 2, "column": 1 } as BoardLoaction,
+            { "row": 1, "column": 2 } as BoardLoaction,
+            { "row": -1, "column": 2 } as BoardLoaction,
+            { "row": -2, "column": 1 } as BoardLoaction,
+            { "row": -2, "column": -1 } as BoardLoaction,
+            { "row": -1, "column": -2 } as BoardLoaction,
+            { "row": 1, "column": -2 } as BoardLoaction,
+        ] as BoardLoaction[]
     },
 
     /* Only intended for standard games */
