@@ -1,8 +1,9 @@
 const TestGames = {
-    "FourMove": [
-        "e4",   // w
-        "e5",   // b
-        "Nf3"   // w
+    "FriedLiverAttack": [
+        //w     b
+        "e4",   "e5",   
+        "Nf3",  "Nc6",
+        "Bc4",  "Nf6",
     ]
 }
 

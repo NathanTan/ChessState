@@ -33,16 +33,18 @@ const ExecuteTurn = (game, pgn) => {
                 throw new Error("Castling not yet implemented")
                 break
 
-            default: // Normal move           
+            default: // Normal move  
+            let piece: string         
                 switch (pgn[0]) {
                     case "N": // Knight move
-                        let piece = (game.getTurn() === StandardTurns.white) ? 'N' : 'n'
+                        piece = (game.getTurn() === StandardTurns.white) ? 'N' : 'n'
                         moveCord.dest = HelperFunctions.pgnToGridCordinates(pgn, game.getTurn(), game.gameType)
                         moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
-                        new Error("Knight not yet implemented")
                         break
                     case "B": // Bishop move
-                        Error("Bishop not yet implemented")
+                        piece = (game.getTurn() === StandardTurns.white) ? 'B' : 'b'
+                        moveCord.dest = HelperFunctions.pgnToGridCordinates(pgn, game.getTurn(), game.gameType)
+                        moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
                         break
                     case "R": // Rook move
                         Error("Rook not yet implemented")
@@ -447,8 +449,8 @@ const findPieceSource = (board: string[][], pgn: string, piece: string, dest: Bo
         case GameTypes.standard:
 
             let possibleSources: BoardLoaction[] = []
-            // Find all possible sources on the map.
-            constants.PieceLogic.Knight.forEach((square) => {
+            // Find all possible sources on the map for the provided piece.
+            constants.PieceLogic[constants["PiecePGNToName"][piece]].forEach((square) => {
 
                 if (square.column + dest.column < 8 &&
                     square.column + dest.column >= 0 &&
@@ -462,6 +464,7 @@ const findPieceSource = (board: string[][], pgn: string, piece: string, dest: Bo
 
             let ans: BoardLoaction[] = []
             console.log("piece: " + piece)
+            console.log("Dest: " + JSON.stringify(dest))
             possibleSources.forEach((possibleSource: BoardLoaction) => {
                 console.log(board[possibleSource.row][possibleSource.column])
                 if (board[possibleSource.row][possibleSource.column] === piece) {
@@ -499,6 +502,8 @@ const findPieceSource = (board: string[][], pgn: string, piece: string, dest: Bo
                 }
 
                 // Just a little bit of error checking 
+                if (count <= 0) 
+                    throw new Error("No piece found capabile of moving to the destination.")
                 if (count !== 1)
                     throw new Error("Something went wrong and too many possible piece sources were for this move")
                 return answer
