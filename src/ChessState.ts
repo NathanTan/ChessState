@@ -95,15 +95,6 @@ class ChessState {
             // 4. Execute move (pgn)
             ExecuteTurn(this, move)
 
-            // Toggle turn
-            // switch(this.gameType) {
-            //     case GameType.standard:
-                
-            //             break
-            //     default:
-            //         throw new Error("Unimplemented game type.")
-            // }
-
             // Update History
             this.state.history.pgn.push(move)
             this.state.history.fen.push(FenLogic.BoardToFen(this.state.board, this.state.fenExtras))
@@ -127,15 +118,6 @@ class ChessState {
             }
         }
     }
-
-    // /* Gets the board only part of the games fen string. */
-    // getModBoard() {
-    //     let modedBoard = ""
-    //     this.board.split().forEach(row => {
-    //         modedBoard += row.split(" ")[0]
-    //     })
-    //     return modedBoard
-    // }
 
     // TODO: check if this can be removed.
     getBoardArray() {

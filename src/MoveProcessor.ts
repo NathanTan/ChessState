@@ -18,9 +18,9 @@ const ExecuteTurn = (game, pgn) => {
             row: -1
         }
     }
-    let capture = (pgn.indexOf("x") !== -1)
-
+    
     if (pgn) {
+        let capture = (pgn.indexOf("x") !== -1)
         if (game.debug)
             console.log("PGN provided: " + pgn)
 
@@ -39,12 +39,12 @@ const ExecuteTurn = (game, pgn) => {
                 switch (pgn[0]) {
                     case "N": // Knight move
                         piece = (game.getTurn() === StandardTurns.white) ? 'N' : 'n'
-                        moveCord.dest = HelperFunctions.pgnToGridCordinates(pgn, game.getTurn(), game.gameType, capture)
+                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
                         moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
                         break
                     case "B": // Bishop move
                         piece = (game.getTurn() === StandardTurns.white) ? 'B' : 'b'
-                        moveCord.dest = HelperFunctions.pgnToGridCordinates(pgn, game.getTurn(), game.gameType, capture)
+                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
                         moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
                         break
                     case "R": // Rook move
@@ -133,7 +133,7 @@ const pgnToCordPawn = (board, pgn: string, turn: StandardTurns, gameType: GameTy
             throw new Error("Game variant '" + gameType + "' not yet implemented.")
     }
 
-    moveObj.dest = HelperFunctions.pgnToGridCordinates(pgn, turn, gameType, capture)
+    moveObj.dest = HelperFunctions.findPieceDestination(pgn, turn, gameType, capture)
 
     if (piece === "p" || piece === "P")
         moveObj.source = getPieceLocation(board, pgn, piece, gameType)
@@ -387,7 +387,7 @@ const findPieceSource = (board: string[][], pgn: string, piece: string, dest: Bo
                     ans.forEach((possibleSource) => {
                         // TODO: unit test this
                         if (possibleSource.row === +pgn[1]) {
-                            count++;
+                            count++
                             answer = possibleSource
                             console.log(possibleSource)
                         }

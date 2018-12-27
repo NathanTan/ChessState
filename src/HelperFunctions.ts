@@ -23,7 +23,7 @@ class HelperFunctions {
      *      - game type [OPTIONAL]
      */
     // Use this to find piece start locations
-    static pgnToGridCordinates(pgn: string, turn: StandardTurns, gameType: GameTypes, capture: boolean, debug?: boolean): BoardLoaction {
+    static findPieceDestination(pgn: string, turn: StandardTurns, gameType: GameTypes, capture: boolean, debug?: boolean): BoardLoaction {
         let location: BoardLoaction = { "row": -1, "column": -1 }
         
         if (gameType != undefined && gameType !== GameTypes.standard) {
@@ -31,17 +31,25 @@ class HelperFunctions {
             console.log(gameType)
             throw new Error("pgnToGridCordinate is not yet implemented for " + gameType.toString() + " variant")
         }
+
+        let pgnColumnIndex  = 1
+        let pgnRowIndex     = 2
+
+        if (capture) {
+            pgnColumnIndex++
+            pgnRowIndex++
+        }
         
         switch (pgn[0]) {
             case "N": // Knight
             case "n":
-                location.column = (pgn[1].charCodeAt(0) - 97)
-                location.row =  (8 - +pgn[2]) 
+                location.column = (pgn[pgnColumnIndex].charCodeAt(0) - 97)
+                location.row =  (8 - +pgn[pgnRowIndex]) 
                 break
             case "B": // Bishop
             case "b":
-                location.column = (pgn[1].charCodeAt(0) - 97)
-                location.row =  (8 - +pgn[2]) 
+                location.column = (pgn[pgnColumnIndex].charCodeAt(0) - 97)
+                location.row =  (8 - +pgn[pgnRowIndex]) 
                 break
             case "R": // Rook
             case "r": 
@@ -65,7 +73,7 @@ class HelperFunctions {
                 }
                 else {
                     location.column = (pgn[2].charCodeAt(0) - 97)
-                    location.row = (turn === StandardTurns.white) ? (+pgn[3]) : (8 - +pgn[3])
+                    location.row = (8 - +pgn[3])
                 }
             }
         return location
