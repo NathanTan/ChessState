@@ -39,43 +39,31 @@ class HelperFunctions {
             pgnColumnIndex++
             pgnRowIndex++
         }
-        
-        switch (pgn[0]) {
-            case "N": // Knight
-            case "n":
-                location.column = (pgn[pgnColumnIndex].charCodeAt(0) - 97)
-                location.row =  (8 - +pgn[pgnRowIndex]) 
-                break
-            case "B": // Bishop
-            case "b":
-                location.column = (pgn[pgnColumnIndex].charCodeAt(0) - 97)
-                location.row =  (8 - +pgn[pgnRowIndex]) 
-                break
-            case "R": // Rook
-            case "r": 
-                throw new Error("Rook not yet implemented")
-                break
-            case "Q": // Queen
-            case "q":
-                throw new Error("Queen not yet implemented")
-                break
-            case "K": // King 
-            case "k":
-                throw new Error("King not yet implemented")
-                break
-            default: // Pawn
-                if(debug)
-                    console.log("==pawn")
-                if (!capture) {
 
-                    location.column = (pgn[0].charCodeAt(0) - 97)
-                    location.row = (turn === StandardTurns.white) ? (+pgn[1]) : (8 - +pgn[1])
-                }
-                else {
-                    location.column = (pgn[2].charCodeAt(0) - 97)
-                    location.row = (8 - +pgn[3])
-                }
+        if (pgn[0] === "N" || pgn [0] === "n" ||
+            pgn[0] === "B" || pgn [0] === "b" ||
+            pgn[0] === "R" || pgn [0] === "r" ||
+            pgn[0] === "K" || pgn [0] === "k" ||
+            pgn[0] === "Q" || pgn [0] === "q" ||
+            pgn[0] === "N" || pgn [0] === "n") {
+            location.column = (pgn[pgnColumnIndex].charCodeAt(0) - 97)
+            location.row =  (8 - +pgn[pgnRowIndex]) 
+        }
+
+        else {
+            if(debug)
+                    console.log("==pawn")
+            if (!capture) {
+
+                location.column = (pgn[0].charCodeAt(0) - 97)
+                location.row = (turn === StandardTurns.white) ? (+pgn[1]) : (8 - +pgn[1])
             }
+            else {
+                location.column = (pgn[2].charCodeAt(0) - 97)
+                location.row = (8 - +pgn[3])
+            }
+        }
+        
         return location
     }
 }

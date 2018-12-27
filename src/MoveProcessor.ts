@@ -48,13 +48,19 @@ const ExecuteTurn = (game, pgn) => {
                         moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
                         break
                     case "R": // Rook move
-                        Error("Rook not yet implemented")
+                        piece = (game.getTurn() === StandardTurns.white) ? 'R' : 'r'
+                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
+                        moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
                         break
                     case "Q": // Queen move
-                        Error("Queen not yet implemented")
+                        piece = (game.getTurn() === StandardTurns.white) ? 'Q' : 'q'
+                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
+                        moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
                         break
                     case "K": // King move
-                        Error("King not yet implemented")
+                        piece = (game.getTurn() === StandardTurns.white) ? 'K' : 'k'
+                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
+                        moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
                         break
                     default: // Pawn move
                         if (game.debug)
@@ -359,20 +365,55 @@ const findPieceSource = (board: string[][], pgn: string, piece: string, dest: Bo
             let ans: BoardLoaction[] = []
             console.log("piece: " + piece)
             console.log("Dest: " + JSON.stringify(dest))
-            possibleSources.forEach((possibleSource: BoardLoaction) => {
-                console.log(board[possibleSource.row][possibleSource.column])
-                if (board[possibleSource.row][possibleSource.column] === piece) {
-                    ans.push(possibleSource)
-                }
-            })
 
+            // Find which of the possible sources is the real source
+            // Special logic for Rooks
+            if (piece === "R" || piece === "r") {
+                possibleSources.forEach((possibleSource: BoardLoaction) => {
+                    console.log(board[possibleSource.row][possibleSource.column])
+                    if (board[possibleSource.row][possibleSource.column] === piece) {
+                        ans.push(possibleSource)
+                    }
+                })
+                // Once we have the two possible locations, check the squares between
+                // the possible location and the destination square for other pieces.
+                for (let possibleSource of ans) {   // TODO: add lots of unit testing here and check for moving rooks in columns
+                    let row = possibleSource.row
+                    let offset = 1
+                    for (let i = 0; i < constants.BoardWidth; i++) {
+                        let col1 = possibleSource.column + offset
+                        let col2 = possibleSource.column - offset
+         
+                        if (board[row][col1] !== undefined && board[row][col1] !== "X" ) {
+                            break // This is not the one
+                        }
+                        else if (board[row][col1] !== undefined &&  board[row][col2] !== "X") {
+                            break // This is not the one
+                        }
+                        else if ((col1 === dest.column && row === dest.row) ||
+                                 (col2 === dest.column && row === dest.row)) {
+                            // this is the one
+                            return possibleSource
+                        }
+                        offset++
+                    }
+                }
+            }
+            // Normal rules
+            else {
+                possibleSources.forEach((possibleSource: BoardLoaction) => {
+                    console.log(board[possibleSource.row][possibleSource.column])
+                    if (board[possibleSource.row][possibleSource.column] === piece) {
+                        ans.push(possibleSource)
+                    }
+                })
+            }
             // Complex senario
             if (ans.length !== 1) {
                 let answer: BoardLoaction
                 let count = 0
                 // If there is an extra character in the pgn and it's a letter, thus representing the source column, use that column
                 if (pgn.length === 4 && !HelperFunctions.isNumeric(pgn[1])) {
-
                     ans.forEach((possibleSource) => {
                         if (possibleSource.column === charToColumnNumber(pgn[1])) {
                             count++;
@@ -400,8 +441,6 @@ const findPieceSource = (board: string[][], pgn: string, piece: string, dest: Bo
                 if (count !== 1)
                     throw new Error("Something went wrong and too many possible piece sources were for this move")
                 return answer
-
-                throw new Error("Having two or more pieces that can move to the same space needs to be handled")
             }
             else {
                 console.log("BAM")

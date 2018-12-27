@@ -75,7 +75,7 @@ class ChessState {
                 console.log("/////////////////////// Turn " + this.state.turn + " ///////////////////////")
 
             // 1. Print Info
-            if (this.gameType === constants.GameTypesEnum["standard"]) {
+            if (this.gameType === GameType.standard) {
                 console.log("   " + this.getTurn() + "'s turn")
             }
 
