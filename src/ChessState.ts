@@ -7,10 +7,11 @@ import FenLogic from './FenLogic'
 import State from './Interfaces/State'
 import GameType from './Interfaces/Enums/GameTypes'
 import StandardTurns from './Interfaces/Enums/StandardTurns';
+import MoveResult from './Interfaces/MoveResult';
 
 class ChessState {
     /* Properties */
-    private debug: boolean;
+    public debug: boolean;
     private testGame: any;  // Object holding pre-set game moves for testing.
                             // TODO: move this out to testing.
     private gameType: GameType;
@@ -85,16 +86,16 @@ class ChessState {
 
             let move = ""
             while (!moveIsValid) {
-                // 2. Get move from user
+                // 2. Get move from user as a pgn
                 move = HelperFunctions.getMove(this.testGame[this.state.turn]) // TODO: replace with some sort of prompt
 
                 // 3. Check to see if move is valid
-                moveIsValid = true // TODO: Implement
+                moveIsValid = true // TODO: Implement for pgns
             }
 
             // 4. Execute move (pgn)
-            ExecuteTurn(this, move)
-
+            let result = ExecuteTurn(this, move)
+            
             // Update History
             this.state.history.pgn.push(move)
             this.state.history.fen.push(FenLogic.BoardToFen(this.state.board, this.state.fenExtras))
@@ -111,7 +112,7 @@ class ChessState {
                 BoardPrinter.printBoardDebug(this, "b")
             else
                 BoardPrinter.printBoard(this, "w")
-            this.updateFenExtras()
+            this.updateFenExtras(result)
 
             if (this.debug) {
                 console.log(this.state.fenExtras)
@@ -141,7 +142,7 @@ class ChessState {
     /*
      * Update turn
      */
-    updateFenExtras() {
+    updateFenExtras(moveResults: MoveResult) {
         console.log("updateFenExtras~")
         switch (this.gameType) {
             /* Standard */
@@ -152,7 +153,18 @@ class ChessState {
                 else 
                     this.state.fenExtras.turn = StandardTurns.white
 
-                this.checkForCastling()                 // Update available castling.
+                // Update castling.
+                if (moveResults.whiteKingSideCastle || moveResults.whiteQueenSideCastle) {
+                    this.state.fenExtras.castling = this.state.fenExtras.castling.replace("K", "")
+                    this.state.fenExtras.castling = this.state.fenExtras.castling.replace("Q", "")
+                }
+
+                else if (moveResults.blackKingSideCastle || moveResults.blackQueenSideCastle) {
+                    this.state.fenExtras.castling = this.state.fenExtras.castling.replace("k", "")
+                    this.state.fenExtras.castling = this.state.fenExtras.castling.replace("q", "")
+                }
+                
+                //this.checkForCastling()                 // Update available castling.
                 this.checkForEnPassant()                // Update available En Passant.
                 this.state.fenExtras.halfMoves++;             // Increment number of half moves.
                 if (this.state.fenExtras.halfMoves === 2) {   // Check to increment full moves.
@@ -163,7 +175,7 @@ class ChessState {
             default:
                 throw new Error("Variant Not Yet Implemented")
         }
-        Error("Not Yet Implemented")
+        //throw new Error("Not Yet Implemented")
     }
 
     checkForCastling() {

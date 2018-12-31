@@ -5,9 +5,12 @@ import GameTypes from './Interfaces/Enums/GameTypes';
 import BoardLoaction from './Interfaces/BoardLocation';
 import StandardTurns from './Interfaces/Enums/StandardTurns';
 import Move from './Interfaces/Move'
+import MoveResult from './Interfaces/MoveResult';
+import ChessState from './ChessState';
 
-const ExecuteTurn = (game, pgn) => {
+const ExecuteTurn = (game, pgn: string, debug?: boolean): MoveResult => {
     let newBoard = ""
+    // During a castle, use for the king.
     let moveCord: Move = {
         source: {
             column: -1,
@@ -18,7 +21,25 @@ const ExecuteTurn = (game, pgn) => {
             row: -1
         }
     }
-    
+    // Used for the rook during a castle.
+    let moveCord2: Move = {
+        source: {
+            column: -1,
+            row: -1
+        },
+        dest: {
+            column: -1,
+            row: -1
+        }
+    }
+    let result: MoveResult = {
+        whiteKingSideCastle: false,
+        whiteQueenSideCastle: false,
+        blackKingSideCastle: false,
+        blackQueenSideCastle: false
+    }
+    let castle = false
+
     if (pgn) {
         let capture = (pgn.indexOf("x") !== -1)
         if (game.debug)
@@ -28,10 +49,74 @@ const ExecuteTurn = (game, pgn) => {
         switch (pgn) {
             case "O-O": // King side castle
                 //TODO: add validation
-                throw new Error("Castling not yet implemented")
+                // Check if castle is legal for the position.
+                if ((game.getTurn() === StandardTurns.white &&
+                    game.state.fenExtras.castling.indexOf("K") !== -1) ||
+                    (game.getTurn() === StandardTurns.black &&
+                        game.state.fenExtras.castling.indexOf("k") !== -1)
+                ) {
+                    // Proceed
+                    // Set move for king.
+                    moveCord.dest = {
+                        row: (game.getTurn() === StandardTurns.white) ? 7 : 0,
+                        column: 6
+                    }
+                    moveCord.source = {
+                        row: (game.getTurn() === StandardTurns.white) ? 7 : 0,
+                        column: 4
+                    }
+
+                    // Set move for rook.
+                    moveCord2.dest = {
+                        row: (game.getTurn() === StandardTurns.white) ? 7 : 0,
+                        column: 5
+                    }
+                    moveCord2.source = {
+                        row: (game.getTurn() === StandardTurns.white) ? 7 : 0,
+                        column: 7
+                    }
+                }
+
+                else {
+                    if (debug) {
+                        console.log(game.getTurn().toString())
+                        console.log(game.state.fenExtras.castling.indexOf("K") !== -1)
+                    }
+                    throw new Error("King side castling is not legal in the current state.")
+                }
+
+                if (game.getTurn() === StandardTurns.white) {
+                    result.whiteKingSideCastle = true
+                }
+                else if (game.getTurn() === StandardTurns.black) {
+                    result.blackKingSideCastle = true
+                }
+                castle = true
                 break
             case "O-O-O": //Queen side castle
-                throw new Error("Castling not yet implemented")
+
+                // Check if castle is legal.
+                if ((game.getTurn() === StandardTurns.white &&
+                    game.state.fenExtras.castling.indexOf("Q") !== -1) ||
+                    (game.getTurn() === StandardTurns.black &&
+                        game.state.fenExtras.castling.indexOf("q") !== -1)
+                ) {
+                    // Proceed
+
+                }
+
+                else {
+                    throw new Error("Queen side castling is not legal in the current state.")
+                }
+
+                if (game.getTurn() === StandardTurns.white) {
+                    result.whiteQueenSideCastle = true
+                }
+                else if (game.getTurn() === StandardTurns.black) {
+                    result.blackQueenSideCastle = true
+                }
+                castle = true
+                throw new Error("Queen side castling not yet implemented")
                 break
 
             default: // Normal move  
@@ -68,14 +153,18 @@ const ExecuteTurn = (game, pgn) => {
                         moveCord = pgnToCordPawn(game.state.board, pgn, game.getTurn(), game.gameType)
                     // TODO: deal with fen's en passant
                 }
-                // TODO: move this function into the gameState such that only the game state can update the board.
-                game.state.board = updateBoardByCord(game.state.board, moveCord, game.debug)
         }
+        // TODO: move this function into the gameState such that only the game state can update the board.
+        game.state.board = updateBoardByCord(game.state.board, moveCord, game.debug)
+        if (castle)
+            game.state.board = updateBoardByCord(game.state.board, moveCord2, game.debug)
     }
 
     else {
         throw new Error("Error: no pgn provided")
     }
+
+    return result
 }
 
 export default ExecuteTurn
@@ -383,15 +472,15 @@ const findPieceSource = (board: string[][], pgn: string, piece: string, dest: Bo
                     for (let i = 0; i < constants.BoardWidth; i++) {
                         let col1 = possibleSource.column + offset
                         let col2 = possibleSource.column - offset
-         
-                        if (board[row][col1] !== undefined && board[row][col1] !== "X" ) {
+
+                        if (board[row][col1] !== undefined && board[row][col1] !== "X") {
                             break // This is not the one
                         }
-                        else if (board[row][col1] !== undefined &&  board[row][col2] !== "X") {
+                        else if (board[row][col1] !== undefined && board[row][col2] !== "X") {
                             break // This is not the one
                         }
                         else if ((col1 === dest.column && row === dest.row) ||
-                                 (col2 === dest.column && row === dest.row)) {
+                            (col2 === dest.column && row === dest.row)) {
                             // this is the one
                             return possibleSource
                         }

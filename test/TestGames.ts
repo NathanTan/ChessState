@@ -1,5 +1,5 @@
 const TestGames = {
-    "FriedLiverAttack": [
+    "Fried Liver Attack": [
         //w     b
         "e4",   "e5",   
         "Nf3",  "Nc6",
@@ -9,6 +9,13 @@ const TestGames = {
         "Nxf7", "Kxf7",
         "Qf3+", "Ke6",
         "Nc3",
+    ],
+    "Ruy Lopez": [
+        "e4",   "e5",
+        "Nf3",  "Nc6",
+        "Bb5",  "a6",
+        "Ba4",  "Nf6",
+        "O-O",  "d6"
     ]
 }
 
