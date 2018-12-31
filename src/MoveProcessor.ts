@@ -47,7 +47,7 @@ const ExecuteTurn = (game, pgn: string, debug?: boolean): MoveResult => {
 
         // Determine the pgn move
         switch (pgn) {
-            case "O-O": // King side castle
+            case "0-0": // King side castle
                 //TODO: add validation
                 // Check if castle is legal for the position.
                 if ((game.getTurn() === StandardTurns.white &&
@@ -93,7 +93,7 @@ const ExecuteTurn = (game, pgn: string, debug?: boolean): MoveResult => {
                 }
                 castle = true
                 break
-            case "O-O-O": //Queen side castle
+            case "0-0-0": //Queen side castle
 
                 // Check if castle is legal.
                 if ((game.getTurn() === StandardTurns.white &&
@@ -103,6 +103,25 @@ const ExecuteTurn = (game, pgn: string, debug?: boolean): MoveResult => {
                 ) {
                     // Proceed
 
+                    // Set move for king.
+                    moveCord.dest = {
+                        row: (game.getTurn() === StandardTurns.white) ? 7 : 0,
+                        column: 2
+                    }
+                    moveCord.source = {
+                        row: (game.getTurn() === StandardTurns.white) ? 7 : 0,
+                        column: 4
+                    }
+
+                    // Set move for rook.
+                    moveCord2.dest = {
+                        row: (game.getTurn() === StandardTurns.white) ? 7 : 0,
+                        column: 3
+                    }
+                    moveCord2.source = {
+                        row: (game.getTurn() === StandardTurns.white) ? 7 : 0,
+                        column: 0
+                    }
                 }
 
                 else {
@@ -116,7 +135,6 @@ const ExecuteTurn = (game, pgn: string, debug?: boolean): MoveResult => {
                     result.blackQueenSideCastle = true
                 }
                 castle = true
-                throw new Error("Queen side castling not yet implemented")
                 break
 
             default: // Normal move  

@@ -2,7 +2,7 @@ import ChessState from './ChessState'
 import TestGames from '../test/TestGames'
 import GameTypes from './Interfaces/Enums/GameTypes';
 
-let game = new ChessState(GameTypes.standard, null, true, TestGames["Ruy Lopez"])
+let game = new ChessState(GameTypes.standard, null, true, TestGames["Yugoslav Attack"])
 
 console.log("        ---Game Start---\n")
 

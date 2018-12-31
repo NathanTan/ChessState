@@ -15,7 +15,19 @@ const TestGames = {
         "Nf3",  "Nc6",
         "Bb5",  "a6",
         "Ba4",  "Nf6",
-        "O-O",  "d6"
+        "0-0",  "d6"
+    ],
+    "Yugoslav Attack": [
+        "e4",   "c5",
+        "Nf3",  "d6",
+        "d4",   "cxd4",
+        "Nxd4", "Nf6",
+        "Nc3",  "g6",
+        "Be3",  "Bg7",
+        "f3",   "0-0",
+        "Qd2",  "Nc6",
+        "Bc4",  "Bd7",
+        "0-0-0"
     ]
 }
 
