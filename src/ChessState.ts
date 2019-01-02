@@ -78,7 +78,7 @@ class ChessState {
             if (this.debug)
                 console.log("/////////////////////// Turn " + this.state.turn + " ///////////////////////")
 
-            // 1. Print Info
+            // 1. Print info.
             if (this.gameType === GameType.standard) {
                 console.log("   " + this.getTurn() + "'s turn")
             }
@@ -89,31 +89,17 @@ class ChessState {
 
             let move = ""
             while (!moveIsValid) {
-                // 2. Get move from user as a pgn
+                // 2. Get move from user as a pgn.
                 move = HelperFunctions.getMove(this.testGame[this.state.turn]) // TODO: replace with some sort of prompt
 
-                // 3. Check to see if move is valid
+                // 3. Check to see if move is valid.
                 moveIsValid = true // TODO: Implement for pgns
             }
 
-            // 4. Execute move (pgn)
-            let result = ExecuteTurn(this, move)
-            
-            // Update History
-            this.state.history.pgn.push(move)
-            this.state.history.fen.push(FenLogic.BoardToFen(this.state.board, this.state.fenExtras))
+            // 4. Conduct the move.
+            this.move(move)
 
-            
-            this.state.turn++
-
-            if (this.debug === true)
-                BoardPrinter.printBoardDebug(this, "b")
-            else
-                BoardPrinter.printBoard(this, "w")
-            this.updateFenExtras(result)
-
-
-            // 5. Check for end of game
+            // 5. Check for end of game.
             if (this.state.turn === this.testGame.length -1 ) {
                 console.log("GAME OVER")
                 this.state.gameOver = true // For testing purposes
@@ -124,6 +110,24 @@ class ChessState {
                 console.log(this.state.fenExtras)
             }
         }
+    }
+
+    move(move: string) {
+        // Execute move (pgn)
+        let result = ExecuteTurn(this, move)
+
+        // Update History
+        this.state.history.pgn.push(move)
+        this.state.history.fen.push(FenLogic.BoardToFen(this.state.board, this.state.fenExtras))
+        
+        this.state.turn++
+
+        if (this.debug === true)
+            BoardPrinter.printBoardDebug(this, "b")
+        else
+            BoardPrinter.printBoard(this, "w")
+        this.updateFenExtras(result)
+        return result
     }
 
     // TODO: check if this can be removed.
@@ -141,8 +145,8 @@ class ChessState {
         }
     }
 
-    getFen() {
-        Error("Not Yet Implemented")
+    getFen(debug?: boolean):string {
+        return FenLogic.BoardToFen(this.state.board, this.state.fenExtras, debug)
     }
 
     /*

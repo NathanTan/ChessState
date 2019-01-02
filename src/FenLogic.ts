@@ -184,7 +184,7 @@ import ExtraFenData from './Interfaces/FenExtras';
 
 // Turns a fen string into a 2d array representation of a board
 class FenLogic {
-    static FenToBoard(fen: string) {
+    static FenToBoard(fen: string): string[][] {
         if (fen != null) {
             // TODO: Add fen validation
             let board = Array<Array<string>>()
@@ -219,8 +219,7 @@ class FenLogic {
      *      - Extra fen information as an object
      * Returns: A fen string representing the game
      */
-    static BoardToFen(board: Array<Array<string>>, extraFenData: ExtraFenData, debug?: boolean) {
-        new Error("Depricated: Use ChessState's '.getFen' method.")
+    static BoardToFen(board: Array<Array<string>>, extraFenData: ExtraFenData, debug?: boolean): string {
         let fen = ""
         let rowNum = 0
         board.forEach(row => {
@@ -259,6 +258,7 @@ class FenLogic {
                 rowTail = "/"
             }
             count++
+            rowNum++
             fenRow += rowTail
             fen += fenRow
         })

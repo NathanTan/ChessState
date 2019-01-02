@@ -223,8 +223,6 @@ const updateBoardByCord = (board: string[][], moveCord: Move, debug: boolean) =>
 // Return: New moded board as a string
 const pgnToCordPawn = (board, pgn: string, turn: StandardTurns, gameType: GameTypes, debug?: boolean) => {
     if (debug) {
-
-
         console.log("pgnToCordPawn~")
         console.log("turn: " + StandardTurns[turn])
     }
@@ -325,7 +323,7 @@ const placePieceInRow = (row, piece, col) => {
  *      - game type [OPTIONAL]F
  */
 // TODO: Deal with situtation where there are 2 pieces in the same column that can move to the same square.
-const getPieceLocation = (board: Array<Array<string>>, pgn: string, piece: string, gameType: GameTypes, debug?: boolean): BoardLoaction => {
+const getPieceLocation = (board: string[][], pgn: string, piece: string, gameType: GameTypes, debug?: boolean): BoardLoaction => {
     // Get loc
     if (debug) {
         console.log("getPieceLocation~")
@@ -338,13 +336,12 @@ const getPieceLocation = (board: Array<Array<string>>, pgn: string, piece: strin
 
     // If pawn
     if (piece === "p" || piece === "P") {
-        console.log("----------op 1")
         col = getPGNDropColumn(pgn)
-        console.log("col: " + col + " pgn: " + pgn)
+        if (debug)
+            console.log("col: " + col + " pgn: " + pgn)
     }
     else {
         // TODO: remove everything in this condition.
-        console.log("----------op 2")
 
         // TODO: add validation to make sure the user didn't input correctly
         // Only one piece that can go to the dest square
@@ -386,7 +383,8 @@ const getPieceLocation = (board: Array<Array<string>>, pgn: string, piece: strin
 
     if (gameType == undefined || gameType === GameTypes.standard) {
         piecesInCol.forEach((p) => {
-            console.log("p: " + p)
+            if (debug)
+                console.log("p: " + p)
             if (p === piece) {
                 locatedPieceRow = index
             }
@@ -423,7 +421,6 @@ const getAllPossiblePieceLocations = (board: Array<Array<string>>, piece: string
 
     let possibleLocations = []
     pieceLocations.forEach((loc) => {
-        console.log("LLLOOOOCCC: " + JSON.stringify(loc))
         let validMoves = getValidMoves(board, piece, loc, gameType)
 
     })
