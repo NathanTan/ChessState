@@ -8,6 +8,7 @@ import State from './Interfaces/State'
 import GameType from './Interfaces/Enums/GameTypes'
 import StandardTurns from './Interfaces/Enums/StandardTurns';
 import MoveResult from './Interfaces/MoveResult';
+import BoardLoaction from './Interfaces/BoardLocation';
 
 class ChessState {
     /* Properties */
@@ -54,7 +55,9 @@ class ChessState {
             },
             gameOver: false,    // TODO: check initalizing with a game over fen
             turn: 0,
-            fenExtras: fenExtras
+            fenExtras: fenExtras,
+            whiteKingLocation: null,
+            blackKingLocation: null
         }
 
         Errors.checkGameType(this)
@@ -100,12 +103,7 @@ class ChessState {
             this.state.history.pgn.push(move)
             this.state.history.fen.push(FenLogic.BoardToFen(this.state.board, this.state.fenExtras))
 
-            // 5. Check for end of game
-            if (this.state.turn === this.testGame.length) {
-                console.log("GAME OVER")
-                this.state.gameOver = true // For testing purposes
-                break
-            }
+            
             this.state.turn++
 
             if (this.debug === true)
@@ -113,6 +111,14 @@ class ChessState {
             else
                 BoardPrinter.printBoard(this, "w")
             this.updateFenExtras(result)
+
+
+            // 5. Check for end of game
+            if (this.state.turn === this.testGame.length -1 ) {
+                console.log("GAME OVER")
+                this.state.gameOver = true // For testing purposes
+                break
+            }
 
             if (this.debug) {
                 console.log(this.state.fenExtras)
@@ -181,8 +187,69 @@ class ChessState {
     checkForCastling() {
         console.log("checkForCastling Not Yet Implemented")
     }
+
     checkForEnPassant() {
         console.log("checkForEnPassant Not Yet Implemented")
+    }
+
+    checkForCheckmate() {
+        let isCheckmate = false
+        // Find the location of the king.
+        let kingLocation = (this.getTurn() === StandardTurns.white) ? this.state.whiteKingLocation : this.state.blackKingLocation
+
+        // TODO: add method for searching for king if non-starting fen is provided.
+        let i, j = 0
+        let kingPiece = (this.getTurn() === StandardTurns.white) ? "K" : "k"
+
+
+
+
+
+
+        // A - Avoid
+        // Check all the imidiately adjacent and diagonal squares of the king's location.
+
+        // B - Block
+        // C - Capture
+    }
+
+ 
+    squareIsSafeForKing(kingSquare: BoardLoaction, color: StandardTurns): boolean {
+        // Check the knight squares
+        constants.PieceLogic[constants["PiecePGNToName"]["Knight"]].forEach((attackerSquare) => {
+            // If the square is within bounds
+            if (attackerSquare.column + kingSquare.column < 8 &&
+                attackerSquare.column + kingSquare.column >= 0 &&
+                attackerSquare.row + kingSquare.row < 8 &&
+                attackerSquare.row + kingSquare.row >= 0) {
+                    if (color === StandardTurns.white && this.state.board[attackerSquare.row][attackerSquare.column] === "k") {
+                        return false
+                    }
+                    else if (color === StandardTurns.black && this.state.board[attackerSquare.row][attackerSquare.column] === "K") {
+                        return false
+                    }
+                }
+        })
+
+        // Check rook squares
+        constants.PieceLogic[constants["PiecePGNToName"]["Rook"]].forEach((attackerSquare) => {
+            // If the square is within bounds
+            if (attackerSquare.column + kingSquare.column < 8 &&
+                attackerSquare.column + kingSquare.column >= 0 &&
+                attackerSquare.row + kingSquare.row < 8 &&
+                attackerSquare.row + kingSquare.row >= 0) {
+                    if (color === StandardTurns.white && this.state.board[attackerSquare.row][attackerSquare.column] === "k") {
+                        return false
+                    }
+                    else if (color === StandardTurns.black && this.state.board[attackerSquare.row][attackerSquare.column] === "K") {
+                        return false
+                    }
+                }
+        })
+
+        // Check the rook squares
+
+        return true
     }
 }
 

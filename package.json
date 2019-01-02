@@ -4,7 +4,7 @@
   "description": "A chess game state manager",
   "main": "FenLogic.js",
   "scripts": {
-    "test": "mocha",
+    "test": "mocha --compilers js:@babel/register",
     "build": "webpack",
     "start": "node ./bundles/ChessState.js",
     "super": "tsc; if [ 0 -eq $? ]; then webpack; npm start; fi;",
@@ -31,6 +31,11 @@
     "webpack-cli": "^3.1.2"
   },
   "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/node": "^7.2.2",
+    "@babel/preset-env": "^7.2.3",
+    "@babel/register": "^7.0.0",
     "babel": "^6.23.0",
     "babel-cli": "^6.26.0",
     "ts-loader": "^5.3.1",

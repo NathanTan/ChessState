@@ -40,6 +40,7 @@ class HelperFunctions {
             pgnRowIndex++
         }
 
+        // If not a pawn
         if (pgn[0] === "N" || pgn [0] === "n" ||
             pgn[0] === "B" || pgn [0] === "b" ||
             pgn[0] === "R" || pgn [0] === "r" ||

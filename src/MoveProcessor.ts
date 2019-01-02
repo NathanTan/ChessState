@@ -36,7 +36,8 @@ const ExecuteTurn = (game, pgn: string, debug?: boolean): MoveResult => {
         whiteKingSideCastle: false,
         whiteQueenSideCastle: false,
         blackKingSideCastle: false,
-        blackQueenSideCastle: false
+        blackQueenSideCastle: false,
+        kingLocation: null
     }
     let castle = false
 
@@ -92,6 +93,7 @@ const ExecuteTurn = (game, pgn: string, debug?: boolean): MoveResult => {
                     result.blackKingSideCastle = true
                 }
                 castle = true
+                result.kingLocation = moveCord.dest     // Keep track of where the king lands for checking checkmate.
                 break
             case "0-0-0": //Queen side castle
 
@@ -135,6 +137,7 @@ const ExecuteTurn = (game, pgn: string, debug?: boolean): MoveResult => {
                     result.blackQueenSideCastle = true
                 }
                 castle = true
+                result.kingLocation = moveCord.dest     // Keep track of where the king lands for checking checkmate.
                 break
 
             default: // Normal move  
@@ -164,6 +167,7 @@ const ExecuteTurn = (game, pgn: string, debug?: boolean): MoveResult => {
                         piece = (game.getTurn() === StandardTurns.white) ? 'K' : 'k'
                         moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
                         moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
+                        result.kingLocation = moveCord.dest     // Keep track of where the king lands for checking checkmate.
                         break
                     default: // Pawn move
                         if (game.debug)
@@ -427,7 +431,6 @@ const getValidMoves = (board: Array<Array<string>>, piece, loc, gameType: GameTy
     console.log("Piece name: " + pieceName)
     let moves = constants["PieceLogic"][pieceName]
     let legalMoves = []
-    console.log("HEERHE")
     console.log("LOC: " + JSON.stringify(loc))
 
     // note: apply (add) a move to a piece location to get the destination
@@ -590,4 +593,8 @@ const getPGNDropColumn = (pgn: string): number => {
 
 const charToColumnNumber = (char: string): number => {
     return char[0].charCodeAt(0) - 97;
+}
+
+const testMethod = () => {
+    return 1
 }
