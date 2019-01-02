@@ -219,7 +219,7 @@ class FenLogic {
      *      - Extra fen information as an object
      * Returns: A fen string representing the game
      */
-    static BoardToFen(board: Array<Array<string>>, extraFenData: ExtraFenData) {
+    static BoardToFen(board: Array<Array<string>>, extraFenData: ExtraFenData, debug?: boolean) {
         new Error("Depricated: Use ChessState's '.getFen' method.")
         let fen = ""
         let rowNum = 0
@@ -263,7 +263,8 @@ class FenLogic {
             fen += fenRow
         })
 
-        console.log("Built Fen" + fen)
+        if (debug)
+            console.log("Built Fen: " + fen)
         return fen
     }
 }

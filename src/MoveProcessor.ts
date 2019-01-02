@@ -222,8 +222,12 @@ const updateBoardByCord = (board: string[][], moveCord: Move, debug: boolean) =>
 // Note: Doesn't work with bug house when finind piece location
 // Return: New moded board as a string
 const pgnToCordPawn = (board, pgn: string, turn: StandardTurns, gameType: GameTypes, debug?: boolean) => {
-    console.log("pgnToCordPawn~")
-    console.log("turn: " + StandardTurns[turn])
+    if (debug) {
+
+
+        console.log("pgnToCordPawn~")
+        console.log("turn: " + StandardTurns[turn])
+    }
     let moveObj: Move = {
         source: {
             column: -1,
@@ -321,10 +325,12 @@ const placePieceInRow = (row, piece, col) => {
  *      - game type [OPTIONAL]F
  */
 // TODO: Deal with situtation where there are 2 pieces in the same column that can move to the same square.
-const getPieceLocation = (board: Array<Array<string>>, pgn: string, piece: string, gameType: GameTypes): BoardLoaction => {
+const getPieceLocation = (board: Array<Array<string>>, pgn: string, piece: string, gameType: GameTypes, debug?: boolean): BoardLoaction => {
     // Get loc
-    console.log("getPieceLocation~")
-    console.log("piece: " + piece)
+    if (debug) {
+        console.log("getPieceLocation~")
+        console.log("piece: " + piece)
+    }
 
     let col: number = null
     let possibleCol = []

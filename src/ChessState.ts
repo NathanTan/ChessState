@@ -149,7 +149,6 @@ class ChessState {
      * Update turn
      */
     updateFenExtras(moveResults: MoveResult) {
-        console.log("updateFenExtras~")
         switch (this.gameType) {
             /* Standard */
             case GameType.standard:
