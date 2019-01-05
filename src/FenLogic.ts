@@ -207,10 +207,9 @@ class FenLogic {
                 })
                 board.push(rowArr)
             })
-            console.log(JSON.stringify(board))
             return board
         }
-        Error("No Fen Provided")
+        throw new Error("No Fen Provided")
     }
 
     /*

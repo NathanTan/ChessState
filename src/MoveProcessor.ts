@@ -8,7 +8,7 @@ import Move from './Interfaces/Move'
 import MoveResult from './Interfaces/MoveResult';
 import ChessState from './ChessState';
 
-const ExecuteTurn = (game, pgn: string, debug?: boolean): MoveResult => {
+const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): MoveResult => {
     let newBoard = ""
     // During a castle, use for the king.
     let moveCord: Move = {
@@ -43,7 +43,7 @@ const ExecuteTurn = (game, pgn: string, debug?: boolean): MoveResult => {
 
     if (pgn) {
         let capture = (pgn.indexOf("x") !== -1)
-        if (game.debug)
+        if (game.debug && !hideOutput)
             console.log("PGN provided: " + pgn)
 
         // Determine the pgn move
@@ -170,16 +170,16 @@ const ExecuteTurn = (game, pgn: string, debug?: boolean): MoveResult => {
                         result.kingLocation = moveCord.dest     // Keep track of where the king lands for checking checkmate.
                         break
                     default: // Pawn move
-                        if (game.debug)
+                        if (game.debug && !hideOutput)
                             console.log("==Pawn Move")
-                        moveCord = pgnToCordPawn(game.state.board, pgn, game.getTurn(), game.gameType)
+                        moveCord = pgnToCordPawn(game.state.board, pgn, game.getTurn(), game.gameType, hideOutput)
                     // TODO: deal with fen's en passant
                 }
         }
         // TODO: move this function into the gameState such that only the game state can update the board.
-        game.state.board = updateBoardByCord(game.state.board, moveCord, game.debug)
+        game.state.board = updateBoardByCord(game.state.board, moveCord, game.debug, hideOutput)
         if (castle)
-            game.state.board = updateBoardByCord(game.state.board, moveCord2, game.debug)
+            game.state.board = updateBoardByCord(game.state.board, moveCord2, game.debug, hideOutput)
     }
 
     else {
@@ -199,9 +199,9 @@ export default ExecuteTurn
  *      - [OPTIONAL] flag for debugging printing
  * Returns: A new 2d array with 1 piece in a different place
  */
-const updateBoardByCord = (board: string[][], moveCord: Move, debug: boolean) => {
+const updateBoardByCord = (board: string[][], moveCord: Move, debug: boolean, hideOutput: boolean) => {
     let newBoard = board
-    if (debug) {
+    if (debug && !hideOutput) {
         console.log(JSON.stringify(moveCord))
         console.log("Executing move: ")
         console.log(board[moveCord.source.row][moveCord.source.column] + " -> "
@@ -221,7 +221,7 @@ const updateBoardByCord = (board: string[][], moveCord: Move, debug: boolean) =>
 // Done with pgn, returns cordinates of piece source and desination
 // Note: Doesn't work with bug house when finind piece location
 // Return: New moded board as a string
-const pgnToCordPawn = (board, pgn: string, turn: StandardTurns, gameType: GameTypes, debug?: boolean) => {
+const pgnToCordPawn = (board, pgn: string, turn: StandardTurns, gameType: GameTypes, hideOutput: boolean, debug?: boolean) => {
     if (debug) {
         console.log("pgnToCordPawn~")
         console.log("turn: " + StandardTurns[turn])
@@ -255,7 +255,7 @@ const pgnToCordPawn = (board, pgn: string, turn: StandardTurns, gameType: GameTy
     moveObj.dest = HelperFunctions.findPieceDestination(pgn, turn, gameType, capture)
 
     if (piece === "p" || piece === "P")
-        moveObj.source = getPieceLocation(board, pgn, piece, gameType)
+        moveObj.source = getPieceLocation(board, pgn, piece, gameType, hideOutput)
     else {
         moveObj.source = findPieceSource(board, pgn, piece, moveObj.dest, gameType)
     }
@@ -323,7 +323,7 @@ const placePieceInRow = (row, piece, col) => {
  *      - game type [OPTIONAL]F
  */
 // TODO: Deal with situtation where there are 2 pieces in the same column that can move to the same square.
-const getPieceLocation = (board: string[][], pgn: string, piece: string, gameType: GameTypes, debug?: boolean): BoardLoaction => {
+const getPieceLocation = (board: string[][], pgn: string, piece: string, gameType: GameTypes, hideOutput:boolean, debug?: boolean): BoardLoaction => {
     // Get loc
     if (debug) {
         console.log("getPieceLocation~")
@@ -337,7 +337,7 @@ const getPieceLocation = (board: string[][], pgn: string, piece: string, gameTyp
     // If pawn
     if (piece === "p" || piece === "P") {
         col = getPGNDropColumn(pgn)
-        if (debug)
+        if (debug && !hideOutput)
             console.log("col: " + col + " pgn: " + pgn)
     }
     else {
@@ -363,10 +363,8 @@ const getPieceLocation = (board: string[][], pgn: string, piece: string, gameTyp
 
 
         col = getPGNDropColumn(pgn)
-        console.log(board.length)
-        console.log(board[0])
+      
         let pieceSource: BoardLoaction = null;
-        console.log("COLL: " + col.toString())
         pieceSource.column = +col
         pieceSource.row = -1;
         let possibleCordss = getAllPossiblePieceLocations(board, piece, pieceSource, gameType)
@@ -383,7 +381,7 @@ const getPieceLocation = (board: string[][], pgn: string, piece: string, gameTyp
 
     if (gameType == undefined || gameType === GameTypes.standard) {
         piecesInCol.forEach((p) => {
-            if (debug)
+            if (debug && !hideOutput)
                 console.log("p: " + p)
             if (p === piece) {
                 locatedPieceRow = index
@@ -395,8 +393,7 @@ const getPieceLocation = (board: string[][], pgn: string, piece: string, gameTyp
     else {
         throw new Error("ERROR: TODO: Implement for non-standard game variants")
     }
-    console.log("locatedPieceCol: ")
-    console.log(locatedPieceRow)
+
     return {
         "column": col,
         "row": locatedPieceRow

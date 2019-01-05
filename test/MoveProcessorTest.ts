@@ -27,7 +27,7 @@ describe('Move Execution: e4', function () {
         
         let expectedFen = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR0 KQkq - 0 1"
 
-        const result = ExecuteTurn(game, pgn)
+        const result = ExecuteTurn(game, pgn, config.hideOutput)
 
         // TODO: evaulate objects in a more robust way.
         assert.strictEqual(true, (JSON.stringify(expected) === JSON.stringify(result) ))
@@ -47,20 +47,17 @@ describe('Move Execution: e4 e5', function () {
             kingLocation: null
           } as MoveResult
         
-        let expectedFen = "rnbqkbnr/pppp1ppp/8/4P3/4P3/8/PPPP1PPP/RNBQKBNR0 KQkq - 0 2"
+        let expectedFen = `rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR0 KQkq - 0 2`
 
         let result = game.move("e4")
         assert.strictEqual(true, (JSON.stringify(expected) === JSON.stringify(result) ))
 
         result = game.move("e5")
-        console.log(expectedFen)
-        console.log(game.getFen())
-        console.log(expectedFen === game.getFen())
 
         // TODO: evaulate objects in a more robust way.
         assert.strictEqual(true, (JSON.stringify(expected) === JSON.stringify(result) ))
 
         // Check board position to make sure the pawn was moved.
-        assert.strictEqual(expectedFen, game.getFen())
+        assert.strictEqual(expectedFen.trim(),game.getFen().trim())
     })
 })

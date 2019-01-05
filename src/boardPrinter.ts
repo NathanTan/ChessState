@@ -1,22 +1,23 @@
 /* boardPrinter.js */
 import HelperFunctions from './HelperFunctions'
 import ChessState from './ChessState';
+import StandardTurns from './Interfaces/Enums/StandardTurns';
 
 class boardPrinter {
 
     /* Prints a ascii board based on a standard fen string */
-    static printBoard(state: ChessState, prospective: string) {
+    static printBoard(state: ChessState, prospective: StandardTurns) {
         let boardString = "" // String for printing to the console.
         let board = state.getBoardArray()
 
         boardString += "---------------------------------\n"
         let boardForPrinting = null
 
-        if (prospective === "w") {
+        if (prospective === StandardTurns.white) {
             boardForPrinting = board
         }
 
-        else if (prospective === "b") {
+        else if (prospective === StandardTurns.black) {
             boardForPrinting = board.reverse()
         }
         

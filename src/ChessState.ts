@@ -51,6 +51,21 @@ class ChessState {
             }
         }
 
+        else {
+            // Generate fen.
+
+            // Quick fix
+            if (config.fen === constants.startingFen) {
+                fenExtras = {
+                    turn: StandardTurns.white,
+                    castling: "KQkq",
+                    enPassant: "-",
+                    halfMoves: 0,
+                    fullMoves: 1
+                }
+            }
+        }
+
         // Initalize state.
         this.state = {
             board: FenLogic.FenToBoard(config.fen),
@@ -75,7 +90,7 @@ class ChessState {
             console.log("GameState initalized\n")
         }
         if (!this.hideOutput)
-            BoardPrinter.printBoard(this, "w")
+            BoardPrinter.printBoard(this, StandardTurns.white)
     }
 
     play() {
@@ -122,7 +137,7 @@ class ChessState {
 
     move(move: string) {
         // Execute move (pgn)
-        let result = ExecuteTurn(this, move)
+        let result = ExecuteTurn(this, move, this.hideOutput)
 
         // Update History
         this.state.history.pgn.push(move)
@@ -130,10 +145,10 @@ class ChessState {
         
         this.state.turn++
 
-        if (this.debug === true)
+        if (this.debug === true && !this.hideOutput)
             BoardPrinter.printBoardDebug(this, "b")
-        else
-            BoardPrinter.printBoard(this, "w")
+        else if (this.debug === false && !this.hideOutput)
+            BoardPrinter.printBoard(this, StandardTurns.white)
         this.updateFenExtras(result)
         return result
     }
@@ -196,11 +211,13 @@ class ChessState {
     }
 
     checkForCastling() {
-        console.log("checkForCastling Not Yet Implemented")
+        if (!this.hideOutput)
+            console.log("checkForCastling Not Yet Implemented")
     }
 
     checkForEnPassant() {
-        console.log("checkForEnPassant Not Yet Implemented")
+        if (!this.hideOutput)
+            console.log("checkForEnPassant Not Yet Implemented")
     }
 
     checkForEndOfGame() {
