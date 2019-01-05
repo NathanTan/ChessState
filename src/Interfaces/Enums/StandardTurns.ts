@@ -1,5 +1,5 @@
 enum StandardTurns {
-    white,
+    white = 0,
     black
 }
 

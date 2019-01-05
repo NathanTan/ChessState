@@ -247,11 +247,7 @@ class FenLogic {
             }
 
             if (rowNum === 7) {
-                fenRow += extraFenData.turn + " " +
-                extraFenData.castling + " " +
-                extraFenData.enPassant + " " +
-                extraFenData.halfMoves + " " +
-                extraFenData.fullMoves
+                fenRow += `${extraFenData.turn} ${extraFenData.castling} ${extraFenData.enPassant} ${extraFenData.halfMoves} ${extraFenData.fullMoves} ` 
             }
 
             else {

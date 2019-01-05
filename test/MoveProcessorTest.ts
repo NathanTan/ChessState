@@ -1,14 +1,22 @@
-var assert = require('assert');
+var assert = require('assert')
 import ChessState from "../src/ChessState"
 import ExecuteTurn from "../src/MoveProcessor.js"
 import GameTypes from "../src/Interfaces/Enums/GameTypes"
 import TestGames from "./TestGames"
-import MoveResult from "../src/Interfaces/MoveResult";
+import MoveResult from "../src/Interfaces/MoveResult"
+import Config from "../src/Interfaces/Config"
 
+const config: Config = {
+    gameType:   GameTypes.standard,
+    fen:        null,
+    debug:      true,
+    testGame:   null,
+    hideOutput: true
+}
 
 describe('Move Execution: e4', function () {
     it('should return the correct move result object, and the state should be appropriately updated.', () => {
-        let game = new ChessState(GameTypes.standard, null, false, null)
+        let game = new ChessState(config)
         const pgn = "e4"
         const expected = { whiteKingSideCastle: false,
             whiteQueenSideCastle: false,
@@ -31,7 +39,7 @@ describe('Move Execution: e4', function () {
 
 describe('Move Execution: e4 e5', function () {
     it('should return the correct move result object, and the state should be appropriately updated.', () => {
-        let game = new ChessState(GameTypes.standard, null, false, null)
+        let game = new ChessState(config)
         const expected = { whiteKingSideCastle: false,
             whiteQueenSideCastle: false,
             blackKingSideCastle: false,

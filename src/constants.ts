@@ -1,4 +1,5 @@
 import BoardLoaction from "./Interfaces/BoardLocation";
+import StandardTurns from "./Interfaces/Enums/StandardTurns";
 
 const constants = {
     /* Column constants */
@@ -174,6 +175,34 @@ const constants = {
         "Q": "Queen",
         "k": "King",
         "K": "King",
+    },
+
+    // NOTE: 0 is the enum value for white and 1 is for black from the StandardTurns file.
+    "PieceNameToPGN": {
+        "Pawn": {
+            0: "P",
+            1: "p"
+        },
+        "Knight": {
+            0: "N",
+            1: "n"
+        },
+        "Bishop": {
+            0: "B",
+            1: "b"
+        },
+        "Rook": {
+            0: "R",
+            1: "r"
+        },
+        "Queen": {
+            0: "Q",
+            1: "q"
+        },
+        "King": {
+            0: "K",
+            1: "k"
+        }
     }
 }
 

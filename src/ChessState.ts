@@ -6,17 +6,19 @@ import ExecuteTurn from './MoveProcessor'
 import FenLogic from './FenLogic'
 import State from './Interfaces/State'
 import GameType from './Interfaces/Enums/GameTypes'
-import StandardTurns from './Interfaces/Enums/StandardTurns';
-import MoveResult from './Interfaces/MoveResult';
-import BoardLoaction from './Interfaces/BoardLocation';
+import StandardTurns from './Interfaces/Enums/StandardTurns'
+import MoveResult from './Interfaces/MoveResult'
+import BoardLoaction from './Interfaces/BoardLocation'
+import Config from './Interfaces/Config'
 
 class ChessState {
     /* Properties */
-    public debug: boolean;
-    private testGame: any;  // Object holding pre-set game moves for testing.
+    public debug: boolean
+    private testGame: any  // Object holding pre-set game moves for testing.
                             // TODO: move this out to testing.
-    private gameType: GameType;
-    private state: State;
+    private gameType: GameType
+    private state: State
+    private hideOutput: boolean
 
 
     /*
@@ -27,16 +29,19 @@ class ChessState {
     *      - [TESTING] game for testing (as array of pgns)
     * Returns: A new 2d array with 1 piece in a different place
     */
-    constructor(gameType: GameType, fen: string, debug: boolean, testGame: any) {
-        this.debug = debug;
-        this.testGame = testGame;
-        this.gameType = gameType;
+    constructor(config: Config) {
+        // TODO: validate config object
+        
+        this.debug = config.debug
+        this.testGame = config.testGame
+        this.gameType = config.gameType
+        this.hideOutput = config.hideOutput
         let fenExtras;
 
         // Check for provided fen.
-        if (fen == null) {
+        if (config.fen == null) {
             // No provided fen string means a default start.
-            fen = constants.startingFen;
+            config.fen = constants.startingFen;
             fenExtras = {
                 turn: StandardTurns.white,
                 castling: "KQkq",
@@ -48,9 +53,9 @@ class ChessState {
 
         // Initalize state.
         this.state = {
-            board: FenLogic.FenToBoard(fen),
+            board: FenLogic.FenToBoard(config.fen),
             history: {
-                fen: [fen],
+                fen: [config.fen],
                 pgn: []
             },
             gameOver: false,    // TODO: check initalizing with a game over fen
@@ -61,7 +66,7 @@ class ChessState {
         }
 
         Errors.checkGameType(this)
-        if (this.debug) {
+        if (this.debug && !this.hideOutput) {
             console.log("Game type: ")
             console.log(this.gameType.toString())
             console.log("Standard game type")
@@ -69,7 +74,8 @@ class ChessState {
             console.log("fenExtras: " + JSON.stringify(this.state.fenExtras))
             console.log("GameState initalized\n")
         }
-        BoardPrinter.printBoard(this, "w")
+        if (!this.hideOutput)
+            BoardPrinter.printBoard(this, "w")
     }
 
     play() {
@@ -84,7 +90,7 @@ class ChessState {
             }
 
             else {
-                Error("TODO: add for bughouse")
+                throw new Error("TODO: add for bughouse")
             }
 
             let move = ""
@@ -100,8 +106,10 @@ class ChessState {
             this.move(move)
 
             // 5. Check for end of game.
+            this.checkForEndOfGame()
             if (this.state.turn === this.testGame.length -1 ) {
-                console.log("GAME OVER")
+                if (!this.hideOutput)
+                    console.log("GAME OVER")
                 this.state.gameOver = true // For testing purposes
                 break
             }
@@ -195,6 +203,12 @@ class ChessState {
         console.log("checkForEnPassant Not Yet Implemented")
     }
 
+    checkForEndOfGame() {
+        this.checkForCheckmate()
+        //this.checkForStalemate() 
+        // TODO: add resign functionality.
+    }
+
     checkForCheckmate() {
         let isCheckmate = false
         // Find the location of the king.
@@ -210,47 +224,116 @@ class ChessState {
 
 
         // A - Avoid
+        let foo: BoardLoaction = {
+            row:    7,
+            column: 3
+        } 
+        let bar = this.squareIsSafeForKing(foo, StandardTurns.black, GameType.standard)
         // Check all the imidiately adjacent and diagonal squares of the king's location.
 
         // B - Block
         // C - Capture
     }
-
  
-    squareIsSafeForKing(kingSquare: BoardLoaction, color: StandardTurns): boolean {
-        // Check the knight squares
-        constants.PieceLogic[constants["PiecePGNToName"]["Knight"]].forEach((attackerSquare) => {
-            // If the square is within bounds
-            if (attackerSquare.column + kingSquare.column < 8 &&
-                attackerSquare.column + kingSquare.column >= 0 &&
-                attackerSquare.row + kingSquare.row < 8 &&
-                attackerSquare.row + kingSquare.row >= 0) {
-                    if (color === StandardTurns.white && this.state.board[attackerSquare.row][attackerSquare.column] === "k") {
-                        return false
-                    }
-                    else if (color === StandardTurns.black && this.state.board[attackerSquare.row][attackerSquare.column] === "K") {
-                        return false
-                    }
-                }
-        })
+    // Iteratively check all the surrounding squares to see if a square is safe for the king
+    squareIsSafeForKing(kingSquare: BoardLoaction, color: StandardTurns, gameType: GameType, debug?: boolean): boolean {
+        switch (gameType) {
+            case GameType.standard:
+                // Check Knight squares, Bishop squares, and Rook squares.
+                let foo = this.squareIsSafeFromPiece(kingSquare, color, "Knight", debug)
+                let bar = this.squareIsSafeFromPiece(kingSquare, color, "Bishop", debug)
+                let que = this.squareIsSafeFromPiece(kingSquare, color, "Rook", debug)
+                return (foo && bar && que)
+            case GameType.bughouse:
+                throw new Error("Variant 'Bughouse' is not yet implemented.")
+            default:
+                throw new Error("Game variant is not recognized.")
+        }
+    }
 
-        // Check rook squares
-        constants.PieceLogic[constants["PiecePGNToName"]["Rook"]].forEach((attackerSquare) => {
-            // If the square is within bounds
-            if (attackerSquare.column + kingSquare.column < 8 &&
-                attackerSquare.column + kingSquare.column >= 0 &&
-                attackerSquare.row + kingSquare.row < 8 &&
-                attackerSquare.row + kingSquare.row >= 0) {
-                    if (color === StandardTurns.white && this.state.board[attackerSquare.row][attackerSquare.column] === "k") {
-                        return false
-                    }
-                    else if (color === StandardTurns.black && this.state.board[attackerSquare.row][attackerSquare.column] === "K") {
-                        return false
-                    }
-                }
-        })
+    // NOTE: function is not designed for non-standard board sizes.
+    private squareIsSafeFromPiece(kingSquare: BoardLoaction, color: StandardTurns, pieceName: string, debug?: boolean): boolean {
+        let pieceSymbolWhite: string
+        let pieceSymbolBlack: string
 
-        // Check the rook squares
+        // TODO: The problem is that the bishops and rooks don't stop after they find a piece that is in the way.
+
+        if (debug && !this.hideOutput) {
+            console.log(kingSquare)
+            console.log(color)
+            console.log("pieceName: " + pieceName)
+        }
+
+        let list: BoardLoaction[][] = []
+        let sublist: BoardLoaction[] = []
+
+        // Only needs to check against Rooks, Knights, and Bishops.
+        switch (pieceName) { 
+            case "Rook":
+                pieceSymbolWhite = constants["PieceNameToPGN"]["Rook"][StandardTurns.white]
+                pieceSymbolBlack = constants["PieceNameToPGN"]["Rook"][StandardTurns.black]
+
+                for (let i = 0; i < 4; i++) {
+                    for (let j = 0; j < 7; j++) {
+                        sublist.push(constants.PieceLogic[pieceName][i * j])
+                    }
+                    list.push(sublist)
+                    sublist = []
+                }
+                break
+            case "Knight":
+                pieceSymbolWhite = constants["PieceNameToPGN"]["Knight"][StandardTurns.white]
+                pieceSymbolBlack = constants["PieceNameToPGN"]["Knight"][StandardTurns.black]
+                
+                // Just stuff it the list.
+                for (let j = 0; j < 8; j++) {
+                    sublist.push(constants.PieceLogic[pieceName][j])
+                }
+                list.push(sublist)
+            
+                break
+            case "Bishop":
+                pieceSymbolWhite = constants["PieceNameToPGN"]["Bishop"][StandardTurns.white]
+                pieceSymbolBlack = constants["PieceNameToPGN"]["Bishop"][StandardTurns.black]
+                
+                for (let i = 0; i < 4; i++) {
+                    for (let j = 0; j < 7; j++) {
+                        sublist.push(constants.PieceLogic[pieceName][i * j])
+                    }
+                    list.push(sublist)
+                    sublist = []
+                }
+                break
+            default:
+                throw new Error("'squareIsSafeFromPiece' function is working unexpectedly.")
+        }
+
+        for (let sublist of list) {
+            for (let attackerSquare of sublist) {
+                // If the square is within bounds
+                if (attackerSquare.column + kingSquare.column < 8 &&
+                    attackerSquare.column + kingSquare.column >= 0 &&
+                    attackerSquare.row + kingSquare.row < 8 &&
+                    attackerSquare.row + kingSquare.row >= 0) {
+
+                        // This break will require there to be a clear path for non-jumping pieces to be a threat.
+                        if ((this.state.board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== pieceSymbolWhite ||
+                            this.state.board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== pieceSymbolBlack ||
+                            this.state.board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== "X") && 
+                            pieceName !== "Knight" // Knights are allowed to jump
+                            )
+                            break
+
+                        // If the correct piece appears, then the square is not safe.
+                        if (color === StandardTurns.white && this.state.board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] === pieceSymbolWhite) {
+                            return false
+                        }
+                        else if (color === StandardTurns.black && this.state.board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] === pieceSymbolBlack) {
+                            return false
+                        }
+                    }
+            }
+        }
 
         return true
     }

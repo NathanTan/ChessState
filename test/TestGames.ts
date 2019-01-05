@@ -28,6 +28,9 @@ const TestGames = {
         "Qd2",  "Nc6",
         "Bc4",  "Bd7",
         "0-0-0"
+    ],
+    "e4": [
+        "e4"
     ]
 }
 

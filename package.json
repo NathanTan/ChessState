@@ -4,7 +4,7 @@
   "description": "A chess game state manager",
   "main": "FenLogic.js",
   "scripts": {
-    "test": "tsc; mocha --compilers js:@babel/register \"./dist/test/\"",
+    "test": "tsc;webpack; mocha --compilers js:@babel/register \"./dist/test/\"",
     "build": "webpack",
     "start": "node ./bundles/ChessState.js",
     "super": "tsc; if [ 0 -eq $? ]; then webpack; npm start; fi;",
