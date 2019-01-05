@@ -30,10 +30,10 @@ describe('Move Execution: e4', function () {
         const result = ExecuteTurn(game, pgn)
 
         // TODO: evaulate objects in a more robust way.
-        assert.equal(true, (JSON.stringify(expected) === JSON.stringify(result) ))
+        assert.strictEqual(true, (JSON.stringify(expected) === JSON.stringify(result) ))
 
         // Check board position to make sure the pawn was moved.
-        assert.equal(expectedFen, game.getFen())
+        assert.strictEqual(expectedFen, game.getFen())
     })
 })
 

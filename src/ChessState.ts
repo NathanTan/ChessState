@@ -154,7 +154,7 @@ class ChessState {
     }
 
     getFen(debug?: boolean):string {
-        return FenLogic.BoardToFen(this.state.board, this.state.fenExtras, debug)
+        return FenLogic.BoardToFen(this.state.board, this.state.fenExtras, debug).trim()
     }
 
     /*
