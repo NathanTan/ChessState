@@ -3,10 +3,10 @@ import HelperFunctions from './HelperFunctions'
 import ChessState from './ChessState';
 import StandardTurns from './Interfaces/Enums/StandardTurns';
 
-class boardPrinter {
+class BoardPrinter {
 
     /* Prints a ascii board based on a standard fen string */
-    static printBoard(state: ChessState, prospective: StandardTurns) {
+    static printBoard(state: ChessState, prospective: StandardTurns, hideOutput: boolean) {
         let boardString = "" // String for printing to the console.
         let board = state.getBoardArray()
 
@@ -38,12 +38,14 @@ class boardPrinter {
             })
             boardString += "\n---------------------------------\n"
         })
-        console.log(boardString)
+        if (!hideOutput)
+            console.log(boardString)
+        return boardString // For testing.
     }
 
     /* Prints an ascii board based on game state for debugging */
     // NOTE: debug print is always from black's perspective
-    static printBoardDebug(state: ChessState, prospective: string) {
+    static printBoardDebug(state: ChessState, hideOutput: boolean) {
         let boardString = "" // String for printing to the console.
         let board = state.getBoardArray()
         let firstRowOnUserFacingBoard = 8;
@@ -71,8 +73,10 @@ class boardPrinter {
         })
         boardString += "      0   1   2   3   4   5   6   7\n"
         boardString += "      A   B   C   D   E   F   G   H\n"
-        console.log(boardString)
+        if (!hideOutput)
+            console.log(boardString)
+        return boardString // For testing.
     }
 }
 
-export default boardPrinter
+export default BoardPrinter

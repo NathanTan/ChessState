@@ -1,4 +1,4 @@
-import BoardPrinter from './boardPrinter'
+import BoardPrinter from './BoardPrinter'
 import constants from './constants'
 import Errors from './Errors'
 import HelperFunctions from './HelperFunctions'
@@ -10,6 +10,7 @@ import StandardTurns from './Interfaces/Enums/StandardTurns'
 import MoveResult from './Interfaces/MoveResult'
 import BoardLoaction from './Interfaces/BoardLocation'
 import Config from './Interfaces/Config'
+import PieceTypes from './Interfaces/Enums/PieceTypes'
 
 class ChessState {
     /* Properties */
@@ -90,7 +91,7 @@ class ChessState {
             console.log("GameState initalized\n")
         }
         if (!this.hideOutput)
-            BoardPrinter.printBoard(this, StandardTurns.white)
+            BoardPrinter.printBoard(this, StandardTurns.white, this.hideOutput)
     }
 
     play() {
@@ -118,10 +119,10 @@ class ChessState {
             }
 
             // 4. Conduct the move.
-            this.move(move)
+            let result = this.move(move)
 
             // 5. Check for end of game.
-            this.checkForEndOfGame()
+            this.checkForEndOfGame(result)
             if (this.state.turn === this.testGame.length -1 ) {
                 if (!this.hideOutput)
                     console.log("GAME OVER")
@@ -145,10 +146,19 @@ class ChessState {
         
         this.state.turn++
 
+        // Update king location.
+        // TODO: Make sure king location is set when using a non-starting fen.
+        if (this.getTurn() === StandardTurns.white) {
+            this.state.whiteKingLocation = result.kingLocation
+        }
+        else {
+            this.state.blackKingLocation = result.kingLocation
+        }
+
         if (this.debug === true && !this.hideOutput)
-            BoardPrinter.printBoardDebug(this, "b")
+            BoardPrinter.printBoardDebug(this, this.hideOutput)
         else if (this.debug === false && !this.hideOutput)
-            BoardPrinter.printBoard(this, StandardTurns.white)
+            BoardPrinter.printBoard(this, StandardTurns.white, this.hideOutput)
         this.updateFenExtras(result)
         return result
     }
@@ -207,7 +217,6 @@ class ChessState {
             default:
                 throw new Error("Variant Not Yet Implemented")
         }
-        //throw new Error("Not Yet Implemented")
     }
 
     checkForCastling() {
@@ -220,13 +229,13 @@ class ChessState {
             console.log("checkForEnPassant Not Yet Implemented")
     }
 
-    checkForEndOfGame() {
-        this.checkForCheckmate()
+    checkForEndOfGame(moveResult: MoveResult) {
+        this.checkForCheckmate(moveResult)
         //this.checkForStalemate() 
         // TODO: add resign functionality.
     }
 
-    checkForCheckmate() {
+    checkForCheckmate(moveResult: MoveResult): boolean {
         let isCheckmate = false
         // Find the location of the king.
         let kingLocation = (this.getTurn() === StandardTurns.white) ? this.state.whiteKingLocation : this.state.blackKingLocation
@@ -241,15 +250,52 @@ class ChessState {
 
 
         // A - Avoid
-        let foo: BoardLoaction = {
-            row:    7,
-            column: 3
-        } 
-        let bar = this.squareIsSafeForKing(foo, StandardTurns.black, GameType.standard)
+        
         // Check all the imidiately adjacent and diagonal squares of the king's location.
+        for (let squareRulesOfInterest of constants["PieceLogic"]["King"]) {
+            if (kingLocation.column + squareRulesOfInterest.column < 8 &&
+                kingLocation.column + squareRulesOfInterest.column >= 0 &&
+                kingLocation.row + squareRulesOfInterest.row < 8 &&
+                kingLocation.row + squareRulesOfInterest.row >= 0) {
+                let squareOfIntesest = {
+                    row:    kingLocation.column + squareRulesOfInterest.column,
+                    column: kingLocation.row + squareRulesOfInterest.row
+                }
+
+                // If any squares surrounding the king are safe, it's not a checkmate.
+                if (this.squareIsSafeForKing(squareOfIntesest, this.getTurn(), this.gameType, this.debug) === true)
+                    return false
+            }
+        }
 
         // B - Block
+        // If knight, unblockable
+        if (moveResult.movedPiece !== PieceTypes.Knight) {
+            let distance: BoardLoaction = {
+                row:    moveResult.movedPieceDest.row - kingLocation.row,
+                column: moveResult.movedPieceDest.column - kingLocation.column,
+            }
+            // Only check the path that are between the king and the attacking piece.
+            // Find which path by assuming only a Bishop, Rook, Queen, and Pawn can attack.
+            //      This means that a piece like pao, or cannon, from Chinese chess isn't 
+            //      covered by the following logic.
+
+
+            if (distance.row > 0 && distance.column > 0)
+            for (let squareRulesOfInterest of constants["PieceLogic"]["King"]) {
+                if (kingLocation.column + squareRulesOfInterest.column < 8 &&
+                    kingLocation.column + squareRulesOfInterest.column >= 0 &&
+                    kingLocation.row + squareRulesOfInterest.row < 8 &&
+                    kingLocation.row + squareRulesOfInterest.row >= 0) {
+               
+                }
+            }
+
+        }
+
         // C - Capture
+
+        return isCheckmate
     }
  
     // Iteratively check all the surrounding squares to see if a square is safe for the king

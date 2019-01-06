@@ -1,12 +1,12 @@
 import constants from './constants'
 import HelperFunctions from './HelperFunctions'
-import FenLogic from './FenLogic'
 import GameTypes from './Interfaces/Enums/GameTypes';
 import BoardLoaction from './Interfaces/BoardLocation';
 import StandardTurns from './Interfaces/Enums/StandardTurns';
 import Move from './Interfaces/Move'
 import MoveResult from './Interfaces/MoveResult';
-import ChessState from './ChessState';
+import PieceTypes from './Interfaces/Enums/PieceTypes'
+
 
 const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): MoveResult => {
     let newBoard = ""
@@ -33,11 +33,13 @@ const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): M
         }
     }
     let result: MoveResult = {
-        whiteKingSideCastle: false,
-        whiteQueenSideCastle: false,
-        blackKingSideCastle: false,
-        blackQueenSideCastle: false,
-        kingLocation: null
+        whiteKingSideCastle:    false,
+        whiteQueenSideCastle:   false,
+        blackKingSideCastle:    false,
+        blackQueenSideCastle:   false,
+        kingLocation:           null,
+        movedPiece:             null,
+        movedPieceDest:         null
     }
     let castle = false
 
@@ -147,35 +149,43 @@ const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): M
                         piece = (game.getTurn() === StandardTurns.white) ? 'N' : 'n'
                         moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
                         moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
+                        result.movedPiece = PieceTypes.Knight
                         break
                     case "B": // Bishop move
                         piece = (game.getTurn() === StandardTurns.white) ? 'B' : 'b'
                         moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
                         moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
+                        result.movedPiece = PieceTypes.Bishop
                         break
                     case "R": // Rook move
                         piece = (game.getTurn() === StandardTurns.white) ? 'R' : 'r'
                         moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
                         moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
+                        result.movedPiece = PieceTypes.Rook                        
                         break
                     case "Q": // Queen move
                         piece = (game.getTurn() === StandardTurns.white) ? 'Q' : 'q'
                         moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
                         moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
+                        result.movedPiece = PieceTypes.Queen                 
                         break
                     case "K": // King move
                         piece = (game.getTurn() === StandardTurns.white) ? 'K' : 'k'
                         moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
                         moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
                         result.kingLocation = moveCord.dest     // Keep track of where the king lands for checking checkmate.
+                        result.movedPiece = PieceTypes.King
                         break
                     default: // Pawn move
                         if (game.debug && !hideOutput)
                             console.log("==Pawn Move")
                         moveCord = pgnToCordPawn(game.state.board, pgn, game.getTurn(), game.gameType, hideOutput)
+                        result.movedPiece = PieceTypes.Pawn
                     // TODO: deal with fen's en passant
                 }
         }
+        result.movedPieceDest = moveCord.dest
+
         // TODO: move this function into the gameState such that only the game state can update the board.
         game.state.board = updateBoardByCord(game.state.board, moveCord, game.debug, hideOutput)
         if (castle)
