@@ -270,6 +270,8 @@ class FenLogic {
      * Returns: The location of the white king as a BoardLocation object.
      */
     static GetWhiteKingLocation(fen: string) {
+        if (fen == null) 
+            return null
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
                 if (fen.split("/")[i][j] === "K") {
@@ -285,6 +287,8 @@ class FenLogic {
      * Returns: The location of the black king as a BoardLocation object.
      */
     static GetBlackKingLocation(fen: string) {
+        if (fen == null) 
+            return null
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
                 if (fen.split("/")[i][j] === "k") {
