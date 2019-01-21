@@ -31,7 +31,14 @@ const TestGames = {
     ],
     "e4": [
         "e4"
+    ],
+    "4 Move Checkmate": [
+        "e4",   "e5",
+        "Bc4",  "Nc6",
+        "Qh5",  "d6",
+        "Qxf7", "a6"
     ]
+
 }
 
 export default TestGames

@@ -7,7 +7,7 @@ const config: Config = {
     gameType:   GameTypes.standard,
     fen:        null,
     debug:      true,
-    testGame:   TestGames["e4"],
+    testGame:   TestGames["4 Move Checkmate"],
     hideOutput: false
 }
 

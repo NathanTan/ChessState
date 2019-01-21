@@ -8,7 +8,7 @@ import State from './Interfaces/State'
 import GameType from './Interfaces/Enums/GameTypes'
 import StandardTurns from './Interfaces/Enums/StandardTurns'
 import MoveResult from './Interfaces/MoveResult'
-import BoardLoaction from './Interfaces/BoardLocation'
+import BoardLocation from './Interfaces/BoardLocation'
 import Config from './Interfaces/Config'
 import PieceTypes from './Interfaces/Enums/PieceTypes'
 
@@ -77,8 +77,10 @@ class ChessState {
             gameOver: false,    // TODO: check initalizing with a game over fen
             turn: 0,
             fenExtras: fenExtras,
-            whiteKingLocation: null,
-            blackKingLocation: null
+            whiteKingLocation: (config.fen === constants["startingFen"]) ? 
+                                { row: 7, column: 4} as BoardLocation : FenLogic.GetWhiteKingLocation(config.fen),
+            blackKingLocation: (config.fen === constants["startingFen"]) ? 
+                                { row: 0, column: 4} as BoardLocation : FenLogic.GetBlackKingLocation(config.fen),
         }
 
         Errors.checkGameType(this)
@@ -148,10 +150,10 @@ class ChessState {
 
         // Update king location.
         // TODO: Make sure king location is set when using a non-starting fen.
-        if (this.getTurn() === StandardTurns.white) {
+        if (this.getTurn() === StandardTurns.white && result.kingLocation !== null) {
             this.state.whiteKingLocation = result.kingLocation
         }
-        else {
+        else if (result.kingLocation !== null) {
             this.state.blackKingLocation = result.kingLocation
         }
 
@@ -247,12 +249,15 @@ class ChessState {
 
 
 
-
-
         // A - Avoid
-        
+        console.log("turn")
+        console.log(this.getTurn())
+        console.log("King Loc")
+        console.log(kingLocation)
+        console.log("Squares")
         // Check all the imidiately adjacent and diagonal squares of the king's location.
         for (let squareRulesOfInterest of constants["PieceLogic"]["King"]) {
+            console.log(squareRulesOfInterest)
             if (kingLocation.column + squareRulesOfInterest.column < 8 &&
                 kingLocation.column + squareRulesOfInterest.column >= 0 &&
                 kingLocation.row + squareRulesOfInterest.row < 8 &&
@@ -263,15 +268,18 @@ class ChessState {
                 }
 
                 // If any squares surrounding the king are safe, it's not a checkmate.
-                if (this.squareIsSafeForKing(squareOfIntesest, this.getTurn(), this.gameType, this.debug) === true)
+                if (this.squareIsSafeForKing(squareOfIntesest, this.getTurn(), this.gameType, this.debug) === true) {
+console.log("send FALSE~~~~~~~~~~~~~~~~")
+console.log(squareOfIntesest)
                     return false
+                }
             }
         }
 
         // B - Block
         // If knight, unblockable
         if (moveResult.movedPiece !== PieceTypes.Knight) {
-            let distance: BoardLoaction = {
+            let distance: BoardLocation = {
                 row:    moveResult.movedPieceDest.row - kingLocation.row,
                 column: moveResult.movedPieceDest.column - kingLocation.column,
             }
@@ -280,6 +288,7 @@ class ChessState {
             //      This means that a piece like pao, or cannon, from Chinese chess isn't 
             //      covered by the following logic.
 
+            console.log("yeet	")
 
 //TODO: Be sure to test later
             // If the attacking piece is NorthWest of the King // TODO: make sure this isn't flipped based on the distance variable
@@ -334,7 +343,7 @@ class ChessState {
     }
  
     // Iteratively check all the surrounding squares to see if a square is safe for the king
-    squareIsSafeForKing(kingSquare: BoardLoaction, color: StandardTurns, gameType: GameType, debug?: boolean): boolean {
+    squareIsSafeForKing(kingSquare: BoardLocation, color: StandardTurns, gameType: GameType, debug?: boolean): boolean {
         switch (gameType) {
             case GameType.standard:
                 // Check Knight squares, Bishop squares, and Rook squares.
@@ -350,7 +359,7 @@ class ChessState {
     }
 
     // NOTE: function is not designed for non-standard board sizes.
-    private squareIsSafeFromPiece(kingSquare: BoardLoaction, color: StandardTurns, pieceName: string, debug?: boolean): boolean {
+    private squareIsSafeFromPiece(kingSquare: BoardLocation, color: StandardTurns, pieceName: string, debug?: boolean): boolean {
         let pieceSymbolWhite: string
         let pieceSymbolBlack: string
 
@@ -362,8 +371,8 @@ class ChessState {
             console.log("pieceName: " + pieceName)
         }
 
-        let list: BoardLoaction[][] = []
-        let sublist: BoardLoaction[] = []
+        let list: BoardLocation[][] = []
+        let sublist: BoardLocation[] = []
 
         // Only needs to check against Rooks, Knights, and Bishops.
         switch (pieceName) { 
