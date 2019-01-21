@@ -1,5 +1,6 @@
 import HelperFunctions from './HelperFunctions';
 import ExtraFenData from './Interfaces/FenExtras';
+import BoardLocation from './Interfaces/BoardLocation';
 
 
 // let state = {
@@ -261,6 +262,36 @@ class FenLogic {
         if (debug)
             console.log("Built Fen: " + fen)
         return fen
+    }
+
+    /*
+     * Params:
+     *      - FEN string representing a game
+     * Returns: The location of the white king as a BoardLocation object.
+     */
+    static GetWhiteKingLocation(fen: string) {
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                if (fen.split("/")[i][j] === "K") {
+                    return { row: i, column: j } as BoardLocation
+                }
+            }
+        }
+    }
+
+    /*
+     * Params:
+     *      - FEN string representing a game
+     * Returns: The location of the black king as a BoardLocation object.
+     */
+    static GetBlackKingLocation(fen: string) {
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                if (fen.split("/")[i][j] === "k") {
+                    return { row: i, column: j } as BoardLocation
+                }
+            }
+        }
     }
 }
 
