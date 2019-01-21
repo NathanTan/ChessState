@@ -281,6 +281,41 @@ class ChessState {
             //      covered by the following logic.
 
 
+//TODO: Be sure to test later
+            // If the attacking piece is NorthWest of the King // TODO: make sure this isn't flipped based on the distance variable
+            if (distance.row > 0 && distance.row < 8 && distance.column > 0 && distance.column < 8) {
+                console.log("Attacker is Northwest of the king.")
+            }
+            //West
+            else if (distance.row === 0 && distance.column > 0 && distance.column < 8) {
+
+                console.log("Attacker is West of the king.") 
+            } //SouthWest
+
+            else if (distance.row < 0 && distance.row > -8 && distance.column > 0 && distance.column < 8) {
+                console.log("Attacker is Southwest of the king.")
+            }
+
+            else if (distance.row < 0 && distance.row > -8 && distance.column === 0) {
+                console.log("Attacker is South of the king")  
+            } 
+
+            else if (distance.row < 0 && distance.row > -8 && distance.column < 0 && distance.column > -8) {
+                console.log("Attacker is Southeast of the king.")
+            }
+
+            else if (distance.row === 0 && distance.column < 0 && distance.column > -8) {
+                console.log("Attacker is East")
+            }
+
+            else if (distance.row > 0 && distance.row < 8 && distance.column < 0 && distance.column > -8) {
+                console.log("Attacker is Northeast of the king.")
+            }
+
+            else if (distance.row < 0 && distance.column < 0 && distance.column > -8) {
+                console.log("Attacker is North of King.")
+            }
+/*
             if (distance.row > 0 && distance.column > 0)
             for (let squareRulesOfInterest of constants["PieceLogic"]["King"]) {
                 if (kingLocation.column + squareRulesOfInterest.column < 8 &&
@@ -290,7 +325,7 @@ class ChessState {
                
                 }
             }
-
+*/
         }
 
         // C - Capture
