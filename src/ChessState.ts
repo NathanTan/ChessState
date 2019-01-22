@@ -11,6 +11,8 @@ import MoveResult from './Interfaces/MoveResult'
 import BoardLocation from './Interfaces/BoardLocation'
 import Config from './Interfaces/Config'
 import PieceTypes from './Interfaces/Enums/PieceTypes'
+import Direction from './Interfaces/Enums/Directions'
+import Directions from './Interfaces/Enums/Directions';
 
 class ChessState {
     /* Properties */
@@ -244,23 +246,11 @@ class ChessState {
         let kingLocation = (this.getTurn() === StandardTurns.white) ? this.state.whiteKingLocation : this.state.blackKingLocation
 
         // TODO: add method for searching for king if non-starting fen is provided.
-        let i, j = 0
         let kingPiece = (this.getTurn() === StandardTurns.white) ? "K" : "k"
 
-
-
-
         // A - Avoid
-        console.log("turn")
-        console.log(this.getTurn())
-        console.log("King Loc")
-        console.log(kingLocation)
-        console.log("Squares Possible")
-        console.log(constants["PieceLogic"]["King"])
         // Check all the imidiately adjacent and diagonal squares of the king's location.
         for (let squareRulesOfInterest of constants["PieceLogic"]["King"]) {
-            console.log("Possible: ")
-            console.log((kingLocation.row + squareRulesOfInterest.row) + " " + (kingLocation.column + squareRulesOfInterest.column))
             if (kingLocation.column + squareRulesOfInterest.column < 8 &&
                 kingLocation.column + squareRulesOfInterest.column >= 0 &&
                 kingLocation.row + squareRulesOfInterest.row < 8 &&
@@ -269,14 +259,11 @@ class ChessState {
                     row:    kingLocation.column + squareRulesOfInterest.column,
                     column: kingLocation.row + squareRulesOfInterest.row
                 }
-                console.log(squareOfIntesest)
 
                 // TODO: Replace "X" as the empty space.
                 // If any EMPTY squares surrounding the king are safe, it's not a checkmate.
                 if (this.getBoardArray()[squareOfIntesest.row][squareOfIntesest.column] !== "X"  &&
                    this.squareIsSafeForKing(squareOfIntesest, this.getTurn(), this.gameType, this.debug) === true) {
-console.log("send FALSE~~~~~~~~~~~~~~~~")
-console.log(squareOfIntesest)
                     return false
                 }
             }
@@ -294,86 +281,68 @@ console.log(squareOfIntesest)
             //      This means that a piece like pao, or cannon, from Chinese chess isn't 
             //      covered by the following logic.
 
-            console.log("yeet	")
+
+            let direction: Directions = Directions.Null
 
 //TODO: Be sure to test later
             // If the attacking piece is NorthWest of the King // TODO: make sure this isn't flipped based on the distance variable
-            if (distance.row > 0 && distance.row < 8 && distance.column > 0 && distance.column < 8) {
+            if (distance.row = 0 && distance.row < 8 && distance.column > 0 && distance.column < 8) {
                 if (this.debug)
                     console.log("Attacker is SouthEast of the king.")
-                // Check for open squares
-                for (let i = 1; i < 8; i++) {
-                    // If found empty square
-                    if (this.getBoardArray()[kingLocation.row + i][kingLocation.column + i] === "X") { 
-                        let tempLoc = {
-                            row: kingLocation.row + i,
-                            column: kingLocation.column + i
-                        } as BoardLocation
-                        // Check to see if a piece can block
-                        if (!this.squareIsSafeFromPiece(tempLoc, this.getTurn(), "Rook", false) ||
-                            !this.squareIsSafeFromPiece(tempLoc, this.getTurn(), "Bishop", false) ||
-                            !this.squareIsSafeFromPiece(tempLoc, this.getTurn(), "Knight", false))
-                            return false // Not checkmate
-                    }
-
-                    // The attacker was found, no blocking possible
-                    else {
-                        if (this.debug)
-                            console.log("Blocking not possible")
-                        break
-                    }
-                }
+                direction = Directions.Southeast
             }
             //West
-            else if (distance.row === 0 && distance.column > 0 && distance.column < 8) {
-
+            else if (distance.row === 0 && distance.column >= 0 && distance.column < 8) {
                 if (this.debug)
                     console.log("Attacker is East of the king.") 
+                direction = Directions.East
             } //SouthWest
 
             else if (distance.row < 0 && distance.row > -8 && distance.column > 0 && distance.column < 8) {
                 if (this.debug)
                     console.log("Attacker is NorthEast of the king.")
+                direction = Directions.Northeast
             }
 
             else if (distance.row < 0 && distance.row > -8 && distance.column === 0) {
                 if (this.debug)
                     console.log("Attacker is North of the king")  
+                direction = Directions.North
             } 
 
             else if (distance.row < 0 && distance.row > -8 && distance.column < 0 && distance.column > -8) {
                 if (this.debug)
                     console.log("Attacker is NorthWest of the king.")
+                direction = Directions.Northwest
             }
 
             else if (distance.row === 0 && distance.column < 0 && distance.column > -8) {
                 if (this.debug)
-                    console.log("Attacker is West")
+                    console.log("Attacker is West") 
+                direction = Directions.West
             }
 
             else if (distance.row > 0 && distance.row < 8 && distance.column < 0 && distance.column > -8) {
                 if (this.debug)
                     console.log("Attacker is SouthWest of the king.")
+                direction = Directions.Southwest
             }
 
             else if (distance.row < 0 && distance.column < 0 && distance.column > -8) {
                 if (this.debug)
                     console.log("Attacker is South of King.")
+                direction = Directions.South
             }
-/*
-            if (distance.row > 0 && distance.column > 0)
-            for (let squareRulesOfInterest of constants["PieceLogic"]["King"]) {
-                if (kingLocation.column + squareRulesOfInterest.column < 8 &&
-                    kingLocation.column + squareRulesOfInterest.column >= 0 &&
-                    kingLocation.row + squareRulesOfInterest.row < 8 &&
-                    kingLocation.row + squareRulesOfInterest.row >= 0) {
-               
-                }
+
+            console.log(direction.toString())
+            // Return false if there is a block that prevents checkmate.
+            if (this.checkForBlockableSquares(kingLocation, direction) === false) {
+                return false
             }
-*/
         }
 
         // C - Capture
+        console.log("---------Checking for capture-------------")
 
         return isCheckmate
     }
@@ -493,6 +462,107 @@ console.log(squareOfIntesest)
             }
         }
 
+        return true
+    }
+
+    // Returns false if it's not checkmate because there is a possible block
+    // returning true signals nothing definitive.
+    private checkForBlockableSquares(kingLocation: BoardLocation, direction: Directions): boolean {
+        let rowInc: number 
+        let colInc: number
+
+        switch (direction) {
+            case Directions.East:
+                rowInc = 0
+                colInc = -1
+                break
+            case Directions.Northeast:
+                rowInc = -1
+                colInc = -1
+                break
+            case Directions.North:
+                rowInc = -1
+                colInc = 0
+                break
+            case Directions.Northwest:
+                rowInc = -1
+                colInc = 1
+                break
+            case Directions.West:
+                rowInc = 0
+                colInc = 1
+                break
+            case Directions.Southwest:
+                rowInc = 1
+                colInc = 1
+                break
+            case Directions.South:
+                rowInc = 1
+                colInc = 0
+                break
+            case Directions.Southeast:
+                rowInc = 1
+                colInc = -1
+                break
+            default:
+                throw new Error("Directional error 1.")
+        }
+
+         // Check for open squares
+         for (let i = 1; i < 8; i++) {
+            // If found empty square
+            if (this.getBoardArray()[kingLocation.row + rowInc][kingLocation.column + colInc] === "X") { 
+                let tempLoc = {
+                    row: kingLocation.row + i,
+                    column: kingLocation.column + i
+                } as BoardLocation
+                // Check to see if a piece can block
+                if (!this.squareIsSafeFromPiece(tempLoc, this.getTurn(), "Rook", false) ||
+                    !this.squareIsSafeFromPiece(tempLoc, this.getTurn(), "Bishop", false) ||
+                    !this.squareIsSafeFromPiece(tempLoc, this.getTurn(), "Knight", false))
+                    return false // Not checkmate
+            }
+
+            // The attacker was found, no blocking possible
+            else {
+                if (this.debug)
+                    console.log("Blocking checkmate not possible.")
+                break
+            }
+
+            switch (direction) {
+                case Directions.East:
+                    colInc--
+                    break
+                case Directions.Northeast:
+                    rowInc--
+                    colInc--
+                    break
+                case Directions.North:
+                    rowInc--
+                    break
+                case Directions.Northwest:
+                    rowInc--
+                    colInc++
+                    break
+                case Directions.West:
+                    colInc++
+                    break
+                case Directions.Southwest:
+                    rowInc++
+                    colInc++
+                    break
+                case Directions.South:
+                    rowInc++
+                    break
+                case Directions.Southeast:
+                    rowInc++
+                    colInc--
+                    break
+                default:
+                    throw new Error("Directional error 2.")
+            }
+        }
         return true
     }
 }
