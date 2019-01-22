@@ -32,6 +32,14 @@ const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): M
             row: -1
         }
     }
+
+    if (pgn == null) {
+        console.log("No More Moves")
+        //return null
+    }
+
+
+
     let result: MoveResult = {
         whiteKingSideCastle:    false,
         whiteQueenSideCastle:   false,
@@ -39,8 +47,10 @@ const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): M
         blackQueenSideCastle:   false,
         kingLocation:           null,
         movedPiece:             null,
-        movedPieceDest:         null
+        movedPieceDest:         null,
+        check:                  (pgn == null) ? null : (pgn.indexOf("+") !== -1)   // Check if pgn delairs check
     }
+    // TODO: Manually check for the king getting put in check
     let castle = false
 
     if (pgn) {

@@ -9,6 +9,7 @@ interface MoveResult {
     kingLocation:           BoardLoaction
     movedPiece:             PieceTypes	    // If null then the move was a castle.
     movedPieceDest:         BoardLoaction
+    check:                  boolean         // An indication if check happened.
 }
 
 export default MoveResult

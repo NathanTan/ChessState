@@ -100,6 +100,9 @@ class ChessState {
 
     play() {
         while (!this.state.gameOver) {
+            if (this.state.gameOver === true ) {
+                break
+            }
             let moveIsValid = false
             if (this.debug)
                 console.log("/////////////////////// Turn " + this.state.turn + " ///////////////////////")
@@ -125,9 +128,15 @@ class ChessState {
             // 4. Conduct the move.
             let result = this.move(move)
 
+            console.log(result)
+
             // 5. Check for end of game.
-            this.checkForEndOfGame(result)
-            if (this.state.turn === this.testGame.length -1 ) {
+            if (result == null) {
+                console.log("!~!~!~!~!~! No More Moves !~!~!~!~!~!~!")
+                this.state.gameOver = true
+                break
+            }
+            if (this.checkForEndOfGame(result)) {
                 if (!this.hideOutput)
                     console.log("GAME OVER")
                 this.state.gameOver = true // For testing purposes
@@ -234,9 +243,13 @@ class ChessState {
     }
 
     checkForEndOfGame(moveResult: MoveResult) {
-        this.checkForCheckmate(moveResult)
+        if (moveResult.check === true && this.checkForCheckmate(moveResult) === true) {
+            return true
+        }
+
         //this.checkForStalemate() 
         // TODO: add resign functionality.
+        return false
     }
 
     // NOTE: method is designed for standard sized board
@@ -342,7 +355,16 @@ class ChessState {
         }
 
         // C - Capture
-        console.log("---------Checking for capture-------------")
+        if (this.debug)
+            console.log("---------Checking for capture-------------")
+
+        let resultt = this.squareIsSafeForKing(moveResult.movedPieceDest, (this.getTurn() === StandardTurns.white) ? StandardTurns.black : StandardTurns.white,
+                            this.gameType, this.debug)
+        
+        if (resultt === true) {
+            // The piece can't be captured, thus checkmate.
+            return true
+        }
 
         return isCheckmate
     }
