@@ -237,6 +237,7 @@ class ChessState {
         // TODO: add resign functionality.
     }
 
+    // NOTE: method is designed for standard sized board
     checkForCheckmate(moveResult: MoveResult): boolean {
         let isCheckmate = false
         // Find the location of the king.
@@ -254,10 +255,12 @@ class ChessState {
         console.log(this.getTurn())
         console.log("King Loc")
         console.log(kingLocation)
-        console.log("Squares")
+        console.log("Squares Possible")
+        console.log(constants["PieceLogic"]["King"])
         // Check all the imidiately adjacent and diagonal squares of the king's location.
         for (let squareRulesOfInterest of constants["PieceLogic"]["King"]) {
-            console.log(squareRulesOfInterest)
+            console.log("Possible: ")
+            console.log((kingLocation.row + squareRulesOfInterest.row) + " " + (kingLocation.column + squareRulesOfInterest.column))
             if (kingLocation.column + squareRulesOfInterest.column < 8 &&
                 kingLocation.column + squareRulesOfInterest.column >= 0 &&
                 kingLocation.row + squareRulesOfInterest.row < 8 &&
@@ -266,9 +269,12 @@ class ChessState {
                     row:    kingLocation.column + squareRulesOfInterest.column,
                     column: kingLocation.row + squareRulesOfInterest.row
                 }
+                console.log(squareOfIntesest)
 
-                // If any squares surrounding the king are safe, it's not a checkmate.
-                if (this.squareIsSafeForKing(squareOfIntesest, this.getTurn(), this.gameType, this.debug) === true) {
+                // TODO: Replace "X" as the empty space.
+                // If any EMPTY squares surrounding the king are safe, it's not a checkmate.
+                if (this.getBoardArray()[squareOfIntesest.row][squareOfIntesest.column] !== "X"  &&
+                   this.squareIsSafeForKing(squareOfIntesest, this.getTurn(), this.gameType, this.debug) === true) {
 console.log("send FALSE~~~~~~~~~~~~~~~~")
 console.log(squareOfIntesest)
                     return false
@@ -293,36 +299,66 @@ console.log(squareOfIntesest)
 //TODO: Be sure to test later
             // If the attacking piece is NorthWest of the King // TODO: make sure this isn't flipped based on the distance variable
             if (distance.row > 0 && distance.row < 8 && distance.column > 0 && distance.column < 8) {
-                console.log("Attacker is Northwest of the king.")
+                if (this.debug)
+                    console.log("Attacker is SouthEast of the king.")
+                // Check for open squares
+                for (let i = 1; i < 8; i++) {
+                    // If found empty square
+                    if (this.getBoardArray()[kingLocation.row + i][kingLocation.column + i] === "X") { 
+                        let tempLoc = {
+                            row: kingLocation.row + i,
+                            column: kingLocation.column + i
+                        } as BoardLocation
+                        // Check to see if a piece can block
+                        if (!this.squareIsSafeFromPiece(tempLoc, this.getTurn(), "Rook", false) ||
+                            !this.squareIsSafeFromPiece(tempLoc, this.getTurn(), "Bishop", false) ||
+                            !this.squareIsSafeFromPiece(tempLoc, this.getTurn(), "Knight", false))
+                            return false // Not checkmate
+                    }
+
+                    // The attacker was found, no blocking possible
+                    else {
+                        if (this.debug)
+                            console.log("Blocking not possible")
+                        break
+                    }
+                }
             }
             //West
             else if (distance.row === 0 && distance.column > 0 && distance.column < 8) {
 
-                console.log("Attacker is West of the king.") 
+                if (this.debug)
+                    console.log("Attacker is East of the king.") 
             } //SouthWest
 
             else if (distance.row < 0 && distance.row > -8 && distance.column > 0 && distance.column < 8) {
-                console.log("Attacker is Southwest of the king.")
+                if (this.debug)
+                    console.log("Attacker is NorthEast of the king.")
             }
 
             else if (distance.row < 0 && distance.row > -8 && distance.column === 0) {
-                console.log("Attacker is South of the king")  
+                if (this.debug)
+                    console.log("Attacker is North of the king")  
             } 
 
             else if (distance.row < 0 && distance.row > -8 && distance.column < 0 && distance.column > -8) {
-                console.log("Attacker is Southeast of the king.")
+                if (this.debug)
+                    console.log("Attacker is NorthWest of the king.")
             }
 
             else if (distance.row === 0 && distance.column < 0 && distance.column > -8) {
-                console.log("Attacker is East")
+                if (this.debug)
+                    console.log("Attacker is West")
             }
 
             else if (distance.row > 0 && distance.row < 8 && distance.column < 0 && distance.column > -8) {
-                console.log("Attacker is Northeast of the king.")
+                if (this.debug)
+                    console.log("Attacker is SouthWest of the king.")
             }
 
             else if (distance.row < 0 && distance.column < 0 && distance.column > -8) {
-                console.log("Attacker is North of King.")
+                if (this.debug)
+                    console.log("Attacker is South of King.")
             }
 /*
             if (distance.row > 0 && distance.column > 0)
@@ -411,6 +447,21 @@ console.log(squareOfIntesest)
                     sublist = []
                 }
                 break
+            case "Pawn":
+                if (color === StandardTurns.white) {
+                    if ((kingSquare.row - 1) >= 0 && (kingSquare.column - 1) >= 0 && this.getBoardArray()[kingSquare.row - 1][kingSquare.column - 1] !== "p" &&
+                        (kingSquare.column + 1) < 8 && this.getBoardArray()[kingSquare.row - 1][kingSquare.column + 1] === "p")
+                        return true
+                    else 
+                        return false
+                }
+                else {
+                    if ((kingSquare.row + 1) < 8 && (kingSquare.column - 1) >= 0 && this.getBoardArray()[kingSquare.row + 8][kingSquare.column - 1] !== "p" &&
+                        (kingSquare.column + 1) < 8 && this.getBoardArray()[kingSquare.row + 1][kingSquare.column + 1] === "p")
+                        return true
+                    else 
+                        return false
+                }
             default:
                 throw new Error("'squareIsSafeFromPiece' function is working unexpectedly.")
         }
