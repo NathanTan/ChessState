@@ -3,7 +3,7 @@ import StandardTurns from "./Enums/StandardTurns"
 interface GameStatus {
     gameOver:   boolean
     turn:       StandardTurns
-    totalTurns: number
+    // totalTurns: number
     winner:     string
 }
 

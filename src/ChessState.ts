@@ -99,6 +99,7 @@ class ChessState {
             BoardPrinter.printBoard(this, StandardTurns.white, this.hideOutput)
     }
 
+    // TODO: Remove this function and make "move()" the primary way to take handle the game state.
     play() {
         while (!this.state.gameOver) {
             if (this.state.gameOver === true ) {
@@ -150,6 +151,7 @@ class ChessState {
             }
         }
     }
+
 
     move(move: string) {
         // Execute move (pgn)
@@ -397,6 +399,7 @@ class ChessState {
             turn: null,
             winner: (this.state.winner === StandardTurns.white) ? "white" : "black",
         } as GameStatus
+
         return status
     }
 

@@ -4,6 +4,8 @@ import GameTypes from "../src/Interfaces/Enums/GameTypes"
 import BoardLoaction from "../src/Interfaces/BoardLocation"
 import StandardTurns from "../src/Interfaces/Enums/StandardTurns"
 import Config from "../src/Interfaces/Config"
+import GameStatus from "../src/Interfaces/GameStatus";
+import TestGames from "../src/PGNTestGame";
 
 const config: Config = {
     gameType:   GameTypes.standard,
@@ -42,5 +44,22 @@ describe('ChessState squareIsSafeForKing function', function () {
             column: 0
         }
         assert.equal(true, game.squareIsSafeForKing(squareOfInterest, StandardTurns.black, GameTypes.standard))
+    })
+})
+
+describe('ChessState games', () => {
+    it('Properly handlers the "4 Move Checkmate"', () => {
+        const game = new ChessState(config)
+        // game.play()
+        for (let pgnMove in TestGames["4 Move Checkmate"]) {
+            game.move(pgnMove)
+        }
+        let expectedStatus = {
+            gameOver: true,
+            turn: null,
+            winner: "white"
+        } as GameStatus
+
+        assert.strictEquals(expectedStatus, game.getStatus())
     })
 })
