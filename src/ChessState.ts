@@ -11,8 +11,8 @@ import MoveResult from './Interfaces/MoveResult'
 import BoardLocation from './Interfaces/BoardLocation'
 import Config from './Interfaces/Config'
 import PieceTypes from './Interfaces/Enums/PieceTypes'
-import Direction from './Interfaces/Enums/Directions'
-import Directions from './Interfaces/Enums/Directions';
+import Directions from './Interfaces/Enums/Directions'
+import GameStatus from './Interfaces/GameStatus'
 
 class ChessState {
     /* Properties */
@@ -83,6 +83,7 @@ class ChessState {
                                 { row: 7, column: 4} as BoardLocation : FenLogic.GetWhiteKingLocation(config.fen),
             blackKingLocation: (config.fen === constants["startingFen"]) ? 
                                 { row: 0, column: 4} as BoardLocation : FenLogic.GetBlackKingLocation(config.fen),
+            winner: null
         }
 
         Errors.checkGameType(this)
@@ -140,6 +141,7 @@ class ChessState {
                 if (!this.hideOutput)
                     console.log("GAME OVER")
                 this.state.gameOver = true // For testing purposes
+                console.log(JSON.stringify(this.getStatus()))
                 break
             }
 
@@ -244,6 +246,10 @@ class ChessState {
 
     checkForEndOfGame(moveResult: MoveResult) {
         if (moveResult.check === true && this.checkForCheckmate(moveResult) === true) {
+            if (this.getTurn() === StandardTurns.black)
+                this.state.winner = StandardTurns.white
+            else 
+                this.state.winner = StandardTurns.black
             return true
         }
 
@@ -383,6 +389,15 @@ class ChessState {
             default:
                 throw new Error("Game variant is not recognized.")
         }
+    }
+
+    getStatus(): GameStatus {
+        let status = {
+            gameOver: this.state.gameOver,
+            turn: null,
+            winner: (this.state.winner === StandardTurns.white) ? "white" : "black",
+        } as GameStatus
+        return status
     }
 
     // NOTE: function is not designed for non-standard board sizes.
