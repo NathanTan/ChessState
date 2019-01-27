@@ -14,6 +14,21 @@ const config: Config = {
     hideOutput: true
 }
 
+describe('ChessState config handling', () => {
+    it('Handles null config', () => {
+        const game = new ChessState(null)
+        console.log(game.getStatus())
+        const expectedStatus = {
+            gameOver:   false,
+            turn:       null,
+            winner:     null
+        } as GameStatus
+
+        assert.strictEqual(JSON.stringify(expectedStatus),
+            JSON.stringify(game.getStatus()))
+    })
+}) 
+
 describe('ChessState squareIsSafeForKing function', function () {
     it(`Indicates that the square 0, 0 (A8) is safe from white's pieces on turn 1`, () => {
         const game = new ChessState(config)
@@ -47,7 +62,7 @@ describe('ChessState squareIsSafeForKing function', function () {
 })
 
 describe('ChessState games', () => {
-    it('Properly handlers the "4 Move Checkmate"', () => {
+    it(`Properly handles the '4 Move Checkmate'`, () => {
         const game = new ChessState(config)
         for (let move of TestGames["4 Move Checkmate"]) {
             game.move(move)
@@ -59,6 +74,21 @@ describe('ChessState games', () => {
         } as GameStatus
 
         assert.strictEqual(JSON.stringify(expectedStatus),
-         JSON.stringify(game.getStatus()))
+            JSON.stringify(game.getStatus()))
+    })
+
+    it(`Properly handles the 'The Immortal Game'`, () => {
+        const game = new ChessState(config)
+        for (let move of TestGames["The Immortal Game"]) {
+            game.move(move)
+        }
+        let expectedStatus = {
+            gameOver: true,
+            turn: null,
+            winner: "white"
+        } as GameStatus
+
+        assert.strictEqual(JSON.stringify(expectedStatus),
+            JSON.stringify(game.getStatus()))
     })
 })

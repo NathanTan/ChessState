@@ -17,11 +17,10 @@ import GameStatus from './Interfaces/GameStatus'
 class ChessState {
     /* Properties */
     public debug: boolean
-    private testGame: any  // Object holding pre-set game moves for testing.
-                            // TODO: move this out to testing.
     private gameType: GameType
     private state: State
     private hideOutput: boolean
+    private config: Config
 
 
     /*
@@ -32,18 +31,25 @@ class ChessState {
     *      - [TESTING] game for testing (as array of pgns)
     * Returns: A new 2d array with 1 piece in a different place
     */
-    constructor(config: Config) {
+    constructor(config?: Config) {
         // TODO: validate config object
+
+        if (config == null) {
+            this.config = constants.defaultConfig
+        }
+        else {
+            this.config = config
+        }
         
-        this.debug = config.debug
-        this.gameType = config.gameType
-        this.hideOutput = config.hideOutput
+        this.debug = this.config.debug
+        this.gameType = this.config.gameType
+        this.hideOutput = this.config.hideOutput
         let fenExtras;
 
         // Check for provided fen.
-        if (config.fen == null) {
+        if (this.config.fen == null) {
             // No provided fen string means a default start.
-            config.fen = constants.startingFen;
+            this.config.fen = constants.startingFen;
             fenExtras = {
                 turn: StandardTurns.white,
                 castling: "KQkq",
@@ -57,7 +63,7 @@ class ChessState {
             // Generate fen.
 
             // Quick fix
-            if (config.fen === constants.startingFen) {
+            if (this.config.fen === constants.startingFen) {
                 fenExtras = {
                     turn: StandardTurns.white,
                     castling: "KQkq",
@@ -70,18 +76,18 @@ class ChessState {
 
         // Initalize state.
         this.state = {
-            board: FenLogic.FenToBoard(config.fen),
+            board: FenLogic.FenToBoard(this.config.fen),
             history: {
-                fen: [config.fen],
+                fen: [this.config.fen],
                 pgn: []
             },
             gameOver: false,    // TODO: check initalizing with a game over fen
             turn: 0,
             fenExtras: fenExtras,
-            whiteKingLocation: (config.fen === constants["startingFen"]) ? 
-                                { row: 7, column: 4} as BoardLocation : FenLogic.GetWhiteKingLocation(config.fen),
-            blackKingLocation: (config.fen === constants["startingFen"]) ? 
-                                { row: 0, column: 4} as BoardLocation : FenLogic.GetBlackKingLocation(config.fen),
+            whiteKingLocation: (this.config.fen === constants["startingFen"]) ? 
+                                { row: 7, column: 4} as BoardLocation : FenLogic.GetWhiteKingLocation(this.config.fen),
+            blackKingLocation: (this.config.fen === constants["startingFen"]) ? 
+                                { row: 0, column: 4} as BoardLocation : FenLogic.GetBlackKingLocation(this.config.fen),
             winner: null
         }
 
@@ -99,6 +105,25 @@ class ChessState {
     }
 
     move(move: string) {
+        // Check for resignation
+        if (move === `resign`) {
+            this.resign()
+            return {
+                whiteKingSideCastle:    false,
+                whiteQueenSideCastle:   false,
+                blackKingSideCastle:    false,
+                blackQueenSideCastle:   false,
+                kingLocation:           null,
+                movedPiece:             null,	    // If null then the move was a castle.
+                movedPieceDest:         null,
+                check:                  false,         // An indication if check happened.
+                gameIsOver:             true,
+                moveIsValid:            false,
+                invalidMove:            null
+            }
+        }
+
+
         // Check for game over BEFORE move validation.
     	if (this.state.gameOver === true) {
             return {
@@ -172,8 +197,10 @@ class ChessState {
         this.updateFenExtras(result)
 
         if (result == null) {
-            console.log("!~!~!~!~!~! No More Moves !~!~!~!~!~!~!")
-            console.log("              Game Over")
+            if (!this.hideOutput) {
+                console.log("!~!~!~!~!~! No More Moves !~!~!~!~!~!~!")
+                console.log("              Game Over")
+            }
             this.state.gameOver = true
         }
 
@@ -407,7 +434,18 @@ class ChessState {
             winner: (this.state.winner === StandardTurns.white) ? "white" : "black",
         } as GameStatus
 
+        if (this.state.winner == null) {
+            status.winner = null
+        }
+
         return status
+    }
+
+    resign() {
+        if (!this.hideOutput)
+            console.log("GAME OVER")
+        this.state.gameOver = true
+        this.state.winner = this.getTurn()  // The turn hasn't updated yet.
     }
 
     // NOTE: function is not designed for non-standard board sizes.

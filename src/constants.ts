@@ -1,7 +1,15 @@
 import BoardLoaction from "./Interfaces/BoardLocation";
-import StandardTurns from "./Interfaces/Enums/StandardTurns";
+import GameTypes from "./Interfaces/Enums/GameTypes";
 
 const constants = {
+    /* Default config object */
+    defaultConfig: {
+        gameType:   GameTypes.standard,
+        fen:        null,
+        debug:      false,
+        hideOutput: true
+    },
+
     /* Column constants */
     "a": 0,
     "b": 1,
