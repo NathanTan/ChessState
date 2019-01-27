@@ -48,7 +48,10 @@ const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): M
         kingLocation:           null,
         movedPiece:             null,
         movedPieceDest:         null,
-        check:                  (pgn == null) ? null : (pgn.indexOf("+") !== -1)   // Check if pgn delairs check
+        check:                  (pgn == null) ? null : (pgn.indexOf("+") !== -1),   // Check if pgn delairs check
+        gameIsOver:             false,
+        moveIsInvalid:          false,
+        invalidMove:            null
     }
     // TODO: Manually check for the king getting put in check
     let castle = false
@@ -158,31 +161,31 @@ const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): M
                     case "N": // Knight move
                         piece = (game.getTurn() === StandardTurns.white) ? 'N' : 'n'
                         moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
-                        moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
+                        moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType, debug, hideOutput)
                         result.movedPiece = PieceTypes.Knight
                         break
                     case "B": // Bishop move
                         piece = (game.getTurn() === StandardTurns.white) ? 'B' : 'b'
                         moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
-                        moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
+                        moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType, debug, hideOutput)
                         result.movedPiece = PieceTypes.Bishop
                         break
                     case "R": // Rook move
                         piece = (game.getTurn() === StandardTurns.white) ? 'R' : 'r'
                         moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
-                        moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
+                        moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType, debug, hideOutput)
                         result.movedPiece = PieceTypes.Rook                        
                         break
                     case "Q": // Queen move
                         piece = (game.getTurn() === StandardTurns.white) ? 'Q' : 'q'
                         moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
-                        moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
+                        moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType, debug, hideOutput)
                         result.movedPiece = PieceTypes.Queen                 
                         break
                     case "K": // King move
                         piece = (game.getTurn() === StandardTurns.white) ? 'K' : 'k'
                         moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
-                        moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType)
+                        moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType, debug, hideOutput)
                         result.kingLocation = moveCord.dest     // Keep track of where the king lands for checking checkmate.
                         result.movedPiece = PieceTypes.King
                         break
@@ -277,7 +280,7 @@ const pgnToCordPawn = (board, pgn: string, turn: StandardTurns, gameType: GameTy
     if (piece === "p" || piece === "P")
         moveObj.source = getPieceLocation(board, pgn, piece, gameType, hideOutput)
     else {
-        moveObj.source = findPieceSource(board, pgn, piece, moveObj.dest, gameType)
+        moveObj.source = findPieceSource(board, pgn, piece, moveObj.dest, gameType, debug, hideOutput)
     }
 
     if (debug) {
@@ -345,7 +348,7 @@ const placePieceInRow = (row, piece, col) => {
 // TODO: Deal with situtation where there are 2 pieces in the same column that can move to the same square.
 const getPieceLocation = (board: string[][], pgn: string, piece: string, gameType: GameTypes, hideOutput:boolean, debug?: boolean): BoardLoaction => {
     // Get loc
-    if (debug) {
+    if (debug && !hideOutput) {
         console.log("getPieceLocation~")
         console.log("piece: " + piece)
     }
@@ -387,7 +390,6 @@ const getPieceLocation = (board: string[][], pgn: string, piece: string, gameTyp
         let pieceSource: BoardLoaction = null;
         pieceSource.column = +col
         pieceSource.row = -1;
-        let possibleCordss = getAllPossiblePieceLocations(board, piece, pieceSource, gameType)
 
     }
 
@@ -420,61 +422,7 @@ const getPieceLocation = (board: string[][], pgn: string, piece: string, gameTyp
     }
 }
 
-
-/* 
- * Parameters: 
- *      - board as 2d array
- *      - Piece to find
- *      - game type [OPTIONAL]
- */
-const getAllPossiblePieceLocations = (board: Array<Array<string>>, piece: string, source: BoardLoaction, gameType: GameTypes) => {
-    console.log("getAllPossiblePieceLocations~")
-    console.log("board: " + JSON.stringify(board))
-    console.log("piece: " + JSON.stringify(piece))
-    console.log("gameType: " + JSON.stringify(gameType))
-
-    const pieceLocations = getValidMoves(board, piece, null, gameType)
-    console.log("Possible Cords: " + JSON.stringify(pieceLocations))
-
-    let possibleLocations = []
-    pieceLocations.forEach((loc) => {
-        let validMoves = getValidMoves(board, piece, loc, gameType)
-
-    })
-
-}
-
-const getValidMoves = (board: Array<Array<string>>, piece, loc, gameType: GameTypes) => {
-    console.log("consts: " + JSON.stringify(constants["PieceLogic"]))
-    console.log("piece: " + piece)
-    const pieceName = constants["PiecePGNToName"][piece]
-    console.log("Piece name: " + pieceName)
-    let moves = constants["PieceLogic"][pieceName]
-    let legalMoves = []
-    console.log("LOC: " + JSON.stringify(loc))
-
-    // note: apply (add) a move to a piece location to get the destination
-    // console.log("move: " + JSON.stringify(moves))
-
-    /* Find all legal moves */
-    moves.forEach((move) => {
-        console.log("Move: " + JSON.stringify(move))
-        let num = loc.row + move.row
-        let num2 = loc.col + move.col
-        console.log("num1: " + JSON.stringify(num) + "\nnum2:" + JSON.stringify(num2))
-        if (num < constants.BoardWidth || num >= 0 ||
-            num2 < constants.BoardHeight || num2 >= 0) {
-            legalMoves.push(move)
-        }
-    })
-    console.log("Legal Moves:")
-    console.log(legalMoves)
-    // TODO: Pick up here
-    // TODO: Make loc (the piece source) have a value.
-    return null
-}
-
-const findPieceSource = (board: string[][], pgn: string, piece: string, dest: BoardLoaction, gameType: GameTypes): BoardLoaction => {
+const findPieceSource = (board: string[][], pgn: string, piece: string, dest: BoardLoaction, gameType: GameTypes, debug: boolean, hideOutput: boolean): BoardLoaction => {
     switch (gameType) {
         case GameTypes.standard:
 
@@ -493,14 +441,14 @@ const findPieceSource = (board: string[][], pgn: string, piece: string, dest: Bo
             })
 
             let ans: BoardLoaction[] = []
-            console.log("piece: " + piece)
-            console.log("Dest: " + JSON.stringify(dest))
+            // console.log("piece: " + piece)
+            // console.log("Dest: " + JSON.stringify(dest))
 
             // Find which of the possible sources is the real source
             // Special logic for Rooks
             if (piece === "R" || piece === "r") {
                 possibleSources.forEach((possibleSource: BoardLoaction) => {
-                    console.log(board[possibleSource.row][possibleSource.column])
+                    //console.log(board[possibleSource.row][possibleSource.column])
                     if (board[possibleSource.row][possibleSource.column] === piece) {
                         ans.push(possibleSource)
                     }
@@ -532,7 +480,7 @@ const findPieceSource = (board: string[][], pgn: string, piece: string, dest: Bo
             // Normal rules
             else {
                 possibleSources.forEach((possibleSource: BoardLoaction) => {
-                    console.log(board[possibleSource.row][possibleSource.column])
+                    //console.log(board[possibleSource.row][possibleSource.column])
                     if (board[possibleSource.row][possibleSource.column] === piece) {
                         ans.push(possibleSource)
                     }
@@ -547,7 +495,7 @@ const findPieceSource = (board: string[][], pgn: string, piece: string, dest: Bo
                     ans.forEach((possibleSource) => {
                         if (possibleSource.column === charToColumnNumber(pgn[1])) {
                             count++;
-                            console.log(possibleSource)
+                           // console.log(possibleSource)
                             answer = possibleSource
                         }
                     })
@@ -560,7 +508,7 @@ const findPieceSource = (board: string[][], pgn: string, piece: string, dest: Bo
                         if (possibleSource.row === +pgn[1]) {
                             count++
                             answer = possibleSource
-                            console.log(possibleSource)
+                            //console.log(possibleSource)
                         }
                     })
                 }
@@ -573,8 +521,9 @@ const findPieceSource = (board: string[][], pgn: string, piece: string, dest: Bo
                 return answer
             }
             else {
-                console.log("BAM")
-                console.log(ans[0])
+                if (!hideOutput) {
+                    console.log(ans[0])
+                }
                 return ans[0]
             }
             //}

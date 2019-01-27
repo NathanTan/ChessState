@@ -11,7 +11,6 @@ const config: Config = {
     gameType:   GameTypes.standard,
     fen:        null,
     debug:      true,
-    testGame:   null,
     hideOutput: true
 }
 

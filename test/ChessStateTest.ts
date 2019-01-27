@@ -5,13 +5,12 @@ import BoardLoaction from "../src/Interfaces/BoardLocation"
 import StandardTurns from "../src/Interfaces/Enums/StandardTurns"
 import Config from "../src/Interfaces/Config"
 import GameStatus from "../src/Interfaces/GameStatus";
-import TestGames from "../src/PGNTestGame";
+import TestGames from "./TestGames";
 
 const config: Config = {
     gameType:   GameTypes.standard,
     fen:        null,
     debug:      true,
-    testGame:   null,
     hideOutput: true
 }
 
@@ -50,9 +49,8 @@ describe('ChessState squareIsSafeForKing function', function () {
 describe('ChessState games', () => {
     it('Properly handlers the "4 Move Checkmate"', () => {
         const game = new ChessState(config)
-        // game.play()
-        for (let pgnMove in TestGames["4 Move Checkmate"]) {
-            game.move(pgnMove)
+        for (let move of TestGames["4 Move Checkmate"]) {
+            game.move(move)
         }
         let expectedStatus = {
             gameOver: true,
@@ -60,6 +58,7 @@ describe('ChessState games', () => {
             winner: "white"
         } as GameStatus
 
-        assert.strictEquals(expectedStatus, game.getStatus())
+        assert.strictEqual(JSON.stringify(expectedStatus),
+         JSON.stringify(game.getStatus()))
     })
 })

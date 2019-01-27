@@ -10,6 +10,9 @@ interface MoveResult {
     movedPiece:             PieceTypes	    // If null then the move was a castle.
     movedPieceDest:         BoardLoaction
     check:                  boolean         // An indication if check happened.
+    gameIsOver:             boolean
+    moveIsInvalid:          boolean
+    invalidMove?:            string
 }
 
 export default MoveResult

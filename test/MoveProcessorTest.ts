@@ -11,7 +11,6 @@ const config: Config = {
     gameType:   GameTypes.standard,
     fen:        null,
     debug:      true,
-    testGame:   null,
     hideOutput: true
 }
 
@@ -26,7 +25,10 @@ describe('Move Execution: e4', function () {
             kingLocation:           null,
             movedPiece:             PieceTypes.Pawn,
             movedPieceDest:         { row: 4, column: 4}, // e4
-            check:                  false
+            check:                  false,
+            gameIsOver:             false,
+            moveIsInvalid:          false,
+            invalidMove:            null
           } as MoveResult
         
         let expectedFen = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR0 KQkq - 0 1"
@@ -51,7 +53,10 @@ describe('Move Execution: e4 e5', function () {
             kingLocation:           null,
             movedPiece:             PieceTypes.Pawn,
             movedPieceDest:         { row: 4, column: 4}, // e4  
-            check:                  false
+            check:                  false,
+            gameIsOver:             false,
+            moveIsInvalid:          false,
+            invalidMove:            null
         } as MoveResult
         const expected2 = { whiteKingSideCastle: false,
             whiteQueenSideCastle:   false,
@@ -60,7 +65,10 @@ describe('Move Execution: e4 e5', function () {
             kingLocation:           null,
             movedPiece:             PieceTypes.Pawn,
             movedPieceDest:         { row: 3, column: 4}, // e5
-            check:                  false  
+            check:                  false,
+            gameIsOver:             false,
+            moveIsInvalid:          false,
+            invalidMove:            null 
         } as MoveResult
     
         let expectedFen = `rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR0 KQkq - 0 2`

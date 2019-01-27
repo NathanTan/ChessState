@@ -36,7 +36,6 @@ class ChessState {
         // TODO: validate config object
         
         this.debug = config.debug
-        this.testGame = config.testGame
         this.gameType = config.gameType
         this.hideOutput = config.hideOutput
         let fenExtras;
@@ -99,63 +98,56 @@ class ChessState {
             BoardPrinter.printBoard(this, StandardTurns.white, this.hideOutput)
     }
 
-    // TODO: Remove this function and make "move()" the primary way to take handle the game state.
-    play() {
-        while (!this.state.gameOver) {
-            if (this.state.gameOver === true ) {
-                break
-            }
-            let moveIsValid = false
-            if (this.debug)
-                console.log("/////////////////////// Turn " + this.state.turn + " ///////////////////////")
-
-            // 1. Print info.
-            if (this.gameType === GameType.standard) {
-                console.log("   " + this.getTurn() + "'s turn")
-            }
-
-            else {
-                throw new Error("TODO: add for bughouse")
-            }
-
-            let move = ""
-            while (!moveIsValid) {
-                // 2. Get move from user as a pgn.
-                move = HelperFunctions.getMove(this.testGame[this.state.turn]) // TODO: replace with some sort of prompt
-
-                // 3. Check to see if move is valid.
-                moveIsValid = true // TODO: Implement for pgns
-            }
-
-            // 4. Conduct the move.
-            let result = this.move(move)
-
-            console.log(result)
-
-            // 5. Check for end of game.
-            if (result == null) {
-                console.log("!~!~!~!~!~! No More Moves !~!~!~!~!~!~!")
-                this.state.gameOver = true
-                break
-            }
-            if (this.checkForEndOfGame(result)) {
-                if (!this.hideOutput)
-                    console.log("GAME OVER")
-                this.state.gameOver = true // For testing purposes
-                console.log(JSON.stringify(this.getStatus()))
-                break
-            }
-
-            if (this.debug) {
-                console.log(this.state.fenExtras)
+    move(move: string) {
+        // Check for game over BEFORE move validation.
+    	if (this.state.gameOver === true) {
+            return {
+                whiteKingSideCastle:    false,
+                whiteQueenSideCastle:   false,
+                blackKingSideCastle:    false,
+                blackQueenSideCastle:   false,
+                kingLocation:           null,
+                movedPiece:             null,	    // If null then the move was a castle.
+                movedPieceDest:         null,
+                check:                  false,         // An indication if check happened.
+                gameIsOver:             true,
+                moveIsValid:            false,
+                invalidMove:            ""
             }
         }
-    }
+        
+        // Validate move
+        let moveIsValid = true // TODO: validation
+
+        // Return to indicate invalid move.
+        // @ts-ignore
+        if (moveIsValid === false) {
+            return {
+                whiteKingSideCastle:    false,
+                whiteQueenSideCastle:   false,
+                blackKingSideCastle:    false,
+                blackQueenSideCastle:   false,
+                kingLocation:           null,
+                movedPiece:             null,	    // If null then the move was a castle.
+                movedPieceDest:         null,
+                check:                  false,         // An indication if check happened.
+                gameIsOver:             false,
+                moveIsValid:            false,
+                invalidMove:            move
+            }
+        }
+
+        if (this.debug && !this.hideOutput)
+                console.log("/////////////////////// Turn " + this.state.turn + " ///////////////////////")
+        // 1. Print info.
+        if (this.gameType === GameType.standard) {
+            if (this.debug && !this.hideOutput)
+            console.log("   " + this.getTurn() + "'s turn")
+        }
 
 
-    move(move: string) {
         // Execute move (pgn)
-        let result = ExecuteTurn(this, move, this.hideOutput)
+        let result = ExecuteTurn(this, move, this.hideOutput, this.debug)
 
         // Update History
         this.state.history.pgn.push(move)
@@ -172,11 +164,25 @@ class ChessState {
             this.state.blackKingLocation = result.kingLocation
         }
 
+        // Print board if debugging.
         if (this.debug === true && !this.hideOutput)
             BoardPrinter.printBoardDebug(this, this.hideOutput)
         else if (this.debug === false && !this.hideOutput)
             BoardPrinter.printBoard(this, StandardTurns.white, this.hideOutput)
         this.updateFenExtras(result)
+
+        if (result == null) {
+            console.log("!~!~!~!~!~! No More Moves !~!~!~!~!~!~!")
+            console.log("              Game Over")
+            this.state.gameOver = true
+        }
+
+        if (this.checkForEndOfGame(result)) {
+            if (!this.hideOutput)
+                console.log("GAME OVER")
+            this.state.gameOver = true // For testing purposes
+        }
+
         return result
     }
 
@@ -308,54 +314,55 @@ class ChessState {
 //TODO: Be sure to test later
             // If the attacking piece is NorthWest of the King // TODO: make sure this isn't flipped based on the distance variable
             if (distance.row = 0 && distance.row < 8 && distance.column > 0 && distance.column < 8) {
-                if (this.debug)
+                if (this.debug && !this.hideOutput)
                     console.log("Attacker is SouthEast of the king.")
                 direction = Directions.Southeast
             }
             //West
             else if (distance.row === 0 && distance.column >= 0 && distance.column < 8) {
-                if (this.debug)
+                if (this.debug && !this.hideOutput)
                     console.log("Attacker is East of the king.") 
                 direction = Directions.East
             } //SouthWest
 
             else if (distance.row < 0 && distance.row > -8 && distance.column > 0 && distance.column < 8) {
-                if (this.debug)
+                if (this.debug && !this.hideOutput)
                     console.log("Attacker is NorthEast of the king.")
                 direction = Directions.Northeast
             }
 
             else if (distance.row < 0 && distance.row > -8 && distance.column === 0) {
-                if (this.debug)
+                if (this.debug && !this.hideOutput)
                     console.log("Attacker is North of the king")  
                 direction = Directions.North
             } 
 
             else if (distance.row < 0 && distance.row > -8 && distance.column < 0 && distance.column > -8) {
-                if (this.debug)
+                if (this.debug && !this.hideOutput)
                     console.log("Attacker is NorthWest of the king.")
                 direction = Directions.Northwest
             }
 
             else if (distance.row === 0 && distance.column < 0 && distance.column > -8) {
-                if (this.debug)
+                if (this.debug && !this.hideOutput)
                     console.log("Attacker is West") 
                 direction = Directions.West
             }
 
             else if (distance.row > 0 && distance.row < 8 && distance.column < 0 && distance.column > -8) {
-                if (this.debug)
+                if (this.debug && !this.hideOutput)
                     console.log("Attacker is SouthWest of the king.")
                 direction = Directions.Southwest
             }
 
             else if (distance.row < 0 && distance.column < 0 && distance.column > -8) {
-                if (this.debug)
+                if (this.debug && !this.hideOutput)
                     console.log("Attacker is South of King.")
                 direction = Directions.South
             }
 
-            console.log(direction.toString())
+            if (this.debug && !this.hideOutput)
+                console.log(`Attacker is from ${direction.toString()}`)
             // Return false if there is a block that prevents checkmate.
             if (this.checkForBlockableSquares(kingLocation, direction) === false) {
                 return false
@@ -363,7 +370,7 @@ class ChessState {
         }
 
         // C - Capture
-        if (this.debug)
+        if (this.debug && !this.hideOutput)
             console.log("---------Checking for capture-------------")
 
         let resultt = this.squareIsSafeForKing(moveResult.movedPieceDest, (this.getTurn() === StandardTurns.white) ? StandardTurns.black : StandardTurns.white,
@@ -565,7 +572,7 @@ class ChessState {
 
             // The attacker was found, no blocking possible
             else {
-                if (this.debug)
+                if (this.debug && !this.hideOutput)
                     console.log("Blocking checkmate not possible.")
                 break
             }

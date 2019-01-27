@@ -7,7 +7,6 @@ const config: Config = {
     gameType:   GameTypes.standard,
     fen:        null,
     debug:      true,
-    testGame:   TestGames["4 Move Checkmate"],
     hideOutput: false
 }
 
@@ -15,4 +14,8 @@ let game = new ChessState(config)
 
 console.log("        ---Game Start---\n")
 
-game.play()
+for (let move of TestGames["4 Move Checkmate"]) {
+    console.log("Move: " + JSON.stringify(move))
+    game.move(move)
+}
+console.log(game.getStatus())
