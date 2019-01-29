@@ -64,6 +64,13 @@ const TestGames = {
         "Nxg7+", "Kd8",
         "Qf6+", "Nxf6",
         "Be7",  "resign"
+    ],
+
+    "En Passant": [
+        "e4",   "c5",
+        "e5",   "d5",
+        "exd6", "c4",   // White does En Passant
+        "b4",   "cxb3", // Black does En Passant
     ]
 
 }

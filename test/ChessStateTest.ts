@@ -61,6 +61,17 @@ describe('ChessState squareIsSafeForKing function', function () {
     })
 })
 
+describe(`ChessState Move Operations`, () => {
+    it(`Properly handles En Passant`, () => {
+        const game = new ChessState(config)
+        for (let move of TestGames["En Passant"]) {
+            game.move(move)
+            game.printBoard()
+            console.log(game.getFen())
+        }
+    })
+})
+
 describe('ChessState games', () => {
     it(`Properly handles the '4 Move Checkmate'`, () => {
         const game = new ChessState(config)

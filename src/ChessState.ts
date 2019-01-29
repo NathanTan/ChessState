@@ -232,6 +232,10 @@ class ChessState {
         return FenLogic.BoardToFen(this.state.board, this.state.fenExtras, debug).trim()
     }
 
+    printBoard(debug?: boolean, hideOutput?: boolean): void {
+        BoardPrinter.printBoard(this, StandardTurns.white, debug)
+    }
+
     /*
      * Update turn
      */
