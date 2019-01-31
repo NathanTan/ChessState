@@ -70,6 +70,10 @@ describe(`ChessState Move Operations`, () => {
             console.log(game.getFen())
         }
     })
+
+    it(`Properly handles Castling on the white side`, () => {
+        const game = new ChessState(config)
+    })
 })
 
 describe('ChessState games', () => {
