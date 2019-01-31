@@ -31,7 +31,7 @@ describe('Move Execution: e4', function () {
             invalidMove:            null
           } as MoveResult
         
-        let expectedFen = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR0 KQkq - 0 1"
+        let expectedFen = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1"
 
         const result = ExecuteTurn(game, pgn, config.hideOutput)
 
@@ -71,7 +71,7 @@ describe('Move Execution: e4 e5', function () {
             invalidMove:            null 
         } as MoveResult
     
-        let expectedFen = `rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR0 KQkq - 0 2`
+        let expectedFen = `rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2`
 
         let result = game.move("e4")
         assert.strictEqual(JSON.stringify(expected), JSON.stringify(result))

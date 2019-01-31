@@ -1,6 +1,7 @@
 import HelperFunctions from './HelperFunctions';
 import ExtraFenData from './Interfaces/FenExtras';
 import BoardLocation from './Interfaces/BoardLocation';
+import StandardTurns from './Interfaces/Enums/StandardTurns';
 
 
 // let state = {
@@ -247,7 +248,8 @@ class FenLogic {
             }
 
             if (rowNum === 7) {
-                fenRow += `${extraFenData.turn} ${extraFenData.castling} ${extraFenData.enPassant} ${extraFenData.halfMoves} ${extraFenData.fullMoves} ` 
+                const turnString = (extraFenData.turn === StandardTurns.white) ? 'w' : 'b'
+                fenRow += ` ${turnString} ${extraFenData.castling} ${extraFenData.enPassant} ${extraFenData.halfMoves} ${extraFenData.fullMoves} ` 
             }
 
             else {
