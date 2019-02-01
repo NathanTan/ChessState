@@ -162,31 +162,31 @@ const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): M
                 switch (pgn[0]) {
                     case "N": // Knight move
                         piece = (game.getTurn() === StandardTurns.white) ? 'N' : 'n'
-                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
+                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture, hideOutput, debug)
                         moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType, debug, hideOutput)
                         result.movedPiece = PieceTypes.Knight
                         break
                     case "B": // Bishop move
                         piece = (game.getTurn() === StandardTurns.white) ? 'B' : 'b'
-                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
+                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture, hideOutput, debug)
                         moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType, debug, hideOutput)
                         result.movedPiece = PieceTypes.Bishop
                         break
                     case "R": // Rook move
                         piece = (game.getTurn() === StandardTurns.white) ? 'R' : 'r'
-                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
+                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture, hideOutput, debug)
                         moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType, debug, hideOutput)
                         result.movedPiece = PieceTypes.Rook                        
                         break
                     case "Q": // Queen move
                         piece = (game.getTurn() === StandardTurns.white) ? 'Q' : 'q'
-                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
+                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture, hideOutput, debug)
                         moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType, debug, hideOutput)
                         result.movedPiece = PieceTypes.Queen                 
                         break
                     case "K": // King move
                         piece = (game.getTurn() === StandardTurns.white) ? 'K' : 'k'
-                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture)
+                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture, hideOutput, debug)
                         moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType, debug, hideOutput)
                         result.kingLocation = moveCord.dest     // Keep track of where the king lands for checking checkmate.
                         result.movedPiece = PieceTypes.King
@@ -206,7 +206,6 @@ const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): M
 
                         if (moveCord.dest.column !== moveCord.source.column) {
                             result.executeEnPassant = true
-                            console.log(moveCord)
                         }
                     // TODO: deal with fen's en passant
                 }
@@ -257,18 +256,6 @@ const updateBoardByCord = (board: string[][], moveCord: Move, enPassant: boolean
     return newBoard
 }
 
-const updateBoardByCordEnPassant = (board: string[][], moveCord: Move, enPassant: boolean, debug: boolean, hideOutput: boolean) => {
-    let newBoard = board
-    newBoard[moveCord.dest.row][moveCord.dest.column] = board[moveCord.source.row][moveCord.source.column]
-    newBoard[moveCord.source.row][moveCord.source.column] = "X"
-
-
-console.log(`But the en Passant: ${enPassant}`)
-    console.log("Move")
-console.log(moveCord)
-
-return null
-}
 // Params: - Board as a 2d array
 //         - Pgn move
 //         - Players turn (w/b)
@@ -310,7 +297,7 @@ const pgnToCordPawn = (board: string[][],pgn: string, turn: StandardTurns, gameT
             throw new Error("Game variant '" + gameType + "' not yet implemented.")
     }
 
-    moveObj.dest = HelperFunctions.findPieceDestination(pgn, turn, gameType, capture)
+    moveObj.dest = HelperFunctions.findPieceDestination(pgn, turn, gameType, capture, hideOutput, debug)
 
     if (piece === "p" || piece === "P")
         moveObj.source = getPieceLocation(board, pgn, piece, gameType, hideOutput)
@@ -318,7 +305,7 @@ const pgnToCordPawn = (board: string[][],pgn: string, turn: StandardTurns, gameT
         moveObj.source = findPieceSource(board, pgn, piece, moveObj.dest, gameType, debug, hideOutput)
     }
 
-    if (debug) {
+    if (debug && !hideOutput) {
         console.log("Piece's location")
         console.log("(" + moveObj.source.column + "," + moveObj.source.row + ")")
         console.log("Piece's Destination")

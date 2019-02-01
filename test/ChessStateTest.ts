@@ -17,7 +17,6 @@ const config: Config = {
 describe('ChessState config handling', () => {
     it('Handles null config', () => {
         const game = new ChessState(null)
-        console.log(game.getStatus())
         const expectedStatus = {
             gameOver:   false,
             turn:       null,
@@ -58,21 +57,6 @@ describe('ChessState squareIsSafeForKing function', function () {
             column: 0
         }
         assert.equal(true, game.squareIsSafeForKing(squareOfInterest, StandardTurns.black, GameTypes.standard))
-    })
-})
-
-describe(`ChessState Move Operations`, () => {
-    it(`Properly handles En Passant`, () => {
-        const game = new ChessState(config)
-        for (let move of TestGames["En Passant"]) {
-            game.move(move)
-            game.printBoard()
-            console.log(game.getFen())
-        }
-    })
-
-    it(`Properly handles Castling on the white side`, () => {
-        const game = new ChessState(config)
     })
 })
 

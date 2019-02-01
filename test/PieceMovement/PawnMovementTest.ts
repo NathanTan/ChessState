@@ -1,8 +1,6 @@
 var assert = require('assert')
 import ChessState from "../../src/ChessState"
 import GameTypes from "../../src/Interfaces/Enums/GameTypes"
-import BoardLoaction from "../../src/Interfaces/BoardLocation"
-import StandardTurns from "../../src/Interfaces/Enums/StandardTurns"
 import Config from "../../src/Interfaces/Config"
 import GameStatus from "../../src/Interfaces/GameStatus";
 
@@ -10,7 +8,7 @@ const config: Config = {
     gameType:   GameTypes.standard,
     fen:        null,
     debug:      true,
-    hideOutput: false
+    hideOutput: true
 }
 
 const TestGames = {
@@ -24,8 +22,7 @@ const TestGames = {
 
 describe('Pawn Movement: Normal', () => {
     it('e4', () => {
-        const game = new ChessState(null)
-        console.log(game.getStatus())
+        const game = new ChessState(config)
         const expectedStatus = {
             gameOver:   false,
             turn:       null,
@@ -48,19 +45,15 @@ describe('Pawn Movement: Normal', () => {
 describe('Pawn Movement: En Passant', () => {
     it('En Passant for both white and black', () => {
         const game = new ChessState(config)
-        console.log(game.getStatus())
         const expectedStatus = {
             gameOver:   false,
             turn:       null,
             winner:     null
         } as GameStatus
-        const expectedFen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 1 1'
+        const expectedFen = 'rnbqkbnr/pp2pppp/3P4/8/8/1p6/P1PP1PPP/RNBQKBNR w KQkq - 0 5'
 
-        let count = 1
         for (let move of TestGames["En Passant"]) {
             game.move(move)
-            console.log(`Move: ${count}`)
-            count++
         }
 
         /* Check game status */
