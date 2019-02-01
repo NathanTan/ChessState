@@ -53,7 +53,7 @@ class ChessState {
             fenExtras = {
                 turn: StandardTurns.white,
                 castling: "KQkq",
-                enPassant: "-",
+                enPassant: null,
                 halfMoves: 0,
                 fullMoves: 1
             }
@@ -67,7 +67,7 @@ class ChessState {
                 fenExtras = {
                     turn: StandardTurns.white,
                     castling: "KQkq",
-                    enPassant: "-",
+                    enPassant: null,
                     halfMoves: 0,
                     fullMoves: 1
                 }
@@ -228,7 +228,7 @@ class ChessState {
         }
     }
 
-    getFen(debug?: boolean):string {
+    getFen(debug?: boolean): string {
         return FenLogic.BoardToFen(this.state.board, this.state.fenExtras, debug).trim()
     }
 
@@ -260,8 +260,10 @@ class ChessState {
                     this.state.fenExtras.castling = this.state.fenExtras.castling.replace("q", "")
                 }
                 
+                // Update En Passant
+                this.state.fenExtras.enPassant = moveResults.enableEnPassant
+
                 //this.checkForCastling()                 // Update available castling.
-                this.checkForEnPassant()                // Update available En Passant.
                 this.state.fenExtras.halfMoves++;             // Increment number of half moves.
                 if (this.state.fenExtras.halfMoves === 2) {   // Check to increment full moves.
                     this.state.fenExtras.halfMoves = 0

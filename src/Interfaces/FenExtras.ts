@@ -4,7 +4,7 @@ interface FenExtras {
     
     turn: StandardTurn;
     castling: string;
-    enPassant: string;
+    enPassant?: string;  // 
     halfMoves: number;
     fullMoves: number;
 }

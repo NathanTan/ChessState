@@ -12,7 +12,10 @@ interface MoveResult {
     check:                  boolean         // An indication if check happened.
     gameIsOver:             boolean
     moveIsInvalid:          boolean
-    invalidMove?:            string
+    invalidMove?:           string
+    enableEnPassant?:       string	        // If En Passant is allowed as a result of this move,
+                                            //      fill with the proper string, else null
+    executeEnPassant:       boolean
 }
 
 export default MoveResult

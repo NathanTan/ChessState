@@ -57,7 +57,7 @@ class HelperFunctions {
             if (!capture) {
 
                 location.column = (pgn[0].charCodeAt(0) - 97)
-                location.row = (turn === StandardTurns.white) ? (+pgn[1]) : (8 - +pgn[1])
+                location.row = (8 - +pgn[1])
             }
             else {
                 location.column = (pgn[2].charCodeAt(0) - 97)

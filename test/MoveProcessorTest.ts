@@ -28,18 +28,15 @@ describe('Move Execution: e4', function () {
             check:                  false,
             gameIsOver:             false,
             moveIsInvalid:          false,
-            invalidMove:            null
+            invalidMove:            null,
+            enableEnPassant:        'e3',
+            executeEnPassant:       false
           } as MoveResult
         
-        let expectedFen = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1"
-
-        const result = ExecuteTurn(game, pgn, config.hideOutput)
+        const result = ExecuteTurn(game, pgn, true)
 
         // TODO: evaulate objects in a more robust way.
         assert.strictEqual(JSON.stringify(expected), JSON.stringify(result))
-
-        // Check board position to make sure the pawn was moved.
-        assert.strictEqual(expectedFen, game.getFen())
     })
 })
 
@@ -56,7 +53,9 @@ describe('Move Execution: e4 e5', function () {
             check:                  false,
             gameIsOver:             false,
             moveIsInvalid:          false,
-            invalidMove:            null
+            invalidMove:            null,
+            enableEnPassant:        'e3',
+            executeEnPassant:       false
         } as MoveResult
         const expected2 = { whiteKingSideCastle: false,
             whiteQueenSideCastle:   false,
@@ -68,10 +67,12 @@ describe('Move Execution: e4 e5', function () {
             check:                  false,
             gameIsOver:             false,
             moveIsInvalid:          false,
-            invalidMove:            null 
+            invalidMove:            null,
+            enableEnPassant:        'e6',
+            executeEnPassant:       false
         } as MoveResult
     
-        let expectedFen = `rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2`
+        let expectedFen = `rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2`
 
         let result = game.move("e4")
         assert.strictEqual(JSON.stringify(expected), JSON.stringify(result))

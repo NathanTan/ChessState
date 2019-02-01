@@ -66,13 +66,6 @@ const TestGames = {
         "Be7",  "resign"
     ],
 
-    "En Passant": [
-        "e4",   "c5",
-        "e5",   "d5",
-        "exd6", "c4",   // White does En Passant
-        "b4",   "cxb3", // Black does En Passant
-    ],
-
     "Test King Side Castling White": [
         "e4",   "e5",   
         "Nf3",  "Nc6",

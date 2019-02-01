@@ -51,7 +51,9 @@ const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): M
         check:                  (pgn == null) ? null : (pgn.indexOf("+") !== -1),   // Check if pgn delairs check
         gameIsOver:             false,
         moveIsInvalid:          false,
-        invalidMove:            null
+        invalidMove:            null,
+        enableEnPassant:        null,
+        executeEnPassant:       false
     }
     // TODO: Manually check for the king getting put in check
     let castle = false
@@ -192,17 +194,29 @@ const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): M
                     default: // Pawn move
                         if (game.debug && !hideOutput)
                             console.log("==Pawn Move")
-                        moveCord = pgnToCordPawn(game.state.board, pgn, game.getTurn(), game.gameType, hideOutput)
+                        moveCord = pgnToCordPawn(game.state.board, pgn, game.getTurn(), game.gameType, hideOutput, debug)
                         result.movedPiece = PieceTypes.Pawn
+                        
+                        // Check to see if a pawn moved 2 spaces
+                        if (moveCord.dest.row - moveCord.source.row === 2 ||
+                            moveCord.dest.row - moveCord.source.row === -2) {
+                            let rowDifference = (game.getTurn() === StandardTurns.white) ? 1 : -1
+                            result.enableEnPassant = `${pgn[0]}${Math.abs(-pgn[1] + rowDifference)}` // This should work but ought to be tested TODO:
+                        }
+
+                        if (moveCord.dest.column !== moveCord.source.column) {
+                            result.executeEnPassant = true
+                            console.log(moveCord)
+                        }
                     // TODO: deal with fen's en passant
                 }
         }
         result.movedPieceDest = moveCord.dest
 
         // TODO: move this function into the gameState such that only the game state can update the board.
-        game.state.board = updateBoardByCord(game.state.board, moveCord, game.debug, hideOutput)
+        game.state.board = updateBoardByCord(game.state.board, moveCord, result.executeEnPassant, game.getTurn(), game.debug, hideOutput)
         if (castle)
-            game.state.board = updateBoardByCord(game.state.board, moveCord2, game.debug, hideOutput)
+            game.state.board = updateBoardByCord(game.state.board, moveCord2, false, null, game.debug, hideOutput)
     }
 
     else {
@@ -222,8 +236,9 @@ export default ExecuteTurn
  *      - [OPTIONAL] flag for debugging printing
  * Returns: A new 2d array with 1 piece in a different place
  */
-const updateBoardByCord = (board: string[][], moveCord: Move, debug: boolean, hideOutput: boolean) => {
+const updateBoardByCord = (board: string[][], moveCord: Move, enPassant: boolean, turn: StandardTurns, debug: boolean, hideOutput: boolean) => {
     let newBoard = board
+
     if (debug && !hideOutput) {
         console.log(JSON.stringify(moveCord))
         console.log("Executing move: ")
@@ -234,9 +249,26 @@ const updateBoardByCord = (board: string[][], moveCord: Move, debug: boolean, hi
     newBoard[moveCord.dest.row][moveCord.dest.column] = board[moveCord.source.row][moveCord.source.column]
     newBoard[moveCord.source.row][moveCord.source.column] = "X"
 
+    if (enPassant) {
+        let rowDifference = (turn === StandardTurns.white) ? 1 : -1
+        newBoard[moveCord.dest.row + rowDifference][moveCord.dest.column] = "X"
+    }
+
     return newBoard
 }
 
+const updateBoardByCordEnPassant = (board: string[][], moveCord: Move, enPassant: boolean, debug: boolean, hideOutput: boolean) => {
+    let newBoard = board
+    newBoard[moveCord.dest.row][moveCord.dest.column] = board[moveCord.source.row][moveCord.source.column]
+    newBoard[moveCord.source.row][moveCord.source.column] = "X"
+
+
+console.log(`But the en Passant: ${enPassant}`)
+    console.log("Move")
+console.log(moveCord)
+
+return null
+}
 // Params: - Board as a 2d array
 //         - Pgn move
 //         - Players turn (w/b)
@@ -244,10 +276,13 @@ const updateBoardByCord = (board: string[][], moveCord: Move, debug: boolean, hi
 // Done with pgn, returns cordinates of piece source and desination
 // Note: Doesn't work with bug house when finind piece location
 // Return: New moded board as a string
-const pgnToCordPawn = (board, pgn: string, turn: StandardTurns, gameType: GameTypes, hideOutput: boolean, debug?: boolean) => {
-    if (debug) {
-        console.log("pgnToCordPawn~")
+const pgnToCordPawn = (board: string[][],pgn: string, turn: StandardTurns, gameType: GameTypes, hideOutput: boolean, debug?: boolean): Move => {
+    // console.log(`DEBUG: ${debug}`)
+    // console.log(`hideOutput: ${hideOutput}`)
+    if (debug && !hideOutput) {
+        console.log("~~~pgnToCordPawn")
         console.log("turn: " + StandardTurns[turn])
+        console.log(`pgn: ${pgn}`)
     }
     let moveObj: Move = {
         source: {

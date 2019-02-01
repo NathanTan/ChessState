@@ -221,6 +221,7 @@ class FenLogic {
      * Returns: A fen string representing the game
      */
     static BoardToFen(board: Array<Array<string>>, extraFenData: ExtraFenData, debug?: boolean): string {
+      
         let fen = ""
         let rowNum = 0
         board.forEach(row => {
@@ -249,7 +250,8 @@ class FenLogic {
 
             if (rowNum === 7) {
                 const turnString = (extraFenData.turn === StandardTurns.white) ? 'w' : 'b'
-                fenRow += ` ${turnString} ${extraFenData.castling} ${extraFenData.enPassant} ${extraFenData.halfMoves} ${extraFenData.fullMoves} ` 
+                const enPassant = (extraFenData.enPassant == null) ? '-' : extraFenData.enPassant
+                fenRow += ` ${turnString} ${extraFenData.castling} ${enPassant} ${extraFenData.halfMoves} ${extraFenData.fullMoves}` 
             }
 
             else {
