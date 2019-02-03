@@ -12,7 +12,7 @@
     "transpile": "babel src/Index.ts --out-file src/index-transpiled.js"
   },
   "files": [
-    "bundles/**/*"
+    "bundles/ChessState.js"
   ],
   "repository": {
     "type": "git",
