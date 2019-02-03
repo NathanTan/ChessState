@@ -20,7 +20,7 @@ import GameStatus from './Interfaces/GameStatus'
 //     const myLib = () => {
 
 
-export default class ChessState {
+class ChessState {
     /* Properties */
     public debug: boolean
     private gameType: GameType
@@ -673,7 +673,8 @@ export default class ChessState {
 
 }
 
-export { ChessState }
+export default ChessState
+//export { ChessState }
 
 // module.exports = ChessState
 //         return ChessState
