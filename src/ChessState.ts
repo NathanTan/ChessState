@@ -14,7 +14,12 @@ import PieceTypes from './Interfaces/Enums/PieceTypes'
 import Directions from './Interfaces/Enums/Directions'
 import GameStatus from './Interfaces/GameStatus'
 
-class ChessState {
+// (function(window){
+
+
+//     const myLib = () => {
+
+export default class ChessState {
     /* Properties */
     public debug: boolean
     private gameType: GameType
@@ -656,6 +661,23 @@ class ChessState {
         }
         return true
     }
-}
 
-export default ChessState
+
+
+
+
+
+
+
+
+}
+//         return ChessState
+//     }
+// //@ts-ignore
+//     if(typeof(window.ChessState) === 'undefined'){
+// //@ts-ignore
+//         window.ChessState = myLib()
+//     }
+// })(window)
+
+// export default null

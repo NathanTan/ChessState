@@ -2,14 +2,16 @@
   "name": "chessstate",
   "version": "1.0.0",
   "description": "A chess game state manager",
-  "main": "FenLogic.js",
+  "main": "ChessState.js",
   "scripts": {
     "test": "tsc; if [ 0 -eq $? ]; then webpack; mocha --compilers js:@babel/register $(find dist/test -name '*.js'); fi;",
-    "build": "webpack",
+    "build": "tsc",
+    "publish": "webpack",
     "start": "node ./bundles/ChessState.js",
     "super": "tsc; if [ 0 -eq $? ]; then webpack; npm start; fi;",
     "transpile": "babel src/Index.ts --out-file src/index-transpiled.js"
   },
+  "files": ["lib/**/*"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/NathanTan/ChessState.git"
