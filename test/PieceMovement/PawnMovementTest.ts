@@ -29,6 +29,19 @@ describe('Pawn Movement: Normal', () => {
             winner:     null
         } as GameStatus
         const expectedFen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 1 1'
+        const expectedResult = { whiteKingSideCastle: false,
+            whiteQueenSideCastle: false,
+            blackKingSideCastle: false,
+            blackQueenSideCastle: false,
+            kingLocation: null,
+            movedPiece: 0,
+            movedPieceDest: { row: 4, column: 4 },
+            check: false,
+            gameIsOver: false,
+            moveIsInvalid: false,
+            invalidMove: null,
+            enableEnPassant: 'e3',
+            executeEnPassant: false }
 
         let result = game.move('e4')
 
@@ -38,7 +51,10 @@ describe('Pawn Movement: Normal', () => {
 
         /* Check board position */
         assert.strictEqual(expectedFen, game.getFen())
-        
+
+        /* Check move result */
+        assert.strictEqual(JSON.stringify(expectedResult),
+            JSON.stringify(result))
     })
 })
 

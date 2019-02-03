@@ -9,7 +9,6 @@ import PieceTypes from './Interfaces/Enums/PieceTypes'
 
 
 const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): MoveResult => {
-    let newBoard = ""
     // During a castle, use for the king.
     let moveCord: Move = {
         source: {
@@ -34,8 +33,7 @@ const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): M
     }
 
     if (pgn == null) {
-        console.log("No More Moves")
-        //return null
+        throw new Error("No pgn provided")
     }
 
 
