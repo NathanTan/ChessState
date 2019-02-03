@@ -671,6 +671,8 @@ export default class ChessState {
 
 
 }
+
+module.exports = ChessState
 //         return ChessState
 //     }
 // //@ts-ignore
