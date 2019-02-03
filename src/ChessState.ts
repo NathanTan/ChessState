@@ -19,6 +19,7 @@ import GameStatus from './Interfaces/GameStatus'
 
 //     const myLib = () => {
 
+
 export default class ChessState {
     /* Properties */
     public debug: boolean
@@ -672,7 +673,9 @@ export default class ChessState {
 
 }
 
-module.exports = ChessState
+export { ChessState }
+
+// module.exports = ChessState
 //         return ChessState
 //     }
 // //@ts-ignore
