@@ -12,7 +12,7 @@
     "transpile": "babel src/Index.ts --out-file src/index-transpiled.js"
   },
   "files": [
-    "lib/**/*"
+    "bundles/**/*"
   ],
   "repository": {
     "type": "git",
