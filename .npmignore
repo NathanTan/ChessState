@@ -1,0 +1,9 @@
+package.json
+tsconfig.json
+webpack.config.json
+test/*
+src/*
+node_modules/*
+lib/*
+dist/*
+.vscode/*
