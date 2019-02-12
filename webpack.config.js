@@ -22,7 +22,7 @@ module.exports = {
      extensions: ['.ts', '.js']
   },
   output: {
-    path: __dirname + "/bundles",
+    path: __dirname ,//+ "/bundles",
     filename: "ChessState.js"
   },
   plugins: debug ? [] : [
