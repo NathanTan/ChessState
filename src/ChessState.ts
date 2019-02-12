@@ -673,8 +673,10 @@ class ChessState {
 
 }
 
-// export default ChessState
-module.exports.ChessState = ChessState
+ export default ChessState
+//module.exports.ChessState = ChessState
+exports.ChessState = ChessState;
+
 //export { ChessState }
 
 // module.exports = ChessState
