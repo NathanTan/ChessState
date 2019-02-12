@@ -1,6 +1,9 @@
-[IN DEVELOPEMENT]
+# ChessState
 
-A chess game state manager that is intended to be variant friendly.
+### A chess game state manager that is intended to be variant friendly (eventually).
+
+
+Example of usage: https://github.com/NathanTan/ChessStateExample
 
 Notes:
 Uses webpack-cli
@@ -16,8 +19,8 @@ npm run super
 
 
 Standard Chess Grid:
-
-    A   B   C   D   E   F   G   H
+```
+               Black
   ---------------------------------
 0 | r | n | b | q | k | b | n | r |
   ---------------------------------
@@ -35,5 +38,6 @@ Standard Chess Grid:
   ---------------------------------
 7 | R | N | B | Q | K | B | N | R |
   ---------------------------------
-
-NOTE: white's pieces are upper case and black's pieces are lower case.
+    A   B   C   D   E   F   G   H
+               White
+```
