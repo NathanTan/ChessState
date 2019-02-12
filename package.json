@@ -1,6 +1,6 @@
 {
   "name": "chessstate",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "A chess game state manager",
   "main": "ChessState.js",
   "scripts": {
