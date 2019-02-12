@@ -14,6 +14,12 @@ import PieceTypes from './Interfaces/Enums/PieceTypes'
 import Directions from './Interfaces/Enums/Directions'
 import GameStatus from './Interfaces/GameStatus'
 
+// (function(window){
+
+
+//     const myLib = () => {
+
+
 class ChessState {
     /* Properties */
     public debug: boolean
@@ -656,6 +662,31 @@ class ChessState {
         }
         return true
     }
+
+
+
+
+
+
+
+
+
 }
 
-export default ChessState
+ export default ChessState
+//module.exports.ChessState = ChessState
+exports.ChessState = ChessState;
+
+//export { ChessState }
+
+// module.exports = ChessState
+//         return ChessState
+//     }
+// //@ts-ignore
+//     if(typeof(window.ChessState) === 'undefined'){
+// //@ts-ignore
+//         window.ChessState = myLib()
+//     }
+// })(window)
+
+// export default null

@@ -1,13 +1,15 @@
 {
    "compilerOptions": {
-      "outDir": "./dist",
+      "outDir": "./lib",
       "noImplicitAny": false, // Change to true later
       "module": "es6",
       "target": "es5", 
-      "allowJs": false
+      "declaration": true,
+      "allowJs": false,
    },
    "include": [
-      "./src/**/*",
-      "./test/**/*"
+      // "./src/**/*",
+      // "./test/**/*"
+      "src"
    ]
 }

@@ -5,7 +5,7 @@ module.exports = {
   context: __dirname,
   devtool: debug ? "inline-sourcemap" : null,
   
-  entry: "./dist/src/Index.js",
+  entry: "./lib/src/ChessState.js",
   module: {
      rules: [
      {
@@ -22,7 +22,7 @@ module.exports = {
      extensions: ['.ts', '.js']
   },
   output: {
-    path: __dirname + "/bundles",
+    path: __dirname ,//+ "/bundles",
     filename: "ChessState.js"
   },
   plugins: debug ? [] : [
