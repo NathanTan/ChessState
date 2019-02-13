@@ -42,8 +42,21 @@ const config = {
 
 ## Methods
 ### Move
-Acceptable forms of moves constist of PGN string, FEN string,
+Acceptable forms of moves constist of PGN string, FEN string, or resigning
 
+Examples
+```
+game.move("e4") // Move the white pawn to "e4" as the first move of the game
+```
+```
+game.move("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1") // Move the white pawn to "e4" as the first move of the game
+```
+```
+game.move("resign") // White resigns (Provided no player has moved yet)
+```
+
+
+##Output
 Standard Chess Grid:
 ```
                Black
