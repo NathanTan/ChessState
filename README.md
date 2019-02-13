@@ -1,22 +1,48 @@
 # ChessState
 
-### A chess game state manager that is intended to be variant friendly (eventually).
+## A chess game state manager that is intended to be variant friendly (eventually).
 
 
 Example of usage: https://github.com/NathanTan/ChessStateExample
 
-Notes:
-Uses webpack-cli
 
-Build:
-npm run build
+## Using ChessState
+```
+let ChessState = require("chessstate")
 
-Run:
-npm start
+// Initalize a new game
+let game = new ChessState.ChessState()  // Uses default config object
 
-Build Then Run:
-npm run super
+// Execute move "e4" for white.
+game.move("e4")
 
+// Execute move "e5" for black.
+game.move("e5")
+
+// Print out an ascii representation of the board.
+game.printBoard()
+```
+
+## Initalization
+```
+// Defaul config object
+const config = {
+  gameType: 0, // Standard Chess (Currently only type availible)
+  fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", // Example FEN string of the starting position
+  hideOutput: true // Will not output to the console
+}
+
+// Example config object
+const config = {
+  gameType: 0, // Standard Chess (Currently only type availible)
+  fen: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", // Example FEN string of the boards position after the move "e4"
+  hideOutput: true // Will not output to the console
+}
+```
+
+## Methods
+### Move
+Acceptable forms of moves constist of PGN string, FEN string,
 
 Standard Chess Grid:
 ```
@@ -41,3 +67,13 @@ Standard Chess Grid:
     A   B   C   D   E   F   G   H
                White
 ```
+
+
+## Basic Chess Information
+**What is a [FEN](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) string?**
+
+A FEN string represents a standard chess board and includes information about the state of the game, including important details such as which player has the next turn, castling availability, En Passant, Halfmoves, and Fullmoves.
+
+**What is a [PGN](https://en.wikipedia.org/wiki/Portable_Game_Notation) string?**
+
+A PGN string represents an individual chess move.
