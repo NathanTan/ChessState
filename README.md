@@ -1,11 +1,12 @@
 # ChessState
 
-## A chess game state manager that is intended to be variant friendly (eventually).
+### A chess game state manager that is intended to be variant friendly (eventually).
 
 ## Download
 ```
 npm install --save chessstate
 ```
+Link to NPM page: https://www.npmjs.com/package/chessstate
 
 ## Using ChessState
 ```
@@ -107,3 +108,5 @@ A PGN string represents an individual chess move.
 
 ## Notes
 This library has no dependencies.
+
+Base repository location: https://github.com/NathanTan/ChessState
