@@ -6,7 +6,7 @@
   "scripts": {
     "test": "tsc; if [ 0 -eq $? ]; then webpack; mocha --compilers js:@babel/register $(find dist/test -name '*.js'); fi;",
     "build": "tsc",
-    "publish": "webpack",
+    "bundle": "webpack",
     "start": "node ./bundles/ChessState.js",
     "super": "tsc; if [ 0 -eq $? ]; then webpack; npm start; fi;",
     "transpile": "babel src/Index.ts --out-file src/index-transpiled.js"
