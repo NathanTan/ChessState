@@ -2,9 +2,10 @@
 
 ## A chess game state manager that is intended to be variant friendly (eventually).
 
-
-Example of usage: https://github.com/NathanTan/ChessStateExample
-
+## Download
+```
+npm install --save chessstate
+```
 
 ## Using ChessState
 ```
@@ -22,6 +23,7 @@ game.move("e5")
 // Print out an ascii representation of the board.
 game.printBoard()
 ```
+Example of usage: https://github.com/NathanTan/ChessStateExample
 
 ## Initalization
 ```
@@ -102,3 +104,6 @@ A FEN string represents a standard chess board and includes information about th
 **What is a [PGN](https://en.wikipedia.org/wiki/Portable_Game_Notation) string?**
 
 A PGN string represents an individual chess move.
+
+## Notes
+This library has no dependencies.
