@@ -3,3 +3,4 @@ node_modules/*
 bundles/*
 dist
 dist/*
+lib
