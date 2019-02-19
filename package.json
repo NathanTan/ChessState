@@ -4,7 +4,7 @@
   "description": "A chess game state manager",
   "main": "ChessState.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha --compilers ts:ts-node/register  test/**/*Test.ts",
+    "test": "./node_modules/.bin/mocha --compilers ts:ts-node/register test test/**/*Test.ts",
     "build": "tsc",
     "bundle": "webpack",
     "start": "node ./bundles/ChessState.js",
