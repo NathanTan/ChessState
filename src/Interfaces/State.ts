@@ -12,6 +12,8 @@ interface State {
     whiteKingLocation: BoardLoaction
     blackKingLocation: BoardLoaction
     winner: StandardTurns
+    extraPiecesWhite: Array<string>
+    extraPiecesBlack: Array<string>
 }
 
 export default State

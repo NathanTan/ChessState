@@ -4,7 +4,7 @@ import GameTypes from './Interfaces/Enums/GameTypes';
 import Config from './Interfaces/Config';
 
 const config: Config = {
-    gameType:   GameTypes.standard,
+    gameType:   GameTypes.bughouse,
     fen:        null,
     debug:      true,
     hideOutput: false

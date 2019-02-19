@@ -13,6 +13,7 @@ import Config from './Interfaces/Config'
 import PieceTypes from './Interfaces/Enums/PieceTypes'
 import Directions from './Interfaces/Enums/Directions'
 import GameStatus from './Interfaces/GameStatus'
+import FenExtras from './Interfaces/FenExtras';
 
 // (function(window){
 
@@ -25,6 +26,7 @@ class ChessState {
     public debug: boolean
     private gameType: GameType
     private state: State
+    private state2?: State           // For bughouse
     private hideOutput: boolean
     private config: Config
 
@@ -50,52 +52,56 @@ class ChessState {
         this.debug = this.config.debug
         this.gameType = this.config.gameType
         this.hideOutput = this.config.hideOutput
-        let fenExtras;
+        let fenExtras
+        let fenExtras2
 
-        // Check for provided fen.
-        if (this.config.fen == null) {
-            // No provided fen string means a default start.
-            this.config.fen = constants.startingFen;
-            fenExtras = {
-                turn: StandardTurns.white,
-                castling: "KQkq",
-                enPassant: null,
-                halfMoves: 0,
-                fullMoves: 1
-            }
-        }
-
-        else {
-            // Generate fen.
-
-            // Quick fix
-            if (this.config.fen === constants.startingFen) {
-                fenExtras = {
-                    turn: StandardTurns.white,
-                    castling: "KQkq",
-                    enPassant: null,
-                    halfMoves: 0,
-                    fullMoves: 1
-                }
-            }
-        }
+        fenExtras = this.createFenExtras(this.config.fen, false, this.gameType)
+        fenExtras2 = this.createFenExtras(this.config.fen2, false, this.gameType)
 
         // Initalize state.
-        this.state = {
-            board: FenLogic.FenToBoard(this.config.fen),
-            history: {
-                fen: [this.config.fen],
-                pgn: []
-            },
-            gameOver: false,    // TODO: check initalizing with a game over fen
-            turn: 0,
-            fenExtras: fenExtras,
-            whiteKingLocation: (this.config.fen === constants["startingFen"]) ? 
-                                { row: 7, column: 4} as BoardLocation : FenLogic.GetWhiteKingLocation(this.config.fen),
-            blackKingLocation: (this.config.fen === constants["startingFen"]) ? 
-                                { row: 0, column: 4} as BoardLocation : FenLogic.GetBlackKingLocation(this.config.fen),
-            winner: null
-        }
+        switch (this.gameType) {
+            case GameType.bughouse: 
+                this.state2 = {
+                    board: FenLogic.FenToBoard(this.config.fen2),
+                    history: {
+                        fen: [this.config.fen], 
+                        pgn: []
+                    },
+                    gameOver: false,    // TODO: check initalizing with a game over fen
+                    turn: 0,
+                    fenExtras: fenExtras2,
+                    whiteKingLocation: (this.config.fen === constants["startingFen"]) ? 
+                                        { row: 7, column: 4} as BoardLocation : FenLogic.GetWhiteKingLocation(this.config.fen),
+                    blackKingLocation: (this.config.fen === constants["startingFen"]) ? 
+                                        { row: 0, column: 4} as BoardLocation : FenLogic.GetBlackKingLocation(this.config.fen),
+                    winner: null,
+                    extraPiecesWhite: null,
+                    extraPiecesBlack: null
+                }
+            case GameType.standard:
+                this.state = {
+                    board: FenLogic.FenToBoard(this.config.fen),
+                    history: {
+                        fen: [this.config.fen],
+                        pgn: []
+                    },
+                    gameOver: false,    // TODO: check initalizing with a game over fen
+                    turn: 0,
+                    fenExtras: fenExtras,
+                    whiteKingLocation: (this.config.fen === constants["startingFen"]) ? 
+                                        { row: 7, column: 4} as BoardLocation : FenLogic.GetWhiteKingLocation(this.config.fen),
+                    blackKingLocation: (this.config.fen === constants["startingFen"]) ? 
+                                        { row: 0, column: 4} as BoardLocation : FenLogic.GetBlackKingLocation(this.config.fen),
+                    winner: null,
+                    extraPiecesWhite: null,
+                    extraPiecesBlack: null
+                }
+                break
+                default:
+                    throw new Error(`Gametype ${this.gameType.toString()} is not yet implemented.`)
+            }
+
+        
 
         Errors.checkGameType(this)
         if (this.debug && !this.hideOutput) {
@@ -218,6 +224,51 @@ class ChessState {
 
         return result
     }
+
+    private createFenExtras(fen: string, isSecondBoard: boolean, gameType: GameType) {
+        if (isSecondBoard && gameType !== GameType.bughouse) {
+            throw new Error("Error creating FEN extras.")
+        }
+        let fenExtras: FenExtras;
+        // Check for provided fen.
+        if (fen == null) {
+            // No provided fen string means a default start.
+            //this.config.fen = constants.startingFen;
+            fenExtras = {
+                turn: StandardTurns.white,
+                castling: "KQkq",
+                enPassant: null,
+                halfMoves: 0,
+                fullMoves: 1
+            }
+        }
+
+        else {
+            // Generate fen.
+            if (fen === constants.startingFen) {
+                fenExtras = {
+                    turn: StandardTurns.white,
+                    castling: "KQkq",
+                    enPassant: null,
+                    halfMoves: 0,
+                    fullMoves: 1
+                }
+            }
+            else {
+                //let enPassant = (isValidPgn(fen.split("/")[7].split(" ")[3])) ? StandardTurns.white : StandardTurns.black
+                fenExtras = {
+                    turn: (fen.split("/")[7].split(" ")[1] === "w") ? StandardTurns.white : StandardTurns.black,
+                    castling: fen.split("/")[7].split(" ")[2],
+                    enPassant: null,        // TODO: Implement
+                    halfMoves: +fen.split("/")[7].split(" ")[4],    // TODO: test
+                    fullMoves: +fen.split("/")[7].split(" ")[5]     // TODO: test
+                }
+            }
+        }
+
+        return fenExtras
+    }
+
 
     // TODO: check if this can be removed.
     getBoardArray() {
@@ -673,20 +724,5 @@ class ChessState {
 
 }
 
- export default ChessState
-//module.exports.ChessState = ChessState
+export default ChessState
 exports.ChessState = ChessState;
-
-//export { ChessState }
-
-// module.exports = ChessState
-//         return ChessState
-//     }
-// //@ts-ignore
-//     if(typeof(window.ChessState) === 'undefined'){
-// //@ts-ignore
-//         window.ChessState = myLib()
-//     }
-// })(window)
-
-// export default null
