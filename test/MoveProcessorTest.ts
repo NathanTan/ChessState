@@ -1,6 +1,6 @@
 var assert = require('assert')
 import ChessState from "../src/ChessState"
-import ExecuteTurn from "../src/MoveProcessor.js"
+import ExecuteTurn from "../src/MoveProcessor"
 import GameTypes from "../src/Interfaces/Enums/GameTypes"
 import TestGames from "./TestGames"
 import MoveResult from "../src/Interfaces/MoveResult"
