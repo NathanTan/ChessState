@@ -184,9 +184,15 @@ class ChessState {
         if (this.debug && !this.hideOutput)
                 console.log("/////////////////////// Turn " + this.state.turn + " ///////////////////////")
         // 1. Print info.
-        if (this.gameType === GameType.standard) {
-            if (this.debug && !this.hideOutput)
-            console.log("   " + this.getTurn() + "'s turn")
+        switch (this.gameType) {
+            case GameType.standard:
+                if (this.debug && !this.hideOutput)
+                    console.log("   " + this.getTurn() + "'s turn")
+            case GameType.bughouse:
+                if (this.debug && !this.hideOutput)
+                    console.log("   " + this.getTurn() + "'s turn") // TODO
+            default:
+                throw new Error("Game type not recognized")
         }
 
 
@@ -282,11 +288,18 @@ class ChessState {
         return this.state.board
     }
 
-    getTurn(): StandardTurns {
+    getTurn(boardNumber?: number): StandardTurns {
         switch (this.gameType) {
             /* Standard */
             case GameType.standard:
                 return this.state.fenExtras.turn
+            case GameType.bughouse:
+            if (boardNumber === 0) {
+                return this.state.fenExtras.turn
+            }
+            else {
+                return this.state2.fenExtras.turn
+            }
             default:
                 throw new Error("Error, variant not recognized")
         }
