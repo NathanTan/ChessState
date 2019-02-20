@@ -186,11 +186,14 @@ class ChessState {
         // 1. Print info.
         switch (this.gameType) {
             case GameType.standard:
-                if (this.debug && !this.hideOutput)
+                if (this.debug && !this.hideOutput) {
                     console.log("   " + this.getTurn() + "'s turn")
-            case GameType.bughouse:
-                if (this.debug && !this.hideOutput)
+                }
+                break        
+                case GameType.bughouse:
+                if (this.debug && !this.hideOutput) 
                     console.log("   " + this.getTurn() + "'s turn") // TODO
+                break
             default:
                 throw new Error("Game type not recognized")
         }
