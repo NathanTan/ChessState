@@ -55,6 +55,13 @@ class ChessState {
         let fenExtras
         let fenExtras2
 
+        if (this.config.fen == null) {
+            // No provided fen string means a default start.
+            this.config.fen = constants.startingFen
+        }
+        if (this.gameType === GameType.bughouse && this.config.fen2 == null) {
+            this.config.fen2 = constants.startingFen
+        }
         fenExtras = this.createFenExtras(this.config.fen, false, this.gameType)
         fenExtras2 = this.createFenExtras(this.config.fen2, false, this.gameType)
 
