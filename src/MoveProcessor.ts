@@ -6,9 +6,10 @@ import StandardTurns from './Interfaces/Enums/StandardTurns';
 import Move from './Interfaces/Move'
 import MoveResult from './Interfaces/MoveResult';
 import PieceTypes from './Interfaces/Enums/PieceTypes'
+import State from './Interfaces/State';
 
 
-const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): MoveResult => {
+const ExecuteTurn = (state: State, pgn: string, turn: StandardTurns, gameType: GameTypes, hideOutput: boolean, debug?: boolean): MoveResult => {
     // During a castle, use for the king.
     let moveCord: Move = {
         source: {
@@ -58,7 +59,7 @@ const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): M
 
     if (pgn) {
         let capture = (pgn.indexOf("x") !== -1)
-        if (game.debug && !hideOutput)
+        if (debug && !hideOutput)
             console.log("PGN provided: " + pgn)
 
         // Determine the pgn move
@@ -66,45 +67,45 @@ const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): M
             case "0-0": // King side castle
                 //TODO: add validation
                 // Check if castle is legal for the position.
-                if ((game.getTurn() === StandardTurns.white &&
-                    game.state.fenExtras.castling.indexOf("K") !== -1) ||
-                    (game.getTurn() === StandardTurns.black &&
-                        game.state.fenExtras.castling.indexOf("k") !== -1)
+                if ((turn === StandardTurns.white &&
+                    state.fenExtras.castling.indexOf("K") !== -1) ||
+                    (turn === StandardTurns.black &&
+                        state.fenExtras.castling.indexOf("k") !== -1)
                 ) {
                     // Proceed
                     // Set move for king.
                     moveCord.dest = {
-                        row: (game.getTurn() === StandardTurns.white) ? 7 : 0,
+                        row: (turn === StandardTurns.white) ? 7 : 0,
                         column: 6
                     }
                     moveCord.source = {
-                        row: (game.getTurn() === StandardTurns.white) ? 7 : 0,
+                        row: (turn === StandardTurns.white) ? 7 : 0,
                         column: 4
                     }
 
                     // Set move for rook.
                     moveCord2.dest = {
-                        row: (game.getTurn() === StandardTurns.white) ? 7 : 0,
+                        row: (turn === StandardTurns.white) ? 7 : 0,
                         column: 5
                     }
                     moveCord2.source = {
-                        row: (game.getTurn() === StandardTurns.white) ? 7 : 0,
+                        row: (turn === StandardTurns.white) ? 7 : 0,
                         column: 7
                     }
                 }
 
                 else {
                     if (debug) {
-                        console.log(game.getTurn().toString())
-                        console.log(game.state.fenExtras.castling.indexOf("K") !== -1)
+                        console.log(turn.toString())
+                        console.log(state.fenExtras.castling.indexOf("K") !== -1)
                     }
                     throw new Error("King side castling is not legal in the current state.")
                 }
 
-                if (game.getTurn() === StandardTurns.white) {
+                if (turn === StandardTurns.white) {
                     result.whiteKingSideCastle = true
                 }
-                else if (game.getTurn() === StandardTurns.black) {
+                else if (turn === StandardTurns.black) {
                     result.blackKingSideCastle = true
                 }
                 castle = true
@@ -113,30 +114,30 @@ const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): M
             case "0-0-0": //Queen side castle
 
                 // Check if castle is legal.
-                if ((game.getTurn() === StandardTurns.white &&
-                    game.state.fenExtras.castling.indexOf("Q") !== -1) ||
-                    (game.getTurn() === StandardTurns.black &&
-                        game.state.fenExtras.castling.indexOf("q") !== -1)
+                if ((turn === StandardTurns.white &&
+                    state.fenExtras.castling.indexOf("Q") !== -1) ||
+                    (turn === StandardTurns.black &&
+                        state.fenExtras.castling.indexOf("q") !== -1)
                 ) {
                     // Proceed
 
                     // Set move for king.
                     moveCord.dest = {
-                        row: (game.getTurn() === StandardTurns.white) ? 7 : 0,
+                        row: (turn === StandardTurns.white) ? 7 : 0,
                         column: 2
                     }
                     moveCord.source = {
-                        row: (game.getTurn() === StandardTurns.white) ? 7 : 0,
+                        row: (turn === StandardTurns.white) ? 7 : 0,
                         column: 4
                     }
 
                     // Set move for rook.
                     moveCord2.dest = {
-                        row: (game.getTurn() === StandardTurns.white) ? 7 : 0,
+                        row: (turn === StandardTurns.white) ? 7 : 0,
                         column: 3
                     }
                     moveCord2.source = {
-                        row: (game.getTurn() === StandardTurns.white) ? 7 : 0,
+                        row: (turn === StandardTurns.white) ? 7 : 0,
                         column: 0
                     }
                 }
@@ -145,10 +146,10 @@ const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): M
                     throw new Error("Queen side castling is not legal in the current state.")
                 }
 
-                if (game.getTurn() === StandardTurns.white) {
+                if (turn === StandardTurns.white) {
                     result.whiteQueenSideCastle = true
                 }
-                else if (game.getTurn() === StandardTurns.black) {
+                else if (turn === StandardTurns.black) {
                     result.blackQueenSideCastle = true
                 }
                 castle = true
@@ -159,46 +160,46 @@ const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): M
                 let piece: string
                 switch (pgn[0]) {
                     case "N": // Knight move
-                        piece = (game.getTurn() === StandardTurns.white) ? 'N' : 'n'
-                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture, hideOutput, debug)
-                        moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType, debug, hideOutput)
+                        piece = (turn === StandardTurns.white) ? 'N' : 'n'
+                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, turn, gameType, capture, hideOutput, debug)
+                        moveCord.source = findPieceSource(state.board, pgn, piece, moveCord.dest, gameType, debug, hideOutput)
                         result.movedPiece = PieceTypes.Knight
                         break
                     case "B": // Bishop move
-                        piece = (game.getTurn() === StandardTurns.white) ? 'B' : 'b'
-                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture, hideOutput, debug)
-                        moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType, debug, hideOutput)
+                        piece = (turn === StandardTurns.white) ? 'B' : 'b'
+                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, turn, gameType, capture, hideOutput, debug)
+                        moveCord.source = findPieceSource(state.board, pgn, piece, moveCord.dest, gameType, debug, hideOutput)
                         result.movedPiece = PieceTypes.Bishop
                         break
                     case "R": // Rook move
-                        piece = (game.getTurn() === StandardTurns.white) ? 'R' : 'r'
-                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture, hideOutput, debug)
-                        moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType, debug, hideOutput)
+                        piece = (turn === StandardTurns.white) ? 'R' : 'r'
+                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, turn, gameType, capture, hideOutput, debug)
+                        moveCord.source = findPieceSource(state.board, pgn, piece, moveCord.dest, gameType, debug, hideOutput)
                         result.movedPiece = PieceTypes.Rook                        
                         break
                     case "Q": // Queen move
-                        piece = (game.getTurn() === StandardTurns.white) ? 'Q' : 'q'
-                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture, hideOutput, debug)
-                        moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType, debug, hideOutput)
+                        piece = (turn === StandardTurns.white) ? 'Q' : 'q'
+                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, turn, gameType, capture, hideOutput, debug)
+                        moveCord.source = findPieceSource(state.board, pgn, piece, moveCord.dest, gameType, debug, hideOutput)
                         result.movedPiece = PieceTypes.Queen                 
                         break
                     case "K": // King move
-                        piece = (game.getTurn() === StandardTurns.white) ? 'K' : 'k'
-                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, game.getTurn(), game.gameType, capture, hideOutput, debug)
-                        moveCord.source = findPieceSource(game.state.board, pgn, piece, moveCord.dest, game.gameType, debug, hideOutput)
+                        piece = (turn === StandardTurns.white) ? 'K' : 'k'
+                        moveCord.dest = HelperFunctions.findPieceDestination(pgn, turn, gameType, capture, hideOutput, debug)
+                        moveCord.source = findPieceSource(state.board, pgn, piece, moveCord.dest, gameType, debug, hideOutput)
                         result.kingLocation = moveCord.dest     // Keep track of where the king lands for checking checkmate.
                         result.movedPiece = PieceTypes.King
                         break
                     default: // Pawn move
-                        if (game.debug && !hideOutput)
+                        if (debug && !hideOutput)
                             console.log("==Pawn Move")
-                        moveCord = pgnToCordPawn(game.state.board, pgn, game.getTurn(), game.gameType, hideOutput, debug)
+                        moveCord = pgnToCordPawn(state.board, pgn, turn, gameType, hideOutput, debug)
                         result.movedPiece = PieceTypes.Pawn
                         
                         // Check to see if a pawn moved 2 spaces
                         if (moveCord.dest.row - moveCord.source.row === 2 ||
                             moveCord.dest.row - moveCord.source.row === -2) {
-                            let rowDifference = (game.getTurn() === StandardTurns.white) ? 1 : -1
+                            let rowDifference = (turn === StandardTurns.white) ? 1 : -1
                             result.enableEnPassant = `${pgn[0]}${Math.abs(-pgn[1] + rowDifference)}` // This should work but ought to be tested TODO:
                         }
 
@@ -211,9 +212,9 @@ const ExecuteTurn = (game, pgn: string, hideOutput: boolean, debug?: boolean): M
         result.movedPieceDest = moveCord.dest
 
         // TODO: move this function into the gameState such that only the game state can update the board.
-        game.state.board = updateBoardByCord(game.state.board, moveCord, result.executeEnPassant, game.getTurn(), game.debug, hideOutput)
+        state.board = updateBoardByCord(state.board, moveCord, result.executeEnPassant, turn, debug, hideOutput)
         if (castle)
-            game.state.board = updateBoardByCord(game.state.board, moveCord2, false, null, game.debug, hideOutput)
+            state.board = updateBoardByCord(state.board, moveCord2, false, null, debug, hideOutput)
     }
 
     else {

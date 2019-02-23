@@ -6,9 +6,8 @@ import StandardTurns from './Interfaces/Enums/StandardTurns';
 class BoardPrinter {
 
     /* Prints a ascii board based on a standard fen string */
-    static printBoard(state: ChessState, prospective: StandardTurns, hideOutput: boolean) {
+    static printBoard(board: string[][], prospective: StandardTurns, hideOutput: boolean) {
         let boardString = "" // String for printing to the console.
-        let board = state.getBoardArray()
 
         boardString += "---------------------------------\n"
         let boardForPrinting = null

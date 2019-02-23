@@ -15,18 +15,12 @@ import Directions from './Interfaces/Enums/Directions'
 import GameStatus from './Interfaces/GameStatus'
 import FenExtras from './Interfaces/FenExtras';
 
-// (function(window){
-
-
-//     const myLib = () => {
-
-
 class ChessState {
     /* Properties */
     public debug: boolean
     private gameType: GameType
-    private state: State
-    private state2?: State           // For bughouse
+    private	state: State[]
+    //private state2?: State           // For bughouse
     private hideOutput: boolean
     private config: Config
 
@@ -52,6 +46,13 @@ class ChessState {
         this.debug = this.config.debug
         this.gameType = this.config.gameType
         this.hideOutput = this.config.hideOutput
+        if (this.gameType === GameType.standard) {
+            this.state = [null]
+        }
+        else if (this.gameType === GameType.bughouse) {
+            this.state = [null, null]
+        }
+        
         let fenExtras
         let fenExtras2
 
@@ -68,7 +69,7 @@ class ChessState {
         // Initalize state.
         switch (this.gameType) {
             case GameType.bughouse: 
-                this.state2 = {
+                this.state[1]= {
                     board: FenLogic.FenToBoard(this.config.fen2),
                     history: {
                         fen: [this.config.fen], 
@@ -86,7 +87,7 @@ class ChessState {
                     extraPiecesBlack: null
                 }
             case GameType.standard:
-                this.state = {
+                this.state[0] = {
                     board: FenLogic.FenToBoard(this.config.fen),
                     history: {
                         fen: [this.config.fen],
@@ -116,14 +117,45 @@ class ChessState {
             console.log(this.gameType.toString())
             console.log("Standard game type")
             console.log(GameType.standard)
-            console.log("fenExtras: " + JSON.stringify(this.state.fenExtras))
+            console.log("fenExtras: " + JSON.stringify(this.state[0].fenExtras))
             console.log("GameState initalized\n")
         }
-        if (!this.hideOutput)
-            BoardPrinter.printBoard(this, StandardTurns.white, this.hideOutput)
+        if (!this.hideOutput) {
+            if (this.gameType === GameType.standard)
+                BoardPrinter.printBoard(this.state[0].board, StandardTurns.white, this.hideOutput)
+            else if (this.gameType === GameType.bughouse) {
+                console.log("   -- Board 0 --")
+                BoardPrinter.printBoard(this.state[0].board, StandardTurns.white, this.hideOutput)
+                console.log("   -- Board 1 --")
+                BoardPrinter.printBoard(this.state[1].board, StandardTurns.white, this.hideOutput)
+            }
+        }
     }
 
-    move(move: string) {
+
+    // Board number is 0 for the first board and 1 for the second board
+    move(move:string, board?: number) {
+        if (this.gameType === GameType.bughouse && board == null) {
+            throw new Error(`Game variant "Bughouse" needs to know which board to execute the move on, board '0' or board '1'`)
+        }
+
+        // Bughouse game variant case
+        else if (this.gameType === GameType.bughouse && board != null) {
+            this.executeMove(move, board)
+        }
+
+        // Standard game variant case
+        else {
+            this.executeMove(move)
+        }
+    }
+
+    // In this function the board will be null when it should and will be 0 or 1 when it should
+    private executeMove(move: string, board?: number): MoveResult {
+        // If null use zero, else use the specified board
+        const localBoard = (board == null) ? 0 : board
+        if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
+
         // Check for resignation
         if (move === `resign`) {
             this.resign()
@@ -137,14 +169,15 @@ class ChessState {
                 movedPieceDest:         null,
                 check:                  false,         // An indication if check happened.
                 gameIsOver:             true,
-                moveIsValid:            false,
-                invalidMove:            null
+                moveIsInvalid:          false,
+                invalidMove:            null,
+                enableEnPassant:        null
             }
         }
 
 
         // Check for game over BEFORE move validation.
-    	if (this.state.gameOver === true) {
+    	if (this.state[localBoard].gameOver === true) {
             return {
                 whiteKingSideCastle:    false,
                 whiteQueenSideCastle:   false,
@@ -155,8 +188,9 @@ class ChessState {
                 movedPieceDest:         null,
                 check:                  false,         // An indication if check happened.
                 gameIsOver:             true,
-                moveIsValid:            false,
-                invalidMove:            ""
+                moveIsInvalid:          false,
+                invalidMove:            null,
+                enableEnPassant:        null
             }
         }
         
@@ -176,13 +210,14 @@ class ChessState {
                 movedPieceDest:         null,
                 check:                  false,         // An indication if check happened.
                 gameIsOver:             false,
-                moveIsValid:            false,
-                invalidMove:            move
+                moveIsInvalid:          true,
+                invalidMove:            move,
+                enableEnPassant:        this.state[localBoard].fenExtras.enPassant
             }
         }
 
         if (this.debug && !this.hideOutput)
-                console.log("/////////////////////// Turn " + this.state.turn + " ///////////////////////")
+                console.log("/////////////////////// Turn " + this.state[localBoard].turn + " ///////////////////////")
         // 1. Print info.
         switch (this.gameType) {
             case GameType.standard:
@@ -192,7 +227,7 @@ class ChessState {
                 break        
                 case GameType.bughouse:
                 if (this.debug && !this.hideOutput) 
-                    console.log("   " + this.getTurn() + "'s turn") // TODO
+                    console.log("   " + this.getTurn(localBoard) + "'s turn") // TODO
                 break
             default:
                 throw new Error("Game type not recognized")
@@ -200,28 +235,28 @@ class ChessState {
 
 
         // Execute move (pgn)
-        let result = ExecuteTurn(this, move, this.hideOutput, this.debug)
+        let result = ExecuteTurn(this.state[localBoard], move, this.getTurn(localBoard), this.gameType, this.hideOutput, this.debug)
 
         // Update History
-        this.state.history.pgn.push(move)
-        this.state.history.fen.push(FenLogic.BoardToFen(this.state.board, this.state.fenExtras))
+        this.state[localBoard].history.pgn.push(move)
+        this.state[localBoard].history.fen.push(FenLogic.BoardToFen(this.state[localBoard].board, this.state[localBoard].fenExtras))
         
-        this.state.turn++
+        this.state[localBoard].turn++
 
         // Update king location.
         // TODO: Make sure king location is set when using a non-starting fen.
-        if (this.getTurn() === StandardTurns.white && result.kingLocation !== null) {
-            this.state.whiteKingLocation = result.kingLocation
+        if (this.getTurn(localBoard) === StandardTurns.white && result.kingLocation !== null) {
+            this.state[localBoard].whiteKingLocation = result.kingLocation
         }
         else if (result.kingLocation !== null) {
-            this.state.blackKingLocation = result.kingLocation
+            this.state[localBoard].blackKingLocation = result.kingLocation
         }
 
         // Print board if debugging.
         if (this.debug === true && !this.hideOutput)
             BoardPrinter.printBoardDebug(this, this.hideOutput)
         else if (this.debug === false && !this.hideOutput)
-            BoardPrinter.printBoard(this, StandardTurns.white, this.hideOutput)
+            BoardPrinter.printBoard(this.state[localBoard].board, StandardTurns.white, this.hideOutput)
         this.updateFenExtras(result)
 
         if (result == null) {
@@ -229,13 +264,13 @@ class ChessState {
                 console.log("!~!~!~!~!~! No More Moves !~!~!~!~!~!~!")
                 console.log("              Game Over")
             }
-            this.state.gameOver = true
+            this.state[localBoard].gameOver = true
         }
 
-        if (this.checkForEndOfGame(result)) {
+        if (this.checkForEndOfGame(result, localBoard)) {
             if (!this.hideOutput)
                 console.log("GAME OVER")
-            this.state.gameOver = true // For testing purposes
+            this.state[localBoard].gameOver = true // For testing purposes
         }
 
         return result
@@ -287,67 +322,81 @@ class ChessState {
 
 
     // TODO: check if this can be removed.
-    getBoardArray() {
-        return this.state.board
+    getBoardArray(board?: number) {
+        // If null use zero, else use the specified board
+        const localBoard = (board == null) ? 0 : board
+        if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
+
+        return this.state[localBoard].board
     }
 
     getTurn(boardNumber?: number): StandardTurns {
+        // If null use zero, else use the specified board
+        const localBoard = (boardNumber == null) ? 0 : boardNumber
+        if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
+
         switch (this.gameType) {
             /* Standard */
             case GameType.standard:
-                return this.state.fenExtras.turn
             case GameType.bughouse:
-            if (boardNumber === 0) {
-                return this.state.fenExtras.turn
-            }
-            else {
-                return this.state2.fenExtras.turn
-            }
+                return this.state[localBoard].fenExtras.turn
             default:
                 throw new Error("Error, variant not recognized")
         }
     }
 
-    getFen(debug?: boolean): string {
-        return FenLogic.BoardToFen(this.state.board, this.state.fenExtras, debug).trim()
+    getFen(board?: number, debug?: boolean): string {
+        // If null use zero, else use the specified board
+        const localBoard = (board == null) ? 0 : board
+        if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
+
+        return FenLogic.BoardToFen(this.state[localBoard].board, this.state[localBoard].fenExtras, debug).trim()
     }
 
-    printBoard(debug?: boolean, hideOutput?: boolean): void {
-        BoardPrinter.printBoard(this, StandardTurns.white, debug)
+    printBoard(board: number, debug?: boolean): void {
+        // If null use zero, else use the specified board
+        const localBoard = (board == null) ? 0 : board
+        if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
+
+        BoardPrinter.printBoard(this.state[localBoard].board, StandardTurns.white, debug)
     }
 
     /*
      * Update turn
      */
-    updateFenExtras(moveResults: MoveResult) {
+    updateFenExtras(moveResults: MoveResult, board?: number) {
+        // If null use zero, else use the specified board
+        const localBoard = (board == null) ? 0 : board
+        if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
+
         switch (this.gameType) {
             /* Standard */
             case GameType.standard:
                 // Toggle turn
-                if (this.state.fenExtras.turn === StandardTurns.white) 
-                    this.state.fenExtras.turn = StandardTurns.black
+                if (this.state[localBoard].fenExtras.turn === StandardTurns.white) 
+                    this.state[localBoard].fenExtras.turn = StandardTurns.black
                 else 
-                    this.state.fenExtras.turn = StandardTurns.white
+                    this.state[localBoard].fenExtras.turn = StandardTurns.white
 
                 // Update castling.
                 if (moveResults.whiteKingSideCastle || moveResults.whiteQueenSideCastle) {
-                    this.state.fenExtras.castling = this.state.fenExtras.castling.replace("K", "")
-                    this.state.fenExtras.castling = this.state.fenExtras.castling.replace("Q", "")
+                    this.state[localBoard].fenExtras.castling = this.state[localBoard].fenExtras.castling.replace("K", "")
+                    this.state[localBoard].fenExtras.castling = this.state[localBoard].fenExtras.castling.replace("Q", "")
                 }
 
                 else if (moveResults.blackKingSideCastle || moveResults.blackQueenSideCastle) {
-                    this.state.fenExtras.castling = this.state.fenExtras.castling.replace("k", "")
-                    this.state.fenExtras.castling = this.state.fenExtras.castling.replace("q", "")
+                    this.state[localBoard].fenExtras.castling = this.state[localBoard].fenExtras.castling.replace("k", "")
+                    this.state[localBoard].fenExtras.castling = this.state[localBoard].fenExtras.castling.replace("q", "")
                 }
                 
                 // Update En Passant
-                this.state.fenExtras.enPassant = moveResults.enableEnPassant
+                this.state[localBoard].fenExtras.enPassant = moveResults.enableEnPassant
 
                 //this.checkForCastling()                 // Update available castling.
-                this.state.fenExtras.halfMoves++;             // Increment number of half moves.
-                if (this.state.fenExtras.halfMoves === 2) {   // Check to increment full moves.
-                    this.state.fenExtras.halfMoves = 0
-                    this.state.fenExtras.fullMoves++
+                this.state[localBoard].fenExtras.halfMoves++;             // Increment number of half moves.
+                if (this.state[localBoard].fenExtras.halfMoves === 2) {   // Check to increment full moves.
+                    this.state[localBoard].fenExtras.halfMoves = 0
+                    this.state[localBoard].fenExtras.fullMoves++
                 }
                 break
             default:
@@ -365,12 +414,16 @@ class ChessState {
             console.log("checkForEnPassant Not Yet Implemented")
     }
 
-    checkForEndOfGame(moveResult: MoveResult) {
+    checkForEndOfGame(moveResult: MoveResult, board: number) {
+        // If null use zero, else use the specified board
+        const localBoard = (board == null) ? 0 : board
+        if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
+
         if (moveResult.check === true && this.checkForCheckmate(moveResult) === true) {
-            if (this.getTurn() === StandardTurns.black)
-                this.state.winner = StandardTurns.white
+            if (this.getTurn(localBoard) === StandardTurns.black)
+                this.state[localBoard].winner = StandardTurns.white
             else 
-                this.state.winner = StandardTurns.black
+                this.state[localBoard].winner = StandardTurns.black
             return true
         }
 
@@ -380,13 +433,17 @@ class ChessState {
     }
 
     // NOTE: method is designed for standard sized board
-    checkForCheckmate(moveResult: MoveResult): boolean {
+    checkForCheckmate(moveResult: MoveResult, board?: number): boolean {
+        // If null use zero, else use the specified board
+        const localBoard = (board == null) ? 0 : board
+        if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
+
         let isCheckmate = false
         // Find the location of the king.
-        let kingLocation = (this.getTurn() === StandardTurns.white) ? this.state.whiteKingLocation : this.state.blackKingLocation
+        let kingLocation = (this.getTurn(localBoard) === StandardTurns.white) ? this.state[localBoard].whiteKingLocation : this.state[localBoard].blackKingLocation
 
         // TODO: add method for searching for king if non-starting fen is provided.
-        let kingPiece = (this.getTurn() === StandardTurns.white) ? "K" : "k"
+        let kingPiece = (this.getTurn(localBoard) === StandardTurns.white) ? "K" : "k"
 
         // A - Avoid
         // Check all the imidiately adjacent and diagonal squares of the king's location.
@@ -403,7 +460,7 @@ class ChessState {
                 // TODO: Replace "X" as the empty space.
                 // If any EMPTY squares surrounding the king are safe, it's not a checkmate.
                 if (this.getBoardArray()[squareOfIntesest.row][squareOfIntesest.column] !== "X"  &&
-                   this.squareIsSafeForKing(squareOfIntesest, this.getTurn(), this.gameType, this.debug) === true) {
+                   this.squareIsSafeForKing(squareOfIntesest, this.getTurn(localBoard), this.gameType, localBoard, this.debug) === true) {
                     return false
                 }
             }
@@ -477,7 +534,7 @@ class ChessState {
             if (this.debug && !this.hideOutput)
                 console.log(`Attacker is from ${direction.toString()}`)
             // Return false if there is a block that prevents checkmate.
-            if (this.checkForBlockableSquares(kingLocation, direction) === false) {
+            if (this.checkForBlockableSquares(kingLocation, direction, localBoard) === false) {
                 return false
             }
         }
@@ -486,8 +543,8 @@ class ChessState {
         if (this.debug && !this.hideOutput)
             console.log("---------Checking for capture-------------")
 
-        let resultt = this.squareIsSafeForKing(moveResult.movedPieceDest, (this.getTurn() === StandardTurns.white) ? StandardTurns.black : StandardTurns.white,
-                            this.gameType, this.debug)
+        let resultt = this.squareIsSafeForKing(moveResult.movedPieceDest, (this.getTurn(localBoard) === StandardTurns.white) ? StandardTurns.black : StandardTurns.white,
+                            this.gameType, localBoard, this.debug)
         
         if (resultt === true) {
             // The piece can't be captured, thus checkmate.
@@ -498,13 +555,13 @@ class ChessState {
     }
  
     // Iteratively check all the surrounding squares to see if a square is safe for the king
-    squareIsSafeForKing(kingSquare: BoardLocation, color: StandardTurns, gameType: GameType, debug?: boolean): boolean {
+    squareIsSafeForKing(kingSquare: BoardLocation, color: StandardTurns, gameType: GameType, board?: number, debug?: boolean): boolean {
         switch (gameType) {
             case GameType.standard:
                 // Check Knight squares, Bishop squares, and Rook squares.
-                let foo = this.squareIsSafeFromPiece(kingSquare, color, "Knight", debug)
-                let bar = this.squareIsSafeFromPiece(kingSquare, color, "Bishop", debug)
-                let que = this.squareIsSafeFromPiece(kingSquare, color, "Rook", debug)
+                let foo = this.squareIsSafeFromPiece(kingSquare, color, "Knight", board, debug)
+                let bar = this.squareIsSafeFromPiece(kingSquare, color, "Bishop", board, debug)
+                let que = this.squareIsSafeFromPiece(kingSquare, color, "Rook", board, debug)
                 return (foo && bar && que)
             case GameType.bughouse:
                 throw new Error("Variant 'Bughouse' is not yet implemented.")
@@ -513,29 +570,41 @@ class ChessState {
         }
     }
 
-    getStatus(): GameStatus {
+    getStatus(board?: number): GameStatus {
+        // If null use zero, else use the specified board
+        const localBoard = (board == null) ? 0 : board
+        if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
+
         let status = {
-            gameOver: this.state.gameOver,
+            gameOver: this.state[localBoard].gameOver,
             turn: null,
-            winner: (this.state.winner === StandardTurns.white) ? "white" : "black",
+            winner: (this.state[localBoard].winner === StandardTurns.white) ? "white" : "black",
         } as GameStatus
 
-        if (this.state.winner == null) {
+        if (this.state[localBoard].winner == null) {
             status.winner = null
         }
 
         return status
     }
 
-    resign() {
+    resign(board?: number) {
+        // If null use zero, else use the specified board
+        const localBoard = (board == null) ? 0 : board
+        if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
+
         if (!this.hideOutput)
             console.log("GAME OVER")
-        this.state.gameOver = true
-        this.state.winner = this.getTurn()  // The turn hasn't updated yet.
+        this.state[localBoard].gameOver = true
+        this.state[localBoard].winner = this.getTurn(localBoard)  // The turn hasn't updated yet.
     }
 
     // NOTE: function is not designed for non-standard board sizes.
-    private squareIsSafeFromPiece(kingSquare: BoardLocation, color: StandardTurns, pieceName: string, debug?: boolean): boolean {
+    private squareIsSafeFromPiece(kingSquare: BoardLocation, color: StandardTurns, pieceName: string, board?: number, debug?: boolean): boolean {
+        // If null use zero, else use the specified board
+        const localBoard = (board == null) ? 0 : board
+        if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
+
         let pieceSymbolWhite: string
         let pieceSymbolBlack: string
 
@@ -615,18 +684,18 @@ class ChessState {
                     attackerSquare.row + kingSquare.row >= 0) {
 
                         // This break will require there to be a clear path for non-jumping pieces to be a threat.
-                        if ((this.state.board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== pieceSymbolWhite ||
-                            this.state.board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== pieceSymbolBlack ||
-                            this.state.board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== "X") && 
+                        if ((this.state[localBoard].board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== pieceSymbolWhite ||
+                            this.state[localBoard].board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== pieceSymbolBlack ||
+                            this.state[localBoard].board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== "X") && 
                             pieceName !== "Knight" // Knights are allowed to jump
                             )
                             break
 
                         // If the correct piece appears, then the square is not safe.
-                        if (color === StandardTurns.white && this.state.board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] === pieceSymbolWhite) {
+                        if (color === StandardTurns.white && this.state[localBoard].board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] === pieceSymbolWhite) {
                             return false
                         }
-                        else if (color === StandardTurns.black && this.state.board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] === pieceSymbolBlack) {
+                        else if (color === StandardTurns.black && this.state[localBoard].board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] === pieceSymbolBlack) {
                             return false
                         }
                     }
@@ -638,7 +707,11 @@ class ChessState {
 
     // Returns false if it's not checkmate because there is a possible block
     // returning true signals nothing definitive.
-    private checkForBlockableSquares(kingLocation: BoardLocation, direction: Directions): boolean {
+    private checkForBlockableSquares(kingLocation: BoardLocation, direction: Directions, board: number): boolean {
+        // If null use zero, else use the specified board
+        const localBoard = (board == null) ? 0 : board
+        if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
+
         let rowInc: number 
         let colInc: number
 
@@ -688,9 +761,9 @@ class ChessState {
                     column: kingLocation.column + i
                 } as BoardLocation
                 // Check to see if a piece can block
-                if (!this.squareIsSafeFromPiece(tempLoc, this.getTurn(), "Rook", false) ||
-                    !this.squareIsSafeFromPiece(tempLoc, this.getTurn(), "Bishop", false) ||
-                    !this.squareIsSafeFromPiece(tempLoc, this.getTurn(), "Knight", false))
+                if (!this.squareIsSafeFromPiece(tempLoc, this.getTurn(localBoard), "Rook", localBoard, false) ||
+                    !this.squareIsSafeFromPiece(tempLoc, this.getTurn(localBoard), "Bishop", localBoard, false) ||
+                    !this.squareIsSafeFromPiece(tempLoc, this.getTurn(localBoard), "Knight", localBoard, false))
                     return false // Not checkmate
             }
 
@@ -736,15 +809,6 @@ class ChessState {
         }
         return true
     }
-
-
-
-
-
-
-
-
-
 }
 
 export default ChessState
