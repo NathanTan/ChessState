@@ -134,19 +134,19 @@ class ChessState {
 
 
     // Board number is 0 for the first board and 1 for the second board
-    move(move:string, board?: number) {
+    move(move:string, board?: number): MoveResult {
         if (this.gameType === GameType.bughouse && board == null) {
             throw new Error(`Game variant "Bughouse" needs to know which board to execute the move on, board '0' or board '1'`)
         }
 
         // Bughouse game variant case
         else if (this.gameType === GameType.bughouse && board != null) {
-            this.executeMove(move, board)
+            return this.executeMove(move, board)
         }
 
         // Standard game variant case
         else {
-            this.executeMove(move)
+            return this.executeMove(move)
         }
     }
 
