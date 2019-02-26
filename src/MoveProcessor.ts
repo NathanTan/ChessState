@@ -393,6 +393,7 @@ const placePieceInRow = (row, piece, col) => {
  *      - PGN move
  *      - Piece to find
  *      - game type [OPTIONAL]F
+ * Notes: Pawns need a "~" somewhere in the pgn string to signal a piece drop in bughouse
  */
 // TODO: Deal with situtation where there are 2 pieces in the same column that can move to the same square.
 const getPieceLocation = (board: string[][], pgn: string, piece: string, gameType: GameTypes, hideOutput:boolean, debug?: boolean): BoardLoaction => {
@@ -403,44 +404,16 @@ const getPieceLocation = (board: string[][], pgn: string, piece: string, gameTyp
     }
 
     let col: number = null
-    let possibleCol = []
-    let possibleCords = []
 
-    // If pawn
-    if (piece === "p" || piece === "P") {
-        col = getPGNDropColumn(pgn)
-        if (debug && !hideOutput)
-            console.log("col: " + col + " pgn: " + pgn)
+    col = getPGNDropColumn(pgn)
+
+    // If there is an explicit piece drop
+    if (col == null) {
+        return null
     }
-    else {
-        // TODO: remove everything in this condition.
 
-        // TODO: add validation to make sure the user didn't input correctly
-        // Only one piece that can go to the dest square
-        if (pgn.length === 3) {
-            let b: BoardLoaction = { column: -1, row: -1 }
-            b.column = charToColumnNumber(pgn[1])
-            //b.column
-            b.row = 8 - +pgn[2]
-        }
-
-        // Two pieces (in standard) can land on the dest square
-        else if (pgn.length === 4) {
-
-        }
-        else {
-            throw new Error("Something's wrong in the neighborhood. Who you gonna call???")
-        }
-
-
-
-        col = getPGNDropColumn(pgn)
-      
-        let pieceSource: BoardLoaction = null;
-        pieceSource.column = +col
-        pieceSource.row = -1;
-
-    }
+    if (debug && !hideOutput)
+        console.log("col: " + col + " pgn: " + pgn)
 
     let piecesInCol: string[] = []
     board.forEach((row) => {
@@ -450,7 +423,7 @@ const getPieceLocation = (board: string[][], pgn: string, piece: string, gameTyp
     let locatedPieceRow = -1
     let index = 0
 
-    if (gameType == undefined || gameType === GameTypes.standard) {
+    if (gameType == undefined || gameType === GameTypes.standard || GameTypes.bughouse) {
         piecesInCol.forEach((p) => {
             if (debug && !hideOutput)
                 console.log("p: " + p)
@@ -593,8 +566,14 @@ const findPieceSource = (board: string[][], pgn: string, piece: string, dest: Bo
  *    - pgn notation 
  * Returns:
  *    Numeric mapped value corresponding to the letter column of the board
+ *    Null if the tilda is included to signal a piece drop.
  */
 const getPGNDropColumn = (pgn: string): number => {
+    //@ts-ignore
+    // If there is an explicit piece drop
+    if (pgn.includes("~")) {
+        return null
+    }
 
     // If the first letter of the pgn is upper case, then it is the piece that is moving.
     if (pgn[0] === pgn[0].toUpperCase()) { //Check if is upper case

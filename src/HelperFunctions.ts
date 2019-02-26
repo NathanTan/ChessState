@@ -26,8 +26,9 @@ class HelperFunctions {
     static findPieceDestination(pgn: string, turn: StandardTurns, gameType: GameTypes, capture: boolean, hideOutput: boolean, debug?: boolean,): BoardLoaction {
         let location: BoardLoaction = { "row": -1, "column": -1 }
         
-        if (gameType != undefined && gameType !== GameTypes.standard) {
-            console.log("gameType: ")
+        if (gameType != undefined && gameType !== GameTypes.standard && 
+                                     gameType !== GameTypes.bughouse) {
+            console.log("gameType: ") 
             console.log(gameType)
             throw new Error("pgnToGridCordinate is not yet implemented for " + gameType.toString() + " variant")
         }

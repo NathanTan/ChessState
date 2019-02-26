@@ -373,6 +373,7 @@ class ChessState {
         if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
 
         switch (this.gameType) {
+            case GameType.bughouse:
             /* Standard */
             case GameType.standard:
                 // Toggle turn
@@ -560,14 +561,13 @@ class ChessState {
     // Iteratively check all the surrounding squares to see if a square is safe for the king
     squareIsSafeForKing(kingSquare: BoardLocation, color: StandardTurns, gameType: GameType, board?: number, debug?: boolean): boolean {
         switch (gameType) {
+            case GameType.bughouse:
             case GameType.standard:
                 // Check Knight squares, Bishop squares, and Rook squares.
                 let foo = this.squareIsSafeFromPiece(kingSquare, color, "Knight", board, debug)
                 let bar = this.squareIsSafeFromPiece(kingSquare, color, "Bishop", board, debug)
                 let que = this.squareIsSafeFromPiece(kingSquare, color, "Rook", board, debug)
                 return (foo && bar && que)
-            case GameType.bughouse:
-                throw new Error("Variant 'Bughouse' is not yet implemented.")
             default:
                 throw new Error("Game variant is not recognized.")
         }
