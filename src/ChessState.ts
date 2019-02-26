@@ -171,7 +171,8 @@ class ChessState {
                 gameIsOver:             true,
                 moveIsInvalid:          false,
                 invalidMove:            null,
-                enableEnPassant:        null
+                enableEnPassant:        null,
+                wasPieceDrop:           false
             }
         }
 
@@ -190,7 +191,8 @@ class ChessState {
                 gameIsOver:             true,
                 moveIsInvalid:          false,
                 invalidMove:            null,
-                enableEnPassant:        null
+                enableEnPassant:        null,
+                wasPieceDrop:           false
             }
         }
         
@@ -212,7 +214,8 @@ class ChessState {
                 gameIsOver:             false,
                 moveIsInvalid:          true,
                 invalidMove:            move,
-                enableEnPassant:        this.state[localBoard].fenExtras.enPassant
+                enableEnPassant:        this.state[localBoard].fenExtras.enPassant,
+                wasPieceDrop:           false
             }
         }
 

@@ -63,7 +63,7 @@ describe('BugHouse: ChessState squareIsSafeForKing function', function () {
 describe('BugHouse: ChessState games', () => {
     it(`Properly handles the '4 Move Checkmate'`, () => {
         const game = new ChessState(config)
-        const board1 = 1
+        const board1 = 0
 
         for (let move of TestGames["4 Move Checkmate"]) {
             game.move(move, board1)

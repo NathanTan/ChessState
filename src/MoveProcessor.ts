@@ -52,7 +52,8 @@ const ExecuteTurn = (state: State, pgn: string, turn: StandardTurns, gameType: G
         moveIsInvalid:          false,
         invalidMove:            null,
         enableEnPassant:        null,
-        executeEnPassant:       false
+        executeEnPassant:       false,
+        wasPieceDrop:           false
     }
     // TODO: Manually check for the king getting put in check
     let castle = false
@@ -221,6 +222,14 @@ const ExecuteTurn = (state: State, pgn: string, turn: StandardTurns, gameType: G
         throw new Error("Error: no pgn provided")
     }
 
+    // If the piece has no source, then the piece came from off the board.
+    if (moveCord.source === null) {
+        result.wasPieceDrop = true;
+        if (gameType !== GameTypes.bughouse) {
+            throw new Error("Move source should not be null if not bughouse.")
+        }
+    }
+
     return result
 }
 
@@ -245,7 +254,11 @@ const updateBoardByCord = (board: string[][], moveCord: Move, enPassant: boolean
     }
 
     newBoard[moveCord.dest.row][moveCord.dest.column] = board[moveCord.source.row][moveCord.source.column]
-    newBoard[moveCord.source.row][moveCord.source.column] = "X"
+    
+    // Not a bughouse piece drop
+    if (moveCord.source !== null) {
+        newBoard[moveCord.source.row][moveCord.source.column] = "X"
+    }
 
     if (enPassant) {
         let rowDifference = (turn === StandardTurns.white) ? 1 : -1
@@ -292,18 +305,33 @@ const pgnToCordPawn = (board: string[][],pgn: string, turn: StandardTurns, gameT
                 piece = "P"
             }
             break
+        case GameTypes.bughouse:
+            // TODO: Deal with placing pieces with no source
+            if (turn === StandardTurns.black) {
+                piece = "p"
+            }
+            else {
+                piece = "P"
+            }
+        break
         default:
             throw new Error("Game variant '" + gameType + "' not yet implemented.")
     }
 
     moveObj.dest = HelperFunctions.findPieceDestination(pgn, turn, gameType, capture, hideOutput, debug)
 
-    if (piece === "p" || piece === "P")
-        moveObj.source = getPieceLocation(board, pgn, piece, gameType, hideOutput)
-    else {
-        moveObj.source = findPieceSource(board, pgn, piece, moveObj.dest, gameType, debug, hideOutput)
+    switch (gameType) {
+        case GameTypes.bughouse:
+        case GameTypes.standard:
+            if (piece === "p" || piece === "P")
+                moveObj.source = getPieceLocation(board, pgn, piece, gameType, hideOutput)
+            else {
+                moveObj.source = findPieceSource(board, pgn, piece, moveObj.dest, gameType, debug, hideOutput)
+            }
+            break;
+        default:
+            throw new Error("Game variant '" + gameType + "' not yet implemented.")
     }
-
     if (debug && !hideOutput) {
         console.log("Piece's location")
         console.log("(" + moveObj.source.column + "," + moveObj.source.row + ")")
@@ -445,12 +473,13 @@ const getPieceLocation = (board: string[][], pgn: string, piece: string, gameTyp
 
 const findPieceSource = (board: string[][], pgn: string, piece: string, dest: BoardLoaction, gameType: GameTypes, debug: boolean, hideOutput: boolean): BoardLoaction => {
     switch (gameType) {
+        case GameTypes.bughouse:
         case GameTypes.standard:
 
             let possibleSources: BoardLoaction[] = []
+
             // Find all possible sources on the map for the provided piece.
             constants.PieceLogic[constants["PiecePGNToName"][piece]].forEach((square) => {
-
                 if (square.column + dest.column < 8 &&
                     square.column + dest.column >= 0 &&
                     square.row + dest.row < 8 &&
@@ -462,8 +491,6 @@ const findPieceSource = (board: string[][], pgn: string, piece: string, dest: Bo
             })
 
             let ans: BoardLoaction[] = []
-            // console.log("piece: " + piece)
-            // console.log("Dest: " + JSON.stringify(dest))
 
             // Find which of the possible sources is the real source
             // Special logic for Rooks
@@ -508,7 +535,7 @@ const findPieceSource = (board: string[][], pgn: string, piece: string, dest: Bo
                 })
             }
             // Complex senario
-            if (ans.length !== 1) {
+            if (ans.length > 1) {
                 let answer: BoardLoaction
                 let count = 0
                 // If there is an extra character in the pgn and it's a letter, thus representing the source column, use that column
@@ -541,6 +568,12 @@ const findPieceSource = (board: string[][], pgn: string, piece: string, dest: Bo
                     throw new Error("Something went wrong and too many possible piece sources were for this move")
                 return answer
             }
+
+            // Bug house inferred piece drop.
+            else if (ans.length === 0) {
+                return null
+            }
+
             else {
                 if (!hideOutput) {
                     console.log(ans[0])

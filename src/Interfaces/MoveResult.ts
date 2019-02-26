@@ -16,6 +16,7 @@ interface MoveResult {
     enableEnPassant:        string	        // If En Passant is allowed as a result of this move,
                                             //      fill with the proper string, else null
     executeEnPassant?:      boolean
+    wasPieceDrop:           boolean	        // Was a bughouse piece drop
 }
 
 export default MoveResult
