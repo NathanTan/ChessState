@@ -58,6 +58,8 @@ const ExecuteTurn = (state: State, pgn: string, turn: StandardTurns, gameType: G
     // TODO: Manually check for the king getting put in check
     let castle = false
 
+    let piece: string
+
     if (pgn) {
         let capture = (pgn.indexOf("x") !== -1)
         if (debug && !hideOutput)
@@ -158,7 +160,6 @@ const ExecuteTurn = (state: State, pgn: string, turn: StandardTurns, gameType: G
                 break
 
             default: // Normal move  
-                let piece: string
                 switch (pgn[0]) {
                     case "N": // Knight move
                         piece = (turn === StandardTurns.white) ? 'N' : 'n'
@@ -192,30 +193,50 @@ const ExecuteTurn = (state: State, pgn: string, turn: StandardTurns, gameType: G
                         result.movedPiece = PieceTypes.King
                         break
                     default: // Pawn move
+                        piece = (turn === StandardTurns.white) ? 'P' : 'p'
+
                         if (debug && !hideOutput)
                             console.log("==Pawn Move")
                         moveCord = pgnToCordPawn(state.board, pgn, turn, gameType, hideOutput, debug)
                         result.movedPiece = PieceTypes.Pawn
+
                         
-                        // Check to see if a pawn moved 2 spaces
-                        if (moveCord.dest.row - moveCord.source.row === 2 ||
-                            moveCord.dest.row - moveCord.source.row === -2) {
-                            let rowDifference = (turn === StandardTurns.white) ? 1 : -1
-                            result.enableEnPassant = `${pgn[0]}${Math.abs(-pgn[1] + rowDifference)}` // This should work but ought to be tested TODO:
+                        // Check to see if there is not a bughouse piece drop
+                        if (moveCord.source !== null) {
+
+                            // Check to see if a pawn moved 2 spaces
+                            if (moveCord.dest.row - moveCord.source.row === 2 ||
+                                moveCord.dest.row - moveCord.source.row === -2) {
+                                let rowDifference = (turn === StandardTurns.white) ? 1 : -1
+                                result.enableEnPassant = `${pgn[0]}${Math.abs(-pgn[1] + rowDifference)}` // This should work but ought to be tested TODO:
+                            }
+                            
+                            if (moveCord.dest.column !== moveCord.source.column) {
+                                result.executeEnPassant = true
+                            }
                         }
 
-                        if (moveCord.dest.column !== moveCord.source.column) {
-                            result.executeEnPassant = true
+                            // There was a bughouse piece drop
+                        else {
+
                         }
                     // TODO: deal with fen's en passant
                 }
         }
+
         result.movedPieceDest = moveCord.dest
 
-        // TODO: move this function into the gameState such that only the game state can update the board.
-        state.board = updateBoardByCord(state.board, moveCord, result.executeEnPassant, turn, debug, hideOutput)
-        if (castle)
-            state.board = updateBoardByCord(state.board, moveCord2, false, null, debug, hideOutput)
+        // If there is a piece drop.
+        if (moveCord.source === null)
+            state.board = dropPieceOnBoard(state.board, moveCord, piece, hideOutput, debug)
+
+        // Normal route, no piece drop.
+        else {
+                // TODO: move this function into the gameState such that only the game state can update the board.
+                state.board = updateBoardByCord(state.board, moveCord, result.executeEnPassant, turn, debug, hideOutput)
+            if (castle)
+                state.board = updateBoardByCord(state.board, moveCord2, false, null, debug, hideOutput)
+        }
     }
 
     else {
@@ -253,17 +274,43 @@ const updateBoardByCord = (board: string[][], moveCord: Move, enPassant: boolean
             + board[moveCord.dest.row][moveCord.dest.column])
     }
 
+    // Copy the piece to it's new location.
     newBoard[moveCord.dest.row][moveCord.dest.column] = board[moveCord.source.row][moveCord.source.column]
     
-    // Not a bughouse piece drop
-    if (moveCord.source !== null) {
-        newBoard[moveCord.source.row][moveCord.source.column] = "X"
-    }
+    // Remove the piece from the old location.
+    newBoard[moveCord.source.row][moveCord.source.column] = "X"
 
     if (enPassant) {
         let rowDifference = (turn === StandardTurns.white) ? 1 : -1
         newBoard[moveCord.dest.row + rowDifference][moveCord.dest.column] = "X"
     }
+
+    return newBoard
+}
+
+/*
+ * Params:
+ *      - The board as a 2d array
+ *      - An object holding the source and destination of the move
+ *      - The type of piece that is being placed
+ *      - flag for hiding output
+ *      - [OPTIONAL] flag for debugging printing
+ * Returns: 
+ *      A new 2d array with 1 extra piece on the board
+ * TODO:
+ *      Add validation to make sure the piece drop is legal
+ */
+const dropPieceOnBoard = (board: string[][], moveCord: Move, piece: string, hideOutput: boolean, debug?: boolean) => {
+    let newBoard = board
+
+    if (debug && !hideOutput) {
+        console.log(JSON.stringify(moveCord))
+        console.log("Executing piece drop: ")
+        console.log(board[moveCord.source.row][moveCord.source.column] + " -> "
+            + piece)
+    }
+
+    newBoard[moveCord.dest.row][moveCord.dest.column] = piece // TODO: Change to PieceTypes.Empty
 
     return newBoard
 }
