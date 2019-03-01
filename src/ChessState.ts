@@ -127,7 +127,7 @@ class ChessState {
                 console.log("   -- Board 0 --")
                 BoardPrinter.printBoard(this.state[0].board, StandardTurns.white, this.hideOutput)
                 console.log("   -- Board 1 --")
-                BoardPrinter.printBoard(this.state[1].board, StandardTurns.white, this.hideOutput)
+                BoardPrinter.printBoard(this.state[1].board, StandardTurns.black, this.hideOutput)
             }
         }
     }
