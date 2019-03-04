@@ -11,6 +11,13 @@ const config: Config = {
     debug:      true,
     hideOutput: true
 }
+const config2: Config = {
+    gameType:   GameTypes.bughouse,
+    fen:        null,
+    debug:      true,
+    hideOutput: false
+}
+
 
 describe('BugHouse: Handling basic piece drops', () => {
     it('Handles earliest piece drop on board 0', () => {
@@ -45,7 +52,7 @@ describe('BugHouse: Handling basic piece drops', () => {
     })
 
     it('Handles earliest piece drop on board 1', () => {
-        const game = new ChessState(config)
+        const game = new ChessState(config2	)
         const board0 = 0
         const board1 = 1
         const gameName = "Basic pawn drop on board1 - Bughouse"

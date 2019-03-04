@@ -120,16 +120,16 @@ class ChessState {
             console.log("fenExtras: " + JSON.stringify(this.state[0].fenExtras))
             console.log("GameState initalized\n")
         }
-        if (!this.hideOutput) {
-            if (this.gameType === GameType.standard)
-                BoardPrinter.printBoard(this.state[0].board, StandardTurns.white, this.hideOutput)
-            else if (this.gameType === GameType.bughouse) {
-                console.log("   -- Board 0 --")
-                BoardPrinter.printBoard(this.state[0].board, StandardTurns.white, this.hideOutput)
-                console.log("   -- Board 1 --")
-                BoardPrinter.printBoard(this.state[1].board, StandardTurns.black, this.hideOutput)
-            }
-        }
+        // if (!this.hideOutput) {
+        //     if (this.gameType === GameType.standard)
+        //         BoardPrinter.printBoard(this.state[0].board, StandardTurns.white, this.hideOutput)
+        //     else if (this.gameType === GameType.bughouse) {
+        //         console.log("   -- Board 0 --")
+        //         BoardPrinter.printBoard(this.state[0].board, StandardTurns.white, this.hideOutput)
+        //         console.log("   -- Board 1 --")
+        //         BoardPrinter.printBoard(this.state[1].board, StandardTurns.black, this.hideOutput)
+        //     }
+        // }
     }
 
 
@@ -219,8 +219,21 @@ class ChessState {
             }
         }
 
-        if (this.debug && !this.hideOutput)
-                console.log("/////////////////////// Turn " + this.state[localBoard].turn + " ///////////////////////")
+        switch (this.gameType) {
+            case GameType.standard:
+                if (this.debug && !this.hideOutput)
+                    console.log("/////////////////////// Turn " + this.state[localBoard].turn + " ///////////////////////")
+                break
+            case GameType.bughouse:
+                if (this.debug && !this.hideOutput)
+                    console.log(`/****************************************/\n` + 
+                                `/           Board: ${board}    Turn: ${this.state[localBoard].turn}          /\n`
+                               +`/****************************************/`)
+                break
+            default:
+                throw new Error(`Game type not recognized`)
+        }
+
         // 1. Print info.
         switch (this.gameType) {
             case GameType.standard:
