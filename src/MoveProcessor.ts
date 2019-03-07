@@ -306,8 +306,11 @@ const dropPieceOnBoard = (board: string[][], moveCord: Move, piece: string, hide
     if (debug && !hideOutput) {
         console.log(JSON.stringify(moveCord))
         console.log("Executing piece drop: ")
-        console.log(board[moveCord.source.row][moveCord.source.column] + " -> "
-            + piece)
+        if (moveCord.source == null)
+            console.log(`drop -> ${piece}`)
+        else
+            console.log(board[moveCord.source.row][moveCord.source.column] + " -> "
+                + piece)
     }
 
     newBoard[moveCord.dest.row][moveCord.dest.column] = piece // TODO: Change to PieceTypes.Empty
@@ -381,9 +384,12 @@ const pgnToCordPawn = (board: string[][],pgn: string, turn: StandardTurns, gameT
     }
     if (debug && !hideOutput) {
         console.log("Piece's location")
-        console.log("(" + moveObj.source.column + "," + moveObj.source.row + ")")
+        if (moveObj.source == null)
+            console.log(`\tOff board`)
+        else
+            console.log(`(\t${moveObj.source.column}, ${moveObj.source.row})`)
         console.log("Piece's Destination")
-        console.log("(" + moveObj.dest.column + "," + moveObj.dest.row + ")")
+        console.log("\t(" + moveObj.dest.column + "," + moveObj.dest.row + ")")
     }
 
     return moveObj

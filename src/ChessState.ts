@@ -273,7 +273,7 @@ class ChessState {
             BoardPrinter.printBoardDebug(this, this.hideOutput)
         else if (this.debug === false && !this.hideOutput)
             BoardPrinter.printBoard(this.state[localBoard].board, StandardTurns.white, this.hideOutput)
-        this.updateFenExtras(result)
+        this.updateFenExtras(result, localBoard)
 
         if (result == null) {
             if (!this.hideOutput) {
@@ -361,12 +361,16 @@ class ChessState {
         }
     }
 
-    getFen(board?: number, debug?: boolean): string {
+    getFen(board?: number, debug?: boolean, hideOutput?: boolean): string {
         // If null use zero, else use the specified board
         const localBoard = (board == null) ? 0 : board
         if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
+        if (debug && !hideOutput) {
+            console.log("Board Info:")
+            console.log(this.state[localBoard])
+        }
 
-        return FenLogic.BoardToFen(this.state[localBoard].board, this.state[localBoard].fenExtras, debug).trim()
+        return FenLogic.BoardToFen(this.state[localBoard].board, this.state[localBoard].fenExtras, debug, hideOutput).trim()
     }
 
     printBoard(board: number, debug?: boolean): void {

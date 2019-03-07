@@ -11,12 +11,6 @@ const config: Config = {
     debug:      true,
     hideOutput: true
 }
-const config2: Config = {
-    gameType:   GameTypes.bughouse,
-    fen:        null,
-    debug:      true,
-    hideOutput: false
-}
 
 
 describe('BugHouse: Handling basic piece drops', () => {
@@ -52,7 +46,7 @@ describe('BugHouse: Handling basic piece drops', () => {
     })
 
     it('Handles earliest piece drop on board 1', () => {
-        const game = new ChessState(config2	)
+        const game = new ChessState(config)
         const board0 = 0
         const board1 = 1
         const gameName = "Basic pawn drop on board1 - Bughouse"
@@ -69,12 +63,12 @@ describe('BugHouse: Handling basic piece drops', () => {
 
         // Check for board 0 position
         assert.strictEqual(TestGames[gameName].expectedFens.board0,
-            game.getFen(board0)
+            game.getFen(board0, true, true)
         )
 
         // Check for board 1 position
         assert.strictEqual(TestGames[gameName].expectedFens.board1,
-            game.getFen(board1)
+            game.getFen(board1, true, true)
         )
 
         // Check for game status

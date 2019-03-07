@@ -1,8 +1,8 @@
 const TestGames = {
     "Basic pawn drop - Bughouse": {
         "expectedFens": {
-            board0 : "rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 3",
-            board1 : "rnbqkbnr/pppppppp/8/8/4P3/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+            board0 : "rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 1 2",
+            board1 : "rnbqkbnr/pppppppp/8/8/4P3/8/PPPPPPPP/RNBQKBNR b KQkq - 1 1"
         },
         "moves": [
             {
@@ -25,8 +25,8 @@ const TestGames = {
     },
     "Basic pawn drop on board1 - Bughouse": {
         "expectedFens": {
-            board0 : "rnbqkbnr/pppppppp/8/8/4P3/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-            board1 : "rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 3"
+            board0 : "rnbqkbnr/pppppppp/8/8/4P3/8/PPPPPPPP/RNBQKBNR b KQkq - 1 1",
+            board1 : "rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 1 2"
         },
         "moves": [
             {
