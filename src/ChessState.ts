@@ -626,7 +626,6 @@ class ChessState {
 
     // Reconstruct the status object when asked for it.
     getPlayerStatus(id: number, board?: number) {
-        const localBoard = (board == null) ? 0 : board
 
         if (id > 3 || id < 0) {
             throw new Error(`Id '${id}' is out of range`)
@@ -637,20 +636,63 @@ class ChessState {
 
         let isPlayersTurn = false;
         
+        // Determine if it's the players turn
         if (id === 0 || id === 1) {
-            (this.getTurn(0) === StandardTurns.white) 
+            if ((id === 0 && this.getTurn(0) === StandardTurns.white) ||
+                (id === 1 && this.getTurn(0) === StandardTurns.black)) {
+                isPlayersTurn = true
+            }
+        }
+        else {
+            if ((id === 2 && this.getTurn(1) === StandardTurns.white) ||
+                (id === 3 && this.getTurn(1) === StandardTurns.black)) {
+                isPlayersTurn = true
+            }
         }
 
+        // Get the extra pieces 
+        let extraPieces = []
+        let capturedPieces = []
 
-
-        let playerState = {
+        if (this.gameType === GameType.bughouse)
+            switch (id) {
+                case 0:
+                    extraPieces = this.state[0].extraPiecesWhite
+                    break
+                case 1:
+                    extraPieces = this.state[0].extraPiecesBlack
+                    break
+                case 2:
+                    extraPieces = this.state[1].extraPiecesWhite
+                    break
+                case 3:
+                    extraPieces = this.state[1].extraPiecesBlack
+                    break
+            }
+        else if (this.gameType === GameType.standard) {
+            extraPieces = null
+            switch (id) {
+                case 0:
+                    capturedPieces = this.state[0].extraPiecesWhite
+                    break
+                case 1:
+                    capturedPieces = this.state[0].extraPiecesBlack
+                    break
+                case 2:
+                    capturedPieces = this.state[1].extraPiecesWhite
+                    break
+                case 3:
+                    capturedPieces = this.state[1].extraPiecesBlack
+                    break
+            }
+        }
+        
+        return {
             id: id,
-            isPlayersTurn: false,
-            extraPieces: [],
-            capturedPieces: []
+            isPlayersTurn: isPlayersTurn,
+            extraPieces: extraPieces,
+            capturedPieces: capturedPieces
         } as PlayerStatus
-
-        return null
     }
 
     resign(board?: number) {
