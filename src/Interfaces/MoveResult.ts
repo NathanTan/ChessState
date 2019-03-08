@@ -16,6 +16,7 @@ interface MoveResult {
     enableEnPassant:        string	        // If En Passant is allowed as a result of this move,
                                             //      fill with the proper string, else null
     executeEnPassant?:      boolean
+    wasCapture?:            string	        // Null if no piece was captured, else the piece type that was captured.
     wasPieceDrop:           boolean	        // Was a bughouse piece drop
 }
 

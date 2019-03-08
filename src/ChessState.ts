@@ -14,6 +14,7 @@ import PieceTypes from './Interfaces/Enums/PieceTypes'
 import Directions from './Interfaces/Enums/Directions'
 import GameStatus from './Interfaces/GameStatus'
 import FenExtras from './Interfaces/FenExtras';
+import PlayerStatus from './Interfaces/PlayerStatus';
 
 class ChessState {
     /* Properties */
@@ -83,8 +84,8 @@ class ChessState {
                     blackKingLocation: (this.config.fen === constants["startingFen"]) ? 
                                         { row: 0, column: 4} as BoardLocation : FenLogic.GetBlackKingLocation(this.config.fen),
                     winner: null,
-                    extraPiecesWhite: null,
-                    extraPiecesBlack: null
+                    extraPiecesWhite: [],
+                    extraPiecesBlack: []
                 }
             case GameType.standard:
                 this.state[0] = {
@@ -101,8 +102,8 @@ class ChessState {
                     blackKingLocation: (this.config.fen === constants["startingFen"]) ? 
                                         { row: 0, column: 4} as BoardLocation : FenLogic.GetBlackKingLocation(this.config.fen),
                     winner: null,
-                    extraPiecesWhite: null,
-                    extraPiecesBlack: null
+                    extraPiecesWhite: [],
+                    extraPiecesBlack: []
                 }
                 break
                 default:
@@ -268,11 +269,26 @@ class ChessState {
             this.state[localBoard].blackKingLocation = result.kingLocation
         }
 
+        // Update extra pieces.
+        if (this.gameType === GameType.bughouse) {
+            let boardToAddPieceTo = (localBoard === 0) ? 1 : 0
+
+            // If there was a capture, pass the piece off to the player's partner.
+            if (result.wasCapture != null) {
+                if (this.getTurn(localBoard) === StandardTurns.white)
+                    this.state[boardToAddPieceTo].extraPiecesBlack.push(result.wasCapture)
+                else 
+                    this.state[boardToAddPieceTo].extraPiecesWhite.push(result.wasCapture)
+            }
+        }
+
         // Print board if debugging.
         if (this.debug === true && !this.hideOutput)
             BoardPrinter.printBoardDebug(this, this.hideOutput)
         else if (this.debug === false && !this.hideOutput)
             BoardPrinter.printBoard(this.state[localBoard].board, StandardTurns.white, this.hideOutput)
+        
+        // Update FEN extras
         this.updateFenExtras(result, localBoard)
 
         if (result == null) {
@@ -606,6 +622,35 @@ class ChessState {
         }
 
         return status
+    }
+
+    // Reconstruct the status object when asked for it.
+    getPlayerStatus(id: number, board?: number) {
+        const localBoard = (board == null) ? 0 : board
+
+        if (id > 3 || id < 0) {
+            throw new Error(`Id '${id}' is out of range`)
+        }
+        if (id > 1 && this.gameType === GameType.bughouse) {
+            throw new Error(`Id '${id}' is out of range`)
+        }
+
+        let isPlayersTurn = false;
+        
+        if (id === 0 || id === 1) {
+            (this.getTurn(0) === StandardTurns.white) 
+        }
+
+
+
+        let playerState = {
+            id: id,
+            isPlayersTurn: false,
+            extraPieces: [],
+            capturedPieces: []
+        } as PlayerStatus
+
+        return null
     }
 
     resign(board?: number) {
