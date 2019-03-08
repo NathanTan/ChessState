@@ -1,6 +1,6 @@
 interface PlayerStatus {
     id:             number
-    isPlayersturn:  boolean
+    isPlayersTurn:  boolean
     extraPieces:    string[]    // For bughouse
     capturedPieces: string[]    // For non-bughouse
 }
