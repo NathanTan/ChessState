@@ -42,7 +42,7 @@ describe('Pawn Movement: Normal', () => {
             invalidMove: null,
             enableEnPassant: 'e3',
             executeEnPassant: false,
-            wasPieceDrop: false }
+            wasPieceDrop: null }
 
         let result = game.move('e4')
 

@@ -17,7 +17,7 @@ interface MoveResult {
                                             //      fill with the proper string, else null
     executeEnPassant?:      boolean
     wasCapture?:            string	        // Null if no piece was captured, else the piece type that was captured.
-    wasPieceDrop:           boolean	        // Was a bughouse piece drop
+    wasPieceDrop?:          string	        // Null if no piece was dropped, else the piece type that was dropped.
 }
 
 export default MoveResult

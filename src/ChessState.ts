@@ -173,7 +173,7 @@ class ChessState {
                 moveIsInvalid:          false,
                 invalidMove:            null,
                 enableEnPassant:        null,
-                wasPieceDrop:           false
+                wasPieceDrop:           null
             }
         }
 
@@ -193,7 +193,7 @@ class ChessState {
                 moveIsInvalid:          false,
                 invalidMove:            null,
                 enableEnPassant:        null,
-                wasPieceDrop:           false
+                wasPieceDrop:           null
             }
         }
         
@@ -216,7 +216,7 @@ class ChessState {
                 moveIsInvalid:          true,
                 invalidMove:            move,
                 enableEnPassant:        this.state[localBoard].fenExtras.enPassant,
-                wasPieceDrop:           false
+                wasPieceDrop:           null
             }
         }
 
@@ -279,6 +279,24 @@ class ChessState {
                     this.state[boardToAddPieceTo].extraPiecesBlack.push(result.wasCapture)
                 else 
                     this.state[boardToAddPieceTo].extraPiecesWhite.push(result.wasCapture)
+            }
+
+            // If there was a piece drop, remove that piece from the player's list of extra pieces.
+            else if (result.wasPieceDrop) {
+                if (this.getTurn(localBoard) === StandardTurns.white) {
+                    // Remove the element.
+                    let index = this.state[localBoard].extraPiecesWhite.indexOf(result.wasPieceDrop)
+                    if (index > -1) {
+                        this.state[localBoard].extraPiecesWhite.splice(index, 1);
+                    }
+                }
+                else {
+                    // Remove the element.
+                    let index = this.state[localBoard].extraPiecesBlack.indexOf(result.wasPieceDrop)
+                    if (index > -1) {
+                        this.state[localBoard].extraPiecesBlack.splice(index, 1);
+                    }
+                }
             }
         }
 
@@ -628,9 +646,6 @@ class ChessState {
     getPlayerStatus(id: number, board?: number) {
 
         if (id > 3 || id < 0) {
-            throw new Error(`Id '${id}' is out of range`)
-        }
-        if (id > 1 && this.gameType === GameType.bughouse) {
             throw new Error(`Id '${id}' is out of range`)
         }
 

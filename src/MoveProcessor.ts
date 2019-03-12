@@ -53,15 +53,15 @@ const ExecuteTurn = (state: State, pgn: string, turn: StandardTurns, gameType: G
         invalidMove:            null,
         enableEnPassant:        null,
         executeEnPassant:       false,
-        wasPieceDrop:           false
+        wasPieceDrop:           null
     }
     // TODO: Manually check for the king getting put in check
     let castle = false
 
     let piece: string
 
+    let capture = (pgn.indexOf("x") !== -1)
     if (pgn) {
-        let capture = (pgn.indexOf("x") !== -1)
         if (debug && !hideOutput)
             console.log("PGN provided: " + pgn)
 
@@ -243,9 +243,15 @@ const ExecuteTurn = (state: State, pgn: string, turn: StandardTurns, gameType: G
         throw new Error("Error: no pgn provided")
     }
 
+    // Update capture data for result
+    if (capture) {
+        // Whatever piece was at the move destination is the captured piece.
+        result.wasCapture = state.board[moveCord.dest.row][moveCord.dest.column]
+    }
+
     // If the piece has no source, then the piece came from off the board.
     if (moveCord.source === null) {
-        result.wasPieceDrop = true;
+        result.wasPieceDrop = piece;
         if (gameType !== GameTypes.bughouse) {
             throw new Error("Move source should not be null if not bughouse.")
         }

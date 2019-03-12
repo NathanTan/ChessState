@@ -56,7 +56,7 @@ describe('Move Execution: e4 e5', function () {
             invalidMove:            null,
             enableEnPassant:        'e3',
             executeEnPassant:       false,
-            wasPieceDrop:           false
+            wasPieceDrop:           null
         } as MoveResult
         const expected2 = { whiteKingSideCastle: false,
             whiteQueenSideCastle:   false,
@@ -71,7 +71,7 @@ describe('Move Execution: e4 e5', function () {
             invalidMove:            null,
             enableEnPassant:        'e6',
             executeEnPassant:       false,
-            wasPieceDrop:           false
+            wasPieceDrop:           null
         } as MoveResult
     
         let expectedFen = `rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2`
