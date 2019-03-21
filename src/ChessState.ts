@@ -275,6 +275,9 @@ class ChessState {
 
             // If there was a capture, pass the piece off to the player's partner.
             if (result.wasCapture != null) {
+                if (this.debug && !this.hideOutput) {
+                    console.log(`                                             Placing piece '${result.wasCapture}' in players hand`)
+                }
                 if (this.getTurn(localBoard) === StandardTurns.white)
                     this.state[boardToAddPieceTo].extraPiecesBlack.push(result.wasCapture)
                 else 
@@ -283,6 +286,9 @@ class ChessState {
 
             // If there was a piece drop, remove that piece from the player's list of extra pieces.
             else if (result.wasPieceDrop) {
+                if (this.debug && !this.hideOutput) {
+                    console.log(`                                             Dropping piece '${result.wasPieceDrop}' from players hand`)
+                }
                 if (this.getTurn(localBoard) === StandardTurns.white) {
                     // Remove the element.
                     let index = this.state[localBoard].extraPiecesWhite.indexOf(result.wasPieceDrop)

@@ -33,11 +33,9 @@ describe('BugHouse: Checks player status', () => {
             game.move(move.move, move.board)
             counter++
             for (let i = 0; i < 4; i++) {
-                console.log(`Checking Player ${i} vs ${i + (4 * counter)}`)
-                console.log(game.getPlayerStatus(i))
                 assert.strictEqual(JSON.stringify(expectedStatus[i + (4 * counter)]), 
                     JSON.stringify(game.getPlayerStatus(i)))
-            }
+            } 
         }
 
         let expectedGameStatus = {

@@ -37,6 +37,7 @@ const ExecuteTurn = (state: State, pgn: string, turn: StandardTurns, gameType: G
         throw new Error("No pgn provided")
     }
 
+    let capturedPiece: string
 
 
     let result: MoveResult = {
@@ -226,6 +227,9 @@ const ExecuteTurn = (state: State, pgn: string, turn: StandardTurns, gameType: G
 
         result.movedPieceDest = moveCord.dest
 
+        // Grabbing the piece that would be captured if a capture was to happen. If no capture, the variable is unused.
+        capturedPiece = state.board[moveCord.dest.row][moveCord.dest.column]
+
         // If there is a piece drop.
         if (moveCord.source === null)
             state.board = dropPieceOnBoard(state.board, moveCord, piece, hideOutput, debug)
@@ -245,8 +249,8 @@ const ExecuteTurn = (state: State, pgn: string, turn: StandardTurns, gameType: G
 
     // Update capture data for result
     if (capture) {
-        // Whatever piece was at the move destination is the captured piece.
-        result.wasCapture = state.board[moveCord.dest.row][moveCord.dest.column]
+        // Whatever piece was at the move destination before the attacker was placed is the captured piece.
+        result.wasCapture = capturedPiece
     }
 
     // If the piece has no source, then the piece came from off the board.

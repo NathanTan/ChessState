@@ -102,7 +102,7 @@ const ExpectedPlayerStatus = {
     {
         id: 3,  // Black
         isPlayersTurn: false,
-        extraPieces: ["P"],
+        extraPieces: ["p"],
         capturedPieces: [] 
     },
 
@@ -128,7 +128,7 @@ const ExpectedPlayerStatus = {
     {
         id: 3,  // Black
         isPlayersTurn: true,
-        extraPieces: ["P"],
+        extraPieces: ["p"],
         capturedPieces: [] 
     },
 
