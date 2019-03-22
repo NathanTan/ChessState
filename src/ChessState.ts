@@ -51,7 +51,11 @@ class ChessState {
             this.state = [null]
         }
         else if (this.gameType === GameType.bughouse) {
-            this.state = [null, null]
+            this.state = [{} as State, {} as State]
+            this.state[0].extraPiecesWhite = []
+            this.state[0].extraPiecesBlack = []
+            this.state[1].extraPiecesWhite = []
+            this.state[1].extraPiecesBlack = []
         }
         
         let fenExtras
@@ -306,12 +310,20 @@ class ChessState {
             }
         }
 
-        // Print board if debugging.
-        if (this.debug === true && !this.hideOutput)
-            BoardPrinter.printBoardDebug(this, this.hideOutput)
-        else if (this.debug === false && !this.hideOutput)
-            BoardPrinter.printBoard(this.state[localBoard].board, StandardTurns.white, this.hideOutput)
-        
+        switch (this.gameType) {
+            case GameType.standard:
+            // Print board if debugging.
+            if (this.debug === true && !this.hideOutput)
+                BoardPrinter.printBoardDebug(this, this.hideOutput)
+            else if (this.debug === false && !this.hideOutput)
+                BoardPrinter.printBoard(this.state[localBoard].board, StandardTurns.white, this.hideOutput)
+                break
+            case GameType.bughouse:
+                this.printBoard(-1, this.debug)
+                break
+            default:
+                throw new Error(`Gametype ${this.gameType} not defined`)
+        }
         // Update FEN extras
         this.updateFenExtras(result, localBoard)
 
@@ -413,10 +425,24 @@ class ChessState {
         return FenLogic.BoardToFen(this.state[localBoard].board, this.state[localBoard].fenExtras, debug, hideOutput).trim()
     }
 
-    printBoard(board: number, debug?: boolean): void {
+    printBoard(board?: number, debug?: boolean): void {
         // If null use zero, else use the specified board
-        const localBoard = (board == null) ? 0 : board
+        const localBoard = (board == null || board === -1) ? 0 : board
         if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
+
+
+        if (this.gameType === GameType.bughouse) {
+            const hands = [
+                this.state[0].extraPiecesWhite,
+                this.state[0].extraPiecesBlack,
+                this.state[1].extraPiecesWhite,
+                this.state[1].extraPiecesBlack,
+            ]
+
+            BoardPrinter.printBoardBughouse(this.state[0].board, this.state[1].board, hands, StandardTurns.white, this.hideOutput)
+            return
+        }
+
 
         BoardPrinter.printBoard(this.state[localBoard].board, StandardTurns.white, debug)
     }
