@@ -15,14 +15,15 @@ import Directions from './Interfaces/Enums/Directions'
 import GameStatus from './Interfaces/GameStatus'
 import FenExtras from './Interfaces/FenExtras';
 import PlayerStatus from './Interfaces/PlayerStatus';
+import BoardAnalizer from './BoardAnalysis';
 
 class ChessState {
     /* Properties */
     public debug: boolean
     private gameType: GameType
-    private	state: State[]
+    public	state: State[]              // TODO: Make private and have a function that returns deep copies of the states
     //private state2?: State           // For bughouse
-    private hideOutput: boolean
+    public hideOutput: boolean
     private config: Config
 
 
@@ -137,6 +138,9 @@ class ChessState {
         // }
     }
 
+    getGameType(): GameType {
+        return this.gameType
+    }
 
     // Board number is 0 for the first board and 1 for the second board
     move(move:string, board?: number): MoveResult {
@@ -502,21 +506,38 @@ class ChessState {
     }
 
     checkForEndOfGame(moveResult: MoveResult, board: number) {
-        // If null use zero, else use the specified board
-        const localBoard = (board == null) ? 0 : board
-        if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
-
-        if (moveResult.check === true && this.checkForCheckmate(moveResult) === true) {
-            if (this.getTurn(localBoard) === StandardTurns.black)
-                this.state[localBoard].winner = StandardTurns.white
-            else 
-                this.state[localBoard].winner = StandardTurns.black
-            return true
+        switch (this.gameType) {
+            case GameType.standard:
+               const localBoard = (board == null) ? 0 : board
+                if( BoardAnalizer.isCheckmate(this, moveResult, board)) {
+                    if (this.getTurn(localBoard) === StandardTurns.black)
+                        this.state[localBoard].winner = StandardTurns.white
+                       else
+                           this.state[localBoard].winner = StandardTurns.black
+                    return true
+                }
+                return false
+                //this.checkForStalemate() 
+                // TODO: add resign functionality.
+            case GameType.bughouse:
+                //  // If null use zero, else use the specified board
+                //  const localBoard = (board == null) ? 0 : board
+                //  if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
+                 
+                //  if (moveResult.check === true && this.checkForCheckmate(moveResult) === true) {
+                //      if (this.getTurn(localBoard) === StandardTurns.black)
+                //      this.state[localBoard].winner = StandardTurns.white
+                //      else 
+                //      this.state[localBoard].winner = StandardTurns.black
+                //      return true
+                //  }
+                 
+                //  //this.checkForStalemate() 
+                //  // TODO: add resign functionality.
+                //  return false
+            // default:
+            //      Errors.gameTypeNotYetImplemented(this)
         }
-
-        //this.checkForStalemate() 
-        // TODO: add resign functionality.
-        return false
     }
 
     // NOTE: method is designed for standard sized board
@@ -525,7 +546,6 @@ class ChessState {
         const localBoard = (board == null) ? 0 : board
         if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
 
-        let isCheckmate = false
         // Find the location of the king.
         let kingLocation = (this.getTurn(localBoard) === StandardTurns.white) ? this.state[localBoard].whiteKingLocation : this.state[localBoard].blackKingLocation
 
@@ -533,112 +553,15 @@ class ChessState {
         let kingPiece = (this.getTurn(localBoard) === StandardTurns.white) ? "K" : "k"
 
         // A - Avoid
-        // Check all the imidiately adjacent and diagonal squares of the king's location.
-        for (let squareRulesOfInterest of constants["PieceLogic"]["King"]) {
-            if (kingLocation.column + squareRulesOfInterest.column < 8 &&
-                kingLocation.column + squareRulesOfInterest.column >= 0 &&
-                kingLocation.row + squareRulesOfInterest.row < 8 &&
-                kingLocation.row + squareRulesOfInterest.row >= 0) {
-                let squareOfIntesest = {
-                    row:    kingLocation.column + squareRulesOfInterest.column,
-                    column: kingLocation.row + squareRulesOfInterest.row
-                }
-
-                // TODO: Replace "X" as the empty space.
-                // If any EMPTY squares surrounding the king are safe, it's not a checkmate.
-                if (this.getBoardArray()[squareOfIntesest.row][squareOfIntesest.column] !== "X"  &&
-                   this.squareIsSafeForKing(squareOfIntesest, this.getTurn(localBoard), this.gameType, localBoard, this.debug) === true) {
-                    return false
-                }
-            }
-        }
+        let foofoo = BoardAnalizer.canAvoidCheckmate(this, board)
 
         // B - Block
-        // If knight, unblockable
-        if (moveResult.movedPiece !== PieceTypes.Knight) {
-            let distance: BoardLocation = {
-                row:    moveResult.movedPieceDest.row - kingLocation.row,
-                column: moveResult.movedPieceDest.column - kingLocation.column,
-            }
-            // Only check the path that are between the king and the attacking piece.
-            // Find which path by assuming only a Bishop, Rook, Queen, and Pawn can attack.
-            //      This means that a piece like pao, or cannon, from Chinese chess isn't 
-            //      covered by the following logic.
-
-
-            let direction: Directions = Directions.Null
-
-//TODO: Be sure to test later
-            // If the attacking piece is NorthWest of the King // TODO: make sure this isn't flipped based on the distance variable
-            if (distance.row = 0 && distance.row < 8 && distance.column > 0 && distance.column < 8) {
-                if (this.debug && !this.hideOutput)
-                    console.log("Attacker is SouthEast of the king.")
-                direction = Directions.Southeast
-            }
-            //West
-            else if (distance.row === 0 && distance.column >= 0 && distance.column < 8) {
-                if (this.debug && !this.hideOutput)
-                    console.log("Attacker is East of the king.") 
-                direction = Directions.East
-            } //SouthWest
-
-            else if (distance.row < 0 && distance.row > -8 && distance.column > 0 && distance.column < 8) {
-                if (this.debug && !this.hideOutput)
-                    console.log("Attacker is NorthEast of the king.")
-                direction = Directions.Northeast
-            }
-
-            else if (distance.row < 0 && distance.row > -8 && distance.column === 0) {
-                if (this.debug && !this.hideOutput)
-                    console.log("Attacker is North of the king")  
-                direction = Directions.North
-            } 
-
-            else if (distance.row < 0 && distance.row > -8 && distance.column < 0 && distance.column > -8) {
-                if (this.debug && !this.hideOutput)
-                    console.log("Attacker is NorthWest of the king.")
-                direction = Directions.Northwest
-            }
-
-            else if (distance.row === 0 && distance.column < 0 && distance.column > -8) {
-                if (this.debug && !this.hideOutput)
-                    console.log("Attacker is West") 
-                direction = Directions.West
-            }
-
-            else if (distance.row > 0 && distance.row < 8 && distance.column < 0 && distance.column > -8) {
-                if (this.debug && !this.hideOutput)
-                    console.log("Attacker is SouthWest of the king.")
-                direction = Directions.Southwest
-            }
-
-            else if (distance.row < 0 && distance.column < 0 && distance.column > -8) {
-                if (this.debug && !this.hideOutput)
-                    console.log("Attacker is South of King.")
-                direction = Directions.South
-            }
-
-            if (this.debug && !this.hideOutput)
-                console.log(`Attacker is from ${direction.toString()}`)
-            // Return false if there is a block that prevents checkmate.
-            if (this.checkForBlockableSquares(kingLocation, direction, localBoard) === false) {
-                return false
-            }
-        }
+        let fooque = BoardAnalizer.canBlockCheckmate(this, moveResult, board)
 
         // C - Capture
-        if (this.debug && !this.hideOutput)
-            console.log("---------Checking for capture-------------")
+        let foobar = BoardAnalizer.canCaptureCheckmate(this, moveResult, board)
 
-        let resultt = this.squareIsSafeForKing(moveResult.movedPieceDest, (this.getTurn(localBoard) === StandardTurns.white) ? StandardTurns.black : StandardTurns.white,
-                            this.gameType, localBoard, this.debug)
-        
-        if (resultt === true) {
-            // The piece can't be captured, thus checkmate.
-            return true
-        }
-
-        return isCheckmate
+        return foofoo && fooque && foobar
     }
  
     // Iteratively check all the surrounding squares to see if a square is safe for the king
@@ -861,7 +784,7 @@ class ChessState {
 
     // Returns false if it's not checkmate because there is a possible block
     // returning true signals nothing definitive.
-    private checkForBlockableSquares(kingLocation: BoardLocation, direction: Directions, board: number): boolean {
+    checkForBlockableSquares(kingLocation: BoardLocation, direction: Directions, board: number): boolean {
         // If null use zero, else use the specified board
         const localBoard = (board == null) ? 0 : board
         if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)

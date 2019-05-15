@@ -1,3 +1,5 @@
+import GameTypes from "./Interfaces/Enums/GameTypes";
+
 /* Errors.js */
 
 class Errors {
@@ -10,6 +12,17 @@ class Errors {
             console.log("----------------------------------")
         }
         return null
+    }
+
+    static gameTypeNotYetImplemented(state: any): any {
+        if (state.gameType !== GameTypes.standard ||
+            state.gameType !== GameTypes.bughouse) {
+            throw new Error(`Error: Gametype '${state.gameType}' not yet implemented.`)
+        }
+        else {
+            // If this case is reached, the function was called at the incorrect place.
+            throw new Error(`Game Type ${state.gameType} is implemented.`)
+        }
     }
 }
 
