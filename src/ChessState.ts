@@ -15,7 +15,7 @@ import Directions from './Interfaces/Enums/Directions'
 import GameStatus from './Interfaces/GameStatus'
 import FenExtras from './Interfaces/FenExtras';
 import PlayerStatus from './Interfaces/PlayerStatus';
-import BoardAnalizer from './BoardAnalysis';
+import BoardAnalizer from './BoardAnalizer';
 
 class ChessState {
     /* Properties */
