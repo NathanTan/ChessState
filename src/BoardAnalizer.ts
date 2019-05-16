@@ -5,23 +5,32 @@ import StandardTurns from "./Interfaces/Enums/StandardTurns"
 import PieceTypes from "./Interfaces/Enums/PieceTypes"
 import Directions from "./Interfaces/Enums/Directions"
 import BoardLocation from "./Interfaces/BoardLocation"
+import GameTypes from "./Interfaces/Enums/GameTypes";
+import HelperFunctions from "./HelperFunctions";
 
 module BoardAnalizer {
     export function isCheckmate(state: ChessState, moveResult: MoveResult, board: number): boolean {
-        // If null use zero, else use the specified board
-        const localBoard = (board == null) ? 0 : board
-        if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
 
-        return (moveResult.check === true && state.checkForCheckmate(moveResult) === true)
+        switch (state.getGameType()) {
+            case GameTypes.standard:
+                // If null use zero, else use the specified board
+                const localBoard = (board == null) ? 0 : board
+                if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
 
+                return (moveResult.check === true && state.checkForCheckmate(moveResult) === true)
+            case GameTypes.bughouse:
+                if (typeof (board) == undefined) throw new Error("Board undefined")
+                if (board < 0 || board > 1) throw new Error(`Board ${board} does not exists.`)
+
+                let isCheckmate = (moveResult.check && state.checkForCheckmate(moveResult))
+
+
+        }
     }
 
     export function canAvoidCheckmate(state: ChessState, board?: number): boolean {
         // A - Avoid
-
-        // If null use zero, else use the specified board
-        const localBoard = (board == null) ? 0 : board
-        if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
+        const localBoard = HelperFunctions.getLocalBoard(board)
 
         // Find the location of the king.
         let kingLocation = (state.getTurn(localBoard) === StandardTurns.white) ? state.state[localBoard].whiteKingLocation : state.state[localBoard].blackKingLocation
@@ -49,9 +58,7 @@ module BoardAnalizer {
     }
 
     export function canBlockCheckmate(state: ChessState, moveResult: MoveResult, board?: number): boolean {
-        // If null use zero, else use the specified board
-        const localBoard = (board == null) ? 0 : board
-        if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
+        const localBoard = HelperFunctions.getLocalBoard(board)
 
         // Find the location of the king.
         let kingLocation = (state.getTurn(localBoard) === StandardTurns.white) ? state.state[localBoard].whiteKingLocation : state.state[localBoard].blackKingLocation
@@ -133,18 +140,33 @@ module BoardAnalizer {
     }
 
     export function canCaptureCheckmate(state: ChessState, moveResult: MoveResult, board?: number): boolean {
-        // If null use zero, else use the specified board
-        const localBoard = (board == null) ? 0 : board
-        if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
+        const localBoard = HelperFunctions.getLocalBoard(board)
 
         if (state.debug && !state.hideOutput)
             console.log("---------Checking for capture-------------")
 
-        let result = state.squareIsSafeForKing(moveResult.movedPieceDest, 
+        let result = state.squareIsSafeForKing(moveResult.movedPieceDest,
             (state.getTurn(localBoard) === StandardTurns.white) ? StandardTurns.black : StandardTurns.white,
             state.getGameType(), localBoard, state.debug)
 
         return result
+    }
+
+    export function canDropOnSquare(state: ChessState, location: BoardLocation, piece: string, board?: number): boolean {
+        const localBoard = HelperFunctions.getLocalBoard(board)
+
+        // If the drop square is empty
+        if (state.state[localBoard][location.row][location.column] === "X"){
+            // Cannot place a pawn on row 1 or row 8
+            if ((piece === "P" || piece === "p") && location.row === 0 || location.row === 7) {
+                return false
+            }
+            //TODO: Pick up here.
+
+            // Can cause check but not checkmate
+        }
+        else
+            return false
     }
 }
 
