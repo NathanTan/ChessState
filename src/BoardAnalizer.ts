@@ -7,6 +7,8 @@ import Directions from "./Interfaces/Enums/Directions"
 import BoardLocation from "./Interfaces/BoardLocation"
 import GameTypes from "./Interfaces/Enums/GameTypes";
 import HelperFunctions from "./HelperFunctions";
+import Move from "./Interfaces/Move";
+import MoveProcessor from "./MoveProcessor"
 
 module BoardAnalizer {
     export function isCheckmate(state: ChessState, moveResult: MoveResult, board: number): boolean {
@@ -24,8 +26,17 @@ module BoardAnalizer {
 
                 let isCheckmate = (moveResult.check && state.checkForCheckmate(moveResult))
 
-
         }
+    }
+
+    // Note designed for standard board
+    export function wouldBeCheckmate(board: string[][], move: Move) {
+        let wouldBeBoard = JSON.parse(JSON.stringify(board))
+
+        // Turn doesn't matter if not enPassant. TODO: Try to make the turn never matter
+        wouldBeBoard = MoveProcessor.updateBoardByCord(wouldBeBoard, move, false, null, false, true)
+
+
     }
 
     export function canAvoidCheckmate(state: ChessState, board?: number): boolean {
@@ -55,6 +66,13 @@ module BoardAnalizer {
             }
         }
         return true
+    }
+
+    export function canAvoidCheckmateRaw(board: string[][]) {
+
+        const kingLocationWhite = findKing(board, "w")
+        const kingLocationBlack = findKing(board, "b")
+
     }
 
     export function canBlockCheckmate(state: ChessState, moveResult: MoveResult, board?: number): boolean {
@@ -161,12 +179,18 @@ module BoardAnalizer {
             if ((piece === "P" || piece === "p") && location.row === 0 || location.row === 7) {
                 return false
             }
-            //TODO: Pick up here.
+            
 
             // Can cause check but not checkmate
+            if(BoardAnalizer.isCheckmate(state, ))
         }
         else
             return false
+    }
+
+    export function findKing(board: string[][], color: string): BoardLocation {
+        //TODO: pick up here
+        let kingLocation: BoardLocation
     }
 }
 

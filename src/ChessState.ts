@@ -16,6 +16,7 @@ import GameStatus from './Interfaces/GameStatus'
 import FenExtras from './Interfaces/FenExtras';
 import PlayerStatus from './Interfaces/PlayerStatus';
 import BoardAnalizer from './BoardAnalizer';
+import MoveProcessor from './MoveProcessor'
 
 class ChessState {
     /* Properties */
@@ -260,7 +261,7 @@ class ChessState {
 
 
         // Execute move (pgn)
-        let result = ExecuteTurn(this.state[localBoard], move, this.getTurn(localBoard), this.gameType, this.hideOutput, this.debug)
+        let result = MoveProcessor.ExecuteTurn(this.state[localBoard], move, this.getTurn(localBoard), this.gameType, this.hideOutput, this.debug)
 
         // Update History
         this.state[localBoard].history.pgn.push(move)
