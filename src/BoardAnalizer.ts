@@ -70,8 +70,8 @@ module BoardAnalizer {
 
     export function canAvoidCheckmateRaw(board: string[][]) {
 
-        const kingLocationWhite = findKing(board, "w")
-        const kingLocationBlack = findKing(board, "b")
+        const kingLocationWhite = findKing(board, StandardTurns.white)
+        const kingLocationBlack = findKing(board, StandardTurns.black)
 
     }
 
@@ -182,15 +182,29 @@ module BoardAnalizer {
             
 
             // Can cause check but not checkmate
-            if(BoardAnalizer.isCheckmate(state, ))
+            // /if(BoardAnalizer.isCheckmate(state, ))
         }
         else
             return false
     }
 
-    export function findKing(board: string[][], color: string): BoardLocation {
+    export function findKing(board: string[][], color: StandardTurns): BoardLocation {
         //TODO: pick up here
+        const kingPiece = constants.PieceNameToPGN["King"][color]
         let kingLocation: BoardLocation
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                if (board[i][j] === kingPiece) {
+                    return {
+                        row: i,
+                        column: j
+                    }
+                }
+            }
+        }
+
+        throw new Error(`King "${kingPiece}" not found on board`)
+        
     }
 }
 
