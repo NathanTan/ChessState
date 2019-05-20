@@ -68,11 +68,30 @@ module BoardAnalizer {
         return true
     }
 
-    export function canAvoidCheckmateRaw(board: string[][]) {
+    export function canAvoidCheckmateRaw(board: string[][], turn: StandardTurns) {
 
-        const kingLocationWhite = findKing(board, StandardTurns.white)
-        const kingLocationBlack = findKing(board, StandardTurns.black)
+        const kingLocation = findKing(board, turn)
 
+        // Check all the imidiately adjacent and diagonal squares of the king's location.
+        for (let squareRulesOfInterest of constants["PieceLogic"]["King"]) {
+            if (kingLocation.column + squareRulesOfInterest.column < 8 &&
+                kingLocation.column + squareRulesOfInterest.column >= 0 &&
+                kingLocation.row + squareRulesOfInterest.row < 8 &&
+                kingLocation.row + squareRulesOfInterest.row >= 0) {
+                let squareOfIntesest = {
+                    row: kingLocation.column + squareRulesOfInterest.column,
+                    column: kingLocation.row + squareRulesOfInterest.row
+                }
+
+                // If any EMPTY squares surrounding the king are safe, checkmate can be avoided.
+                if (board[squareOfIntesest.row][squareOfIntesest.column] !== "X" &&
+                    BoardAnalizer.squareIsSafeForKing(board, squareOfIntesest,turn) === true) {
+                    console.log(`square: "${JSON.stringify(squareOfIntesest)}" is safe`)
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     export function canBlockCheckmate(state: ChessState, moveResult: MoveResult, board?: number): boolean {
@@ -174,12 +193,12 @@ module BoardAnalizer {
         const localBoard = HelperFunctions.getLocalBoard(board)
 
         // If the drop square is empty
-        if (state.state[localBoard][location.row][location.column] === "X"){
+        if (state.state[localBoard][location.row][location.column] === "X") {
             // Cannot place a pawn on row 1 or row 8
             if ((piece === "P" || piece === "p") && location.row === 0 || location.row === 7) {
                 return false
             }
-            
+
 
             // Can cause check but not checkmate
             // /if(BoardAnalizer.isCheckmate(state, ))
@@ -204,7 +223,120 @@ module BoardAnalizer {
         }
 
         throw new Error(`King "${kingPiece}" not found on board`)
-        
+
+    }
+
+    export function squareIsSafeForKing(board: string[][], kingSquare: BoardLocation, color: StandardTurns): boolean {
+
+        // Check Knight squares, Bishop squares, and Rook squares.
+        let foo = BoardAnalizer.squareIsSafeFromPiece(board, kingSquare, color, "Knight")
+        let bar = BoardAnalizer.squareIsSafeFromPiece(board, kingSquare, color, "Bishop")
+        let que = BoardAnalizer.squareIsSafeFromPiece(board, kingSquare, color, "Rook")
+        return (foo && bar && que)
+    }
+
+    // NOTE: function is not designed for non-standard board sizes.
+    export function squareIsSafeFromPiece(board: string[][], kingSquare: BoardLocation, color: StandardTurns, pieceName: string): boolean {
+        // If null use zero, else use the specified board
+        const localBoard = (board == null) ? 0 : board
+        if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
+
+        let pieceSymbolWhite: string
+        let pieceSymbolBlack: string
+
+        // TODO: The problem is that the bishops and rooks don't stop after they find a piece that is in the way.
+
+        let list: BoardLocation[][] = []
+        let sublist: BoardLocation[] = []
+
+        // Only needs to check against Rooks, Knights, and Bishops.
+        switch (pieceName) {
+            case "Rook":
+                pieceSymbolWhite = constants["PieceNameToPGN"]["Rook"][StandardTurns.white]
+                pieceSymbolBlack = constants["PieceNameToPGN"]["Rook"][StandardTurns.black]
+
+                for (let i = 0; i < 4; i++) {
+                    for (let j = 0; j < 7; j++) {
+                        sublist.push(constants.PieceLogic[pieceName][i * j])
+                    }
+                    list.push(sublist)
+                    sublist = []
+                }
+                break
+            case "Knight":
+                pieceSymbolWhite = constants["PieceNameToPGN"]["Knight"][StandardTurns.white]
+                pieceSymbolBlack = constants["PieceNameToPGN"]["Knight"][StandardTurns.black]
+
+                // Just stuff it the list.
+                for (let j = 0; j < 8; j++) {
+                    sublist.push(constants.PieceLogic[pieceName][j])
+                }
+                list.push(sublist)
+
+                break
+            case "Bishop":
+                pieceSymbolWhite = constants["PieceNameToPGN"]["Bishop"][StandardTurns.white]
+                pieceSymbolBlack = constants["PieceNameToPGN"]["Bishop"][StandardTurns.black]
+
+                for (let i = 0; i < 4; i++) {
+                    for (let j = 0; j < 7; j++) {
+                        sublist.push(constants.PieceLogic[pieceName][i * j])
+                    }
+                    list.push(sublist)
+                    sublist = []
+                }
+                break
+            case "Queen":
+            case "King":
+                throw new Error("Not Yet Implemented.")
+            case "Pawn":
+                if (color === StandardTurns.white) {
+                    if ((kingSquare.row - 1) >= 0 && (kingSquare.column - 1) >= 0 && board[kingSquare.row - 1][kingSquare.column - 1] !== "p" &&
+                        (kingSquare.column + 1) < 8 && board[kingSquare.row - 1][kingSquare.column + 1] === "p")
+                        return true
+                    else
+                        return false
+                }
+                else {
+                    if ((kingSquare.row + 1) < 8 && (kingSquare.column - 1) >= 0 && board[kingSquare.row + 8][kingSquare.column - 1] !== "p" &&
+                        (kingSquare.column + 1) < 8 && board[kingSquare.row + 1][kingSquare.column + 1] === "p")
+                        return true
+                    else
+                        return false
+                }
+            default:
+                throw new Error("'squareIsSafeFromPiece' function is working unexpectedly.")
+        }
+
+        for (let sublist of list) {
+            for (let attackerSquare of sublist) {
+                // If the square is within bounds
+                if (attackerSquare.column + kingSquare.column < 8 &&
+                    attackerSquare.column + kingSquare.column >= 0 &&
+                    attackerSquare.row + kingSquare.row < 8 &&
+                    attackerSquare.row + kingSquare.row >= 0) {
+
+                    // This break will require there to be a clear path for non-jumping pieces to be a threat.
+                    if ((board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== pieceSymbolWhite ||
+                        board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== pieceSymbolBlack ||
+                        board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== "X") &&
+                        pieceName !== "Knight" // Knights are allowed to jump
+                    )
+                        break
+
+                    // If the correct piece appears, then the square is not safe.
+                    if (color === StandardTurns.white && board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] === pieceSymbolWhite) {
+                        return false
+                    }
+                    else if (color === StandardTurns.black && board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] === pieceSymbolBlack) {
+                        return false
+                    }
+                }
+            }
+        }
+        // TODO: fix the bool outputs of this function
+
+        return true
     }
 }
 
