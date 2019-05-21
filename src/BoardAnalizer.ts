@@ -9,6 +9,7 @@ import GameTypes from "./Interfaces/Enums/GameTypes";
 import HelperFunctions from "./HelperFunctions";
 import Move from "./Interfaces/Move";
 import MoveProcessor from "./MoveProcessor"
+import BoardPrinter from "./BoardPrinter";
 
 module BoardAnalizer {
     export function isCheckmate(state: ChessState, moveResult: MoveResult, board: number): boolean {
@@ -69,8 +70,11 @@ module BoardAnalizer {
     }
 
     export function canAvoidCheckmateRaw(board: string[][], turn: StandardTurns) {
+        BoardPrinter.printBoard(board, StandardTurns.white, false)
 
         const kingLocation = findKing(board, turn)
+        console.log(`King loc: ${JSON.stringify(kingLocation)}`)
+        let adjacentSquares = []
 
         // Check all the imidiately adjacent and diagonal squares of the king's location.
         for (let squareRulesOfInterest of constants["PieceLogic"]["King"]) {
@@ -79,16 +83,24 @@ module BoardAnalizer {
                 kingLocation.row + squareRulesOfInterest.row < 8 &&
                 kingLocation.row + squareRulesOfInterest.row >= 0) {
                 let squareOfIntesest = {
-                    row: kingLocation.column + squareRulesOfInterest.column,
-                    column: kingLocation.row + squareRulesOfInterest.row
+                    row: kingLocation.row + squareRulesOfInterest.row,
+                    column: kingLocation.column + squareRulesOfInterest.column
                 }
+                adjacentSquares.push(squareOfIntesest)
+                // console.log(`\t\t\t\t${JSON.stringify(squareOfIntesest)}`)
+                // console.log(`\t\t\t\t${board[squareOfIntesest.row][squareOfIntesest.column]}`)
 
-                // If any EMPTY squares surrounding the king are safe, checkmate can be avoided.
-                if (board[squareOfIntesest.row][squareOfIntesest.column] !== "X" &&
-                    BoardAnalizer.squareIsSafeForKing(board, squareOfIntesest,turn) === true) {
-                    console.log(`square: "${JSON.stringify(squareOfIntesest)}" is safe`)
-                    return true
-                }
+
+            }
+        }
+
+        for (let squareOfIntesest of adjacentSquares) {
+            console.log(`\t\t\t\t${JSON.stringify(squareOfIntesest)}, ${board[squareOfIntesest.row][squareOfIntesest.column]}`)
+            // If any EMPTY squares surrounding the king are safe, checkmate can be avoided.
+            if (board[squareOfIntesest.row][squareOfIntesest.column] === "X" &&
+                BoardAnalizer.squareIsSafeForKing(board, squareOfIntesest, turn) === true) {
+                console.log(`square: "${JSON.stringify(squareOfIntesest)}" is safe`)
+                return true
             }
         }
         return false
@@ -232,61 +244,36 @@ module BoardAnalizer {
         let foo = BoardAnalizer.squareIsSafeFromPiece(board, kingSquare, color, "Knight")
         let bar = BoardAnalizer.squareIsSafeFromPiece(board, kingSquare, color, "Bishop")
         let que = BoardAnalizer.squareIsSafeFromPiece(board, kingSquare, color, "Rook")
-        return (foo && bar && que)
+        let foobar = BoardAnalizer.squareIsSafeFromPiece(board, kingSquare, color, "Queen")
+        return (foo && bar && que && foobar)
     }
 
     // NOTE: function is not designed for non-standard board sizes.
     export function squareIsSafeFromPiece(board: string[][], kingSquare: BoardLocation, color: StandardTurns, pieceName: string): boolean {
-        // If null use zero, else use the specified board
-        const localBoard = (board == null) ? 0 : board
-        if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
-
         let pieceSymbolWhite: string
         let pieceSymbolBlack: string
 
+        console.log(`King Location: ${JSON.stringify(kingSquare)}`)
         // TODO: The problem is that the bishops and rooks don't stop after they find a piece that is in the way.
 
-        let list: BoardLocation[][] = []
+        let list: BoardLocation[] = []
         let sublist: BoardLocation[] = []
 
         // Only needs to check against Rooks, Knights, and Bishops.
         switch (pieceName) {
             case "Rook":
-                pieceSymbolWhite = constants["PieceNameToPGN"]["Rook"][StandardTurns.white]
-                pieceSymbolBlack = constants["PieceNameToPGN"]["Rook"][StandardTurns.black]
-
-                for (let i = 0; i < 4; i++) {
-                    for (let j = 0; j < 7; j++) {
-                        sublist.push(constants.PieceLogic[pieceName][i * j])
-                    }
-                    list.push(sublist)
-                    sublist = []
-                }
-                break
             case "Knight":
-                pieceSymbolWhite = constants["PieceNameToPGN"]["Knight"][StandardTurns.white]
-                pieceSymbolBlack = constants["PieceNameToPGN"]["Knight"][StandardTurns.black]
-
-                // Just stuff it the list.
-                for (let j = 0; j < 8; j++) {
-                    sublist.push(constants.PieceLogic[pieceName][j])
-                }
-                list.push(sublist)
-
-                break
-            case "Bishop":
-                pieceSymbolWhite = constants["PieceNameToPGN"]["Bishop"][StandardTurns.white]
-                pieceSymbolBlack = constants["PieceNameToPGN"]["Bishop"][StandardTurns.black]
-
-                for (let i = 0; i < 4; i++) {
-                    for (let j = 0; j < 7; j++) {
-                        sublist.push(constants.PieceLogic[pieceName][i * j])
-                    }
-                    list.push(sublist)
-                    sublist = []
-                }
-                break
             case "Queen":
+            case "Bishop":
+                pieceSymbolWhite = constants["PieceNameToPGN"][pieceName][StandardTurns.white]
+                pieceSymbolBlack = constants["PieceNameToPGN"][pieceName][StandardTurns.black]
+
+                for (let i in constants.PieceLogic[pieceName]) {
+                    list.push(constants.PieceLogic[pieceName][i])
+                }
+                console.log(pieceName)
+                // console.log(JSON.stringify(list))
+                break
             case "King":
                 throw new Error("Not Yet Implemented.")
             case "Pawn":
@@ -308,35 +295,158 @@ module BoardAnalizer {
                 throw new Error("'squareIsSafeFromPiece' function is working unexpectedly.")
         }
 
-        for (let sublist of list) {
-            for (let attackerSquare of sublist) {
-                // If the square is within bounds
-                if (attackerSquare.column + kingSquare.column < 8 &&
-                    attackerSquare.column + kingSquare.column >= 0 &&
-                    attackerSquare.row + kingSquare.row < 8 &&
-                    attackerSquare.row + kingSquare.row >= 0) {
+        if (pieceName === "Queen")
+            console.log("LIST: ", JSON.stringify(list.length))
+        console.log(`Piece: ${pieceName}`)
 
-                    // This break will require there to be a clear path for non-jumping pieces to be a threat.
-                    if ((board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== pieceSymbolWhite ||
-                        board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== pieceSymbolBlack ||
-                        board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== "X") &&
-                        pieceName !== "Knight" // Knights are allowed to jump
-                    )
-                        break
-
-                    // If the correct piece appears, then the square is not safe.
-                    if (color === StandardTurns.white && board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] === pieceSymbolWhite) {
-                        return false
-                    }
-                    else if (color === StandardTurns.black && board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] === pieceSymbolBlack) {
-                        return false
-                    }
-                }
-            }
+        let conceivableSquares = [] as BoardLocation[] // All the possible squares a piece could come from if the board was empty
+        for (let attackerSquareLogic of list) {
+            const attackerSquare = {
+                row: attackerSquareLogic.row + kingSquare.row,
+                column: attackerSquareLogic.column + kingSquare.column
+            } as BoardLocation
+            if (attackerSquare.column >= 0 && attackerSquare.column < 8 &&
+                attackerSquare.row >= 0 && attackerSquare.row < 8)
+                conceivableSquares.push(attackerSquare)
         }
+
+        // If not knight
+        let possibleSquares = [] as BoardLocation[]
+        for (let square of conceivableSquares) {
+            if (existsAStraightPath(board, square, kingSquare))
+                possibleSquares.push(square)
+        }
+
+        console.log("POSSIBLE SQUARES")
+        for (let f of possibleSquares)
+            console.log(`\t\t\t\t\t\t ${f.row}, ${f.column}`)
+
+        for (let attackerSquare of conceivableSquares) {
+            console.log(`\nPossible: ${JSON.stringify(attackerSquare.row + kingSquare.row)}, ${JSON.stringify(attackerSquare.column + kingSquare.column)}\n`)
+
+            // This break will require there to be a clear path for non-jumping pieces to be a threat.
+            if (((board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== pieceSymbolWhite && color !== StandardTurns.black) ||
+                (board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== pieceSymbolBlack && color !== StandardTurns.white) ||
+                board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== "X") &&
+                pieceName !== "Knight" // Knights are allowed to jump
+            ) {
+                break
+            }
+
+            // If the correct piece appears, then the square is not safe.
+            if (color === StandardTurns.white && board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] === pieceSymbolWhite) {
+                console.log(`Square "${JSON.stringify(attackerSquare)}" is attacking the king`)
+                return false
+            }
+            else if (color === StandardTurns.black && board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] === pieceSymbolBlack) {
+                console.log(`Square "${JSON.stringify(attackerSquare)}" is attacking the king`)
+                return false
+            }
+
+        }
+
+        console.log("SAFE!")
         // TODO: fix the bool outputs of this function
 
         return true
+    }
+
+
+    // Returns true if there is an empty path between the two points
+    export function existsAStraightPath(board: string[][], loc1: BoardLocation, loc2: BoardLocation): boolean {
+        let squaresOfSpace = 0
+        if (loc1.row === loc2.row) {
+            if (loc1.column < loc2.column) {
+                // loc1 is on the left side of the board
+                while (true) {
+                    if (loc1.column + squaresOfSpace + 1 === loc2.column)
+                        return true
+                    if (board[loc1.row][loc1.column + squaresOfSpace + 1] !== "X") return false // There is a piece in the way
+                    squaresOfSpace++
+                    if (squaresOfSpace > 7) throw new Error("Could not find path")
+                }
+            }
+            else if (loc1.column > loc2.column) {
+                // loc1 is on the right side of the board
+                while (true) {
+                    if (loc2.column + squaresOfSpace + 1 === loc1.column)
+                        return true
+                    if (board[loc2.row][loc2.column + squaresOfSpace + 1] !== "X") return false // There is a piece in the way
+                    squaresOfSpace++
+                    if (squaresOfSpace > 7) throw new Error("Could not find path")
+                }
+            }
+            else {
+                return false // No path exists if the points are the same
+            }
+        }
+        if (loc1.column === loc2.column) {
+            if (loc1.row < loc2.row) {
+                // loc1 is above loc2
+                while (true) {
+                    if (loc1.row + squaresOfSpace + 1 === loc2.row)
+                        return true
+                    if (board[loc1.row + squaresOfSpace + 1][loc1.column] !== "X") return false // There is a piece in the way
+                    squaresOfSpace++
+                    if (squaresOfSpace > 7) throw new Error("Could not find path")
+                }
+            }
+            else if (loc1.row > loc2.row) {
+                // loc1 is below loc2
+                while (true) {
+                    if (loc2.row + squaresOfSpace + 1 === loc1.row)
+                        return true
+                    if (board[loc2.row + squaresOfSpace + 1][loc2.column] !== "X") return false // There is a piece in the way
+                    squaresOfSpace++
+                    if (squaresOfSpace > 7) throw new Error("Could not find path")
+                }
+            }
+        }
+
+        // Diagonal Paths
+        if (loc1.column < loc2.column && loc1.row < loc2.row) {
+            // loc1 is NW of loc2
+            while (true) {
+                if (loc1.row + squaresOfSpace + 1 === loc2.row && loc1.column + squaresOfSpace + 1 === loc2.column)
+                    return true
+                if (board[loc1.row + squaresOfSpace + 1][loc1.column + squaresOfSpace + 1] !== "X") return false // There is a piece in the way
+                squaresOfSpace++
+                if (squaresOfSpace > 7) throw new Error("Could not find path")
+            }
+        }
+        if (loc2.column < loc1.column && loc2.row < loc1.row) {
+            // loc1 is SE of loc2
+            while (true) {
+                if (loc2.row + squaresOfSpace + 1 === loc1.row && loc2.column + squaresOfSpace + 1 === loc1.column)
+                    return true
+                if (board[loc2.row + squaresOfSpace + 1][loc2.column + squaresOfSpace + 1] !== "X") return false // There is a piece in the way
+                squaresOfSpace++
+                if (squaresOfSpace > 7) throw new Error("Could not find path")
+            }
+        }
+        if (loc1.row < loc2.row && loc1.column > loc2.column) {
+            // loc1 is NE of loc2
+            while (true) {
+                if (loc1.row + squaresOfSpace + 1 === loc2.row && loc1.column - squaresOfSpace - 1 === loc2.column)
+                    return true
+                if (board[loc1.row + squaresOfSpace + 1][loc1.column - squaresOfSpace - 1] !== "X") return false // There is a piece in the way
+                squaresOfSpace++
+                if (squaresOfSpace > 7) throw new Error("Could not find path")
+            }
+        }
+        if (loc1.row > loc2.row && loc1.column < loc2.column) {
+            // loc1 is SW of loc2
+            while (true) {
+                if (loc1.row - squaresOfSpace - 1 === loc2.row && loc1.column + squaresOfSpace + 1 === loc2.column)
+                    return true
+                if (board[loc1.row - squaresOfSpace - 1][loc1.column + squaresOfSpace + 1] !== "X") return false // There is a piece in the way
+                squaresOfSpace++
+                if (squaresOfSpace > 7) throw new Error("Could not find path")
+            }
+        }
+
+        // TODO: add logic for diagonal path
+        return false
     }
 }
 
