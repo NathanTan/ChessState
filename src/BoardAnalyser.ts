@@ -11,7 +11,7 @@ import Move from "./Interfaces/Move";
 import MoveProcessor from "./MoveProcessor"
 import BoardPrinter from "./BoardPrinter";
 
-module BoardAnalizer {
+module BoardAnalyser {
     export function isCheckmate(state: ChessState, moveResult: MoveResult, board: number): boolean {
 
         switch (state.getGameType()) {
@@ -98,7 +98,7 @@ module BoardAnalizer {
             console.log(`\t\t\t\t${JSON.stringify(squareOfIntesest)}, ${board[squareOfIntesest.row][squareOfIntesest.column]}`)
             // If any EMPTY squares surrounding the king are safe, checkmate can be avoided.
             if (board[squareOfIntesest.row][squareOfIntesest.column] === "X" &&
-                BoardAnalizer.squareIsSafeForKing(board, squareOfIntesest, turn) === true) {
+                BoardAnalyser.squareIsSafeForKing(board, squareOfIntesest, turn) === true) {
                 console.log(`square: "${JSON.stringify(squareOfIntesest)}" is safe`)
                 return true
             }
@@ -213,7 +213,7 @@ module BoardAnalizer {
 
 
             // Can cause check but not checkmate
-            // /if(BoardAnalizer.isCheckmate(state, ))
+            // /if(BoardAnalyser.isCheckmate(state, ))
         }
         else
             return false
@@ -241,10 +241,10 @@ module BoardAnalizer {
     export function squareIsSafeForKing(board: string[][], kingSquare: BoardLocation, color: StandardTurns): boolean {
 
         // Check Knight squares, Bishop squares, and Rook squares.
-        let foo = BoardAnalizer.squareIsSafeFromPiece(board, kingSquare, color, "Knight")
-        let bar = BoardAnalizer.squareIsSafeFromPiece(board, kingSquare, color, "Bishop")
-        let que = BoardAnalizer.squareIsSafeFromPiece(board, kingSquare, color, "Rook")
-        let foobar = BoardAnalizer.squareIsSafeFromPiece(board, kingSquare, color, "Queen")
+        let foo = BoardAnalyser.squareIsSafeFromPiece(board, kingSquare, color, "Knight")
+        let bar = BoardAnalyser.squareIsSafeFromPiece(board, kingSquare, color, "Bishop")
+        let que = BoardAnalyser.squareIsSafeFromPiece(board, kingSquare, color, "Rook")
+        let foobar = BoardAnalyser.squareIsSafeFromPiece(board, kingSquare, color, "Queen")
         return (foo && bar && que && foobar)
     }
 
@@ -450,4 +450,4 @@ module BoardAnalizer {
     }
 }
 
-export default BoardAnalizer
+export default BoardAnalyser

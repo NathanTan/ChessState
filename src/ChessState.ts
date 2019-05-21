@@ -15,7 +15,7 @@ import Directions from './Interfaces/Enums/Directions'
 import GameStatus from './Interfaces/GameStatus'
 import FenExtras from './Interfaces/FenExtras';
 import PlayerStatus from './Interfaces/PlayerStatus';
-import BoardAnalizer from './BoardAnalizer';
+import BoardAnalyser from './BoardAnalyser';
 import MoveProcessor from './MoveProcessor'
 
 class ChessState {
@@ -510,7 +510,7 @@ class ChessState {
         switch (this.gameType) {
             case GameType.standard:
                const localBoard = (board == null) ? 0 : board
-                if( BoardAnalizer.isCheckmate(this, moveResult, board)) {
+                if( BoardAnalyser.isCheckmate(this, moveResult, board)) {
                     if (this.getTurn(localBoard) === StandardTurns.black)
                         this.state[localBoard].winner = StandardTurns.white
                        else
@@ -554,13 +554,13 @@ class ChessState {
         let kingPiece = (this.getTurn(localBoard) === StandardTurns.white) ? "K" : "k"
 
         // A - Avoid
-        let foofoo = BoardAnalizer.canAvoidCheckmate(this, board)
+        let foofoo = BoardAnalyser.canAvoidCheckmate(this, board)
 
         // B - Block
-        let fooque = BoardAnalizer.canBlockCheckmate(this, moveResult, board)
+        let fooque = BoardAnalyser.canBlockCheckmate(this, moveResult, board)
 
         // C - Capture
-        let foobar = BoardAnalizer.canCaptureCheckmate(this, moveResult, board)
+        let foobar = BoardAnalyser.canCaptureCheckmate(this, moveResult, board)
 
         return foofoo && fooque && foobar
     }
