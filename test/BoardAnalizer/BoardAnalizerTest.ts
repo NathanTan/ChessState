@@ -31,7 +31,6 @@ describe('Board Analyser - Checkmate', () => {
 
     it('Tests unavoidable checkmate', () => {
         const board = FenLogic.FenToBoard("rnbq1bnr/pppppp2/kp6/1p6/8/Q7/PPPPPPPP/RNB1KBNR w KQkq - 0 1")
-        // BoardPrinter.printBoard(board, StandardTurns.white, false)
         assert.strictEqual(false, BoardAnalyser.canAvoidCheckmateRaw(board, StandardTurns.black))
     })
 })

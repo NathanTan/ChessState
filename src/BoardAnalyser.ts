@@ -9,7 +9,6 @@ import GameTypes from "./Interfaces/Enums/GameTypes";
 import HelperFunctions from "./HelperFunctions";
 import Move from "./Interfaces/Move";
 import MoveProcessor from "./MoveProcessor"
-import BoardPrinter from "./BoardPrinter";
 
 module BoardAnalyser {
     export function isCheckmate(state: ChessState, moveResult: MoveResult, board: number): boolean {
@@ -70,10 +69,7 @@ module BoardAnalyser {
     }
 
     export function canAvoidCheckmateRaw(board: string[][], turn: StandardTurns) {
-        BoardPrinter.printBoard(board, StandardTurns.white, false)
-
         const kingLocation = findKing(board, turn)
-        console.log(`King loc: ${JSON.stringify(kingLocation)}`)
         let adjacentSquares = []
 
         // Check all the imidiately adjacent and diagonal squares of the king's location.
@@ -87,19 +83,14 @@ module BoardAnalyser {
                     column: kingLocation.column + squareRulesOfInterest.column
                 }
                 adjacentSquares.push(squareOfIntesest)
-                // console.log(`\t\t\t\t${JSON.stringify(squareOfIntesest)}`)
-                // console.log(`\t\t\t\t${board[squareOfIntesest.row][squareOfIntesest.column]}`)
-
-
             }
         }
 
         for (let squareOfIntesest of adjacentSquares) {
-            console.log(`\t\t\t\t${JSON.stringify(squareOfIntesest)}, ${board[squareOfIntesest.row][squareOfIntesest.column]}`)
             // If any EMPTY squares surrounding the king are safe, checkmate can be avoided.
             if (board[squareOfIntesest.row][squareOfIntesest.column] === "X" &&
                 BoardAnalyser.squareIsSafeForKing(board, squareOfIntesest, turn) === true) {
-                console.log(`square: "${JSON.stringify(squareOfIntesest)}" is safe`)
+
                 return true
             }
         }
@@ -239,25 +230,20 @@ module BoardAnalyser {
     }
 
     export function squareIsSafeForKing(board: string[][], kingSquare: BoardLocation, color: StandardTurns): boolean {
-
         // Check Knight squares, Bishop squares, and Rook squares.
-        let foo = BoardAnalyser.squareIsSafeFromPiece(board, kingSquare, color, "Knight")
-        let bar = BoardAnalyser.squareIsSafeFromPiece(board, kingSquare, color, "Bishop")
-        let que = BoardAnalyser.squareIsSafeFromPiece(board, kingSquare, color, "Rook")
-        let foobar = BoardAnalyser.squareIsSafeFromPiece(board, kingSquare, color, "Queen")
-        return (foo && bar && que && foobar)
+        return BoardAnalyser.squareIsSafeFromPiece(board, kingSquare, color, "Knight") &&
+            BoardAnalyser.squareIsSafeFromPiece(board, kingSquare, color, "Bishop") &&
+            BoardAnalyser.squareIsSafeFromPiece(board, kingSquare, color, "Rook") &&
+            BoardAnalyser.squareIsSafeFromPiece(board, kingSquare, color, "Queen")
     }
 
     // NOTE: function is not designed for non-standard board sizes.
-    export function squareIsSafeFromPiece(board: string[][], kingSquare: BoardLocation, color: StandardTurns, pieceName: string): boolean {
-        let pieceSymbolWhite: string
-        let pieceSymbolBlack: string
-
-        console.log(`King Location: ${JSON.stringify(kingSquare)}`)
-        // TODO: The problem is that the bishops and rooks don't stop after they find a piece that is in the way.
+    export function squareIsSafeFromPiece(board: string[][], kingSquare: BoardLocation, color: StandardTurns, pieceName: string, debug?: boolean, hideOutput?: boolean): boolean {
+        if (debug && !hideOutput) {
+            console.log(`Checking square ${JSON.stringify(kingSquare)} from ${pieceName} attacks`)
+        }
 
         let list: BoardLocation[] = []
-        let sublist: BoardLocation[] = []
 
         // Only needs to check against Rooks, Knights, and Bishops.
         switch (pieceName) {
@@ -265,14 +251,9 @@ module BoardAnalyser {
             case "Knight":
             case "Queen":
             case "Bishop":
-                pieceSymbolWhite = constants["PieceNameToPGN"][pieceName][StandardTurns.white]
-                pieceSymbolBlack = constants["PieceNameToPGN"][pieceName][StandardTurns.black]
-
                 for (let i in constants.PieceLogic[pieceName]) {
                     list.push(constants.PieceLogic[pieceName][i])
                 }
-                console.log(pieceName)
-                // console.log(JSON.stringify(list))
                 break
             case "King":
                 throw new Error("Not Yet Implemented.")
@@ -295,9 +276,6 @@ module BoardAnalyser {
                 throw new Error("'squareIsSafeFromPiece' function is working unexpectedly.")
         }
 
-        if (pieceName === "Queen")
-            console.log("LIST: ", JSON.stringify(list.length))
-        console.log(`Piece: ${pieceName}`)
 
         let conceivableSquares = [] as BoardLocation[] // All the possible squares a piece could come from if the board was empty
         for (let attackerSquareLogic of list) {
@@ -312,41 +290,28 @@ module BoardAnalyser {
 
         // If not knight
         let possibleSquares = [] as BoardLocation[]
-        for (let square of conceivableSquares) {
-            if (existsAStraightPath(board, square, kingSquare))
-                possibleSquares.push(square)
+        if (pieceName === "Knight")
+            for (let square of conceivableSquares) {
+                // If the piece at the conceivable square is an enemy knight.
+                if (board[square.row][square.column] === constants.PieceNameToPGN[pieceName][(color === StandardTurns.white) ? 1 : 0]) {
+                    possibleSquares.push(square)
+                }
+            }
+        else
+            for (let square of conceivableSquares) {
+                if (existsAStraightPath(board, square, kingSquare)) {
+                    possibleSquares.push(square)
+                }
+            }
+
+        if (possibleSquares.length === 0) {
+            return true
         }
 
-        console.log("POSSIBLE SQUARES")
-        for (let f of possibleSquares)
-            console.log(`\t\t\t\t\t\t ${f.row}, ${f.column}`)
-
-        for (let attackerSquare of conceivableSquares) {
-            console.log(`\nPossible: ${JSON.stringify(attackerSquare.row + kingSquare.row)}, ${JSON.stringify(attackerSquare.column + kingSquare.column)}\n`)
-
-            // This break will require there to be a clear path for non-jumping pieces to be a threat.
-            if (((board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== pieceSymbolWhite && color !== StandardTurns.black) ||
-                (board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== pieceSymbolBlack && color !== StandardTurns.white) ||
-                board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== "X") &&
-                pieceName !== "Knight" // Knights are allowed to jump
-            ) {
-                break
-            }
-
-            // If the correct piece appears, then the square is not safe.
-            if (color === StandardTurns.white && board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] === pieceSymbolWhite) {
-                console.log(`Square "${JSON.stringify(attackerSquare)}" is attacking the king`)
+        for (let square of possibleSquares) {
+            if (board[square.row][square.column] === constants.PieceNameToPGN[pieceName][(color === StandardTurns.white) ? 1 : 0])
                 return false
-            }
-            else if (color === StandardTurns.black && board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] === pieceSymbolBlack) {
-                console.log(`Square "${JSON.stringify(attackerSquare)}" is attacking the king`)
-                return false
-            }
-
         }
-
-        console.log("SAFE!")
-        // TODO: fix the bool outputs of this function
 
         return true
     }
