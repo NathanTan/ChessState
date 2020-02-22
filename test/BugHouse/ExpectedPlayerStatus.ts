@@ -314,6 +314,10 @@ const ExpectedPlayerStatus = {
             extraPieces: [],
             capturedPieces: []
         }
+    ],
+    "Test For Checkmate - Bughouse": [
+        { id: 0, isPlayersTurn: true, extraPieces: [], capturedPieces: [] },
+        { id: 1, isPlayersTurn: false, extraPieces: [], capturedPieces: [] },
     ]
 }
 

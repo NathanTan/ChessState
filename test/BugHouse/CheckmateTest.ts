@@ -9,7 +9,7 @@ const config: Config = {
     gameType:   GameTypes.bughouse,
     fen:        null,
     debug:      true,
-    hideOutput: true
+    hideOutput: false
 }
 
 
@@ -21,10 +21,14 @@ describe('BugHouse: Tests checkmate', () => {
         const gameName = "Test For Checkmate - Bughouse"
         const expectedStatus = ExpectedPlayerStatus[gameName]
 
+        console.log("Here")
         for (let i = 0; i < 4; i++) {
-            assert.strictEqual(JSON.stringify(expectedStatus[i]), 
-                JSON.stringify(game.getPlayerStatus(i)))
+            console.log("Here")
+            console.log(game.getPlayerStatus(i))
+            // assert.strictEqual(JSON.stringify(expectedStatus[i]), 
+            //     JSON.stringify(game.getPlayerStatus(i)))
         }
+        console.log("Here")
 
         let counter = 0
         for (let move of TestGames[gameName].moves) {
