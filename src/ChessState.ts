@@ -76,7 +76,7 @@ class ChessState {
         // Initalize state.
         switch (this.gameType) {
             case GameType.bughouse: 
-                this.state[1]= {
+                this.state[1] = {
                     board: FenLogic.FenToBoard(this.config.fen2),
                     history: {
                         fen: [this.config.fen], 
@@ -413,6 +413,8 @@ class ChessState {
             case GameType.standard:
             case GameType.bughouse:
                 return this.state[localBoard].fenExtras.turn
+            case GameType.plunder:
+                throw new Error("Error, varient not yet implemented")
             default:
                 throw new Error("Error, variant not recognized")
         }
@@ -600,6 +602,10 @@ class ChessState {
 
     // Reconstruct the status object when asked for it.
     getPlayerStatus(id: number, board?: number) {
+        let boardNumber = board
+        if (board != null && this.gameType != GameType.bughouse) {
+            throw new Error(`Not a ${GameType.bughouse.toString()} game`)
+        }
 
         if (id > 3 || id < 0) {
             throw new Error(`Id '${id}' is out of range`)
@@ -609,12 +615,15 @@ class ChessState {
         
         // Determine if it's the players turn
         if (id === 0 || id === 1) {
-            if ((id === 0 && this.getTurn(0) === StandardTurns.white) ||
-                (id === 1 && this.getTurn(0) === StandardTurns.black)) {
+            if ((id === 0 && this.getTurn(boardNumber) === StandardTurns.white) ||
+                (id === 1 && this.getTurn(boardNumber) === StandardTurns.black)) {
                 isPlayersTurn = true
             }
         }
         else {
+            if (this.debug && !this.hideOutput) {
+                console.log(`turn: ${this.getTurn(board)}`)
+            }
             if ((id === 2 && this.getTurn(1) === StandardTurns.white) ||
                 (id === 3 && this.getTurn(1) === StandardTurns.black)) {
                 isPlayersTurn = true

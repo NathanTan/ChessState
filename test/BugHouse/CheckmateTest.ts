@@ -14,27 +14,26 @@ const config: Config = {
 
 
 describe('BugHouse: Tests checkmate', () => {
-    it('Checks player status for fastest piece drop', () => {
+    it('Checks player status for 2 move checkmate', () => {
         const game = new ChessState(config)
         const board0 = 0
         const board1 = 1
         const gameName = "Test For Checkmate - Bughouse"
         const expectedStatus = ExpectedPlayerStatus[gameName]
 
-        console.log("Here")
+        // Check the inital position
         for (let i = 0; i < 4; i++) {
-            console.log("Here")
-            console.log(game.getPlayerStatus(i))
-            // assert.strictEqual(JSON.stringify(expectedStatus[i]), 
-            //     JSON.stringify(game.getPlayerStatus(i)))
+            assert.strictEqual(JSON.stringify(expectedStatus[i]), 
+                JSON.stringify(game.getPlayerStatus(i)))
         }
-        console.log("Here")
 
         let counter = 0
         for (let move of TestGames[gameName].moves) {
             game.move(move.move, move.board)
             counter++
             for (let i = 0; i < 4; i++) {
+                console.log(game.getPlayerStatus(i))
+                console.log(expectedStatus[i + (4 * counter)])
                 assert.strictEqual(JSON.stringify(expectedStatus[i + (4 * counter)]), 
                     JSON.stringify(game.getPlayerStatus(i)))
             } 

@@ -15,7 +15,10 @@ const config: Config = {
 
 describe('BugHouse: Handling basic piece drops', () => {
     it('Handles earliest piece drop on board 0', () => {
-        const game = new ChessState(config)
+        let temp = config
+        temp.hideOutput = false
+        const game = new ChessState(temp)
+        temp.hideOutput = true
         const board0 = 0
         const board1 = 1
         const gameName = "Basic pawn drop - Bughouse"
