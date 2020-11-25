@@ -16,6 +16,17 @@ class HelperFunctions {
         }
     }
 
+    // Uses algebraic chess notation
+    static mapBoardPositionToChessNotation(rowPosition: number, colPosition: number): string {
+        // Assuming standard sized board
+        let rowNotation = 8 - rowPosition
+        let colNotation = String.fromCharCode(97 + colPosition)
+
+        // String.fromCharCode(97 + n)
+
+        return colNotation + rowNotation.toString()
+    }
+
     /*
      * Parameters:
      *      - PGN move
