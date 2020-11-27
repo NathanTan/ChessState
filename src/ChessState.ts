@@ -13,6 +13,8 @@ import Config from './Interfaces/Config'
 import PieceTypes from './Interfaces/Enums/PieceTypes'
 import Directions from './Interfaces/Enums/Directions'
 import GameStatus from './Interfaces/GameStatus'
+import { exception } from 'console'
+import BoardAnalyzer from './BoardAnalyzer'
 
 // (function(window){
 
@@ -46,7 +48,7 @@ class ChessState {
         else {
             this.config = config
         }
-        
+
         this.debug = this.config.debug
         this.gameType = this.config.gameType
         this.hideOutput = this.config.hideOutput
@@ -90,10 +92,10 @@ class ChessState {
             gameOver: false,    // TODO: check initalizing with a game over fen
             turn: 0,
             fenExtras: fenExtras,
-            whiteKingLocation: (this.config.fen === constants["startingFen"]) ? 
-                                { row: 7, column: 4} as BoardLocation : FenLogic.GetWhiteKingLocation(this.config.fen),
-            blackKingLocation: (this.config.fen === constants["startingFen"]) ? 
-                                { row: 0, column: 4} as BoardLocation : FenLogic.GetBlackKingLocation(this.config.fen),
+            whiteKingLocation: (this.config.fen === constants["startingFen"]) ?
+                { row: 7, column: 4 } as BoardLocation : FenLogic.GetWhiteKingLocation(this.config.fen),
+            blackKingLocation: (this.config.fen === constants["startingFen"]) ?
+                { row: 0, column: 4 } as BoardLocation : FenLogic.GetBlackKingLocation(this.config.fen),
             winner: null
         }
 
@@ -115,23 +117,23 @@ class ChessState {
         if (move === `resign`) {
             this.resign()
             return {
-                whiteKingSideCastle:    false,
-                whiteQueenSideCastle:   false,
-                blackKingSideCastle:    false,
-                blackQueenSideCastle:   false,
-                kingLocation:           null,
-                movedPiece:             null,	    // If null then the move was a castle.
-                movedPieceDest:         null,
-                check:                  false,         // An indication if check happened.
-                gameIsOver:             true,
-                moveIsValid:            false,
-                invalidMove:            null
+               whiteKingSideCastle:    false,
+               whiteQueenSideCastle:   false,
+               blackKingSideCastle:    false,
+               blackQueenSideCastle:   false,
+               kingLocation:           null,
+               movedPiece:             null,	    // If null then the move was a castle.
+               movedPieceDest:         null,
+               check:                  false,         // An indication if check happened.
+               gameIsOver:             true,
+               moveIsValid:            false,
+               invalidMove:            null
             }
         }
 
 
         // Check for game over BEFORE move validation.
-    	if (this.state.gameOver === true) {
+        if (this.state.gameOver === true) {
             return {
                 whiteKingSideCastle:    false,
                 whiteQueenSideCastle:   false,
@@ -146,7 +148,7 @@ class ChessState {
                 invalidMove:            ""
             }
         }
-        
+
         // Validate move
         let moveIsValid = true // TODO: validation
 
@@ -169,11 +171,11 @@ class ChessState {
         }
 
         if (this.debug && !this.hideOutput)
-                console.log("/////////////////////// Turn " + this.state.turn + " ///////////////////////")
+            console.log("/////////////////////// Turn " + this.state.turn + " ///////////////////////")
         // 1. Print info.
         if (this.gameType === GameType.standard) {
             if (this.debug && !this.hideOutput)
-            console.log("   " + this.getTurn() + "'s turn")
+                console.log("   " + this.getTurn() + "'s turn")
         }
 
 
@@ -183,7 +185,7 @@ class ChessState {
         // Update History
         this.state.history.pgn.push(move)
         this.state.history.fen.push(FenLogic.BoardToFen(this.state.board, this.state.fenExtras))
-        
+
         this.state.turn++
 
         // Update king location.
@@ -250,9 +252,9 @@ class ChessState {
             /* Standard */
             case GameType.standard:
                 // Toggle turn
-                if (this.state.fenExtras.turn === StandardTurns.white) 
+                if (this.state.fenExtras.turn === StandardTurns.white)
                     this.state.fenExtras.turn = StandardTurns.black
-                else 
+                else
                     this.state.fenExtras.turn = StandardTurns.white
 
                 // Update castling.
@@ -265,7 +267,7 @@ class ChessState {
                     this.state.fenExtras.castling = this.state.fenExtras.castling.replace("k", "")
                     this.state.fenExtras.castling = this.state.fenExtras.castling.replace("q", "")
                 }
-                
+
                 // Update En Passant
                 this.state.fenExtras.enPassant = moveResults.enableEnPassant
 
@@ -295,7 +297,7 @@ class ChessState {
         if (moveResult.check === true && this.checkForCheckmate(moveResult) === true) {
             if (this.getTurn() === StandardTurns.black)
                 this.state.winner = StandardTurns.white
-            else 
+            else
                 this.state.winner = StandardTurns.black
             return true
         }
@@ -322,14 +324,14 @@ class ChessState {
                 kingLocation.row + squareRulesOfInterest.row < 8 &&
                 kingLocation.row + squareRulesOfInterest.row >= 0) {
                 let squareOfIntesest = {
-                    row:    kingLocation.column + squareRulesOfInterest.column,
+                    row: kingLocation.column + squareRulesOfInterest.column,
                     column: kingLocation.row + squareRulesOfInterest.row
                 }
 
                 // TODO: Replace "X" as the empty space.
                 // If any EMPTY squares surrounding the king are safe, it's not a checkmate.
-                if (this.getBoardArray()[squareOfIntesest.row][squareOfIntesest.column] !== "X"  &&
-                   this.squareIsSafeForKing(squareOfIntesest, this.getTurn(), this.gameType, this.debug) === true) {
+                if (this.getBoardArray()[squareOfIntesest.row][squareOfIntesest.column] !== "X" &&
+                    this.squareIsSafeForKing(squareOfIntesest, this.getTurn(), this.gameType, this.debug) === true) {
                     return false
                 }
             }
@@ -339,7 +341,7 @@ class ChessState {
         // If knight, unblockable
         if (moveResult.movedPiece !== PieceTypes.Knight) {
             let distance: BoardLocation = {
-                row:    moveResult.movedPieceDest.row - kingLocation.row,
+                row: moveResult.movedPieceDest.row - kingLocation.row,
                 column: moveResult.movedPieceDest.column - kingLocation.column,
             }
             // Only check the path that are between the king and the attacking piece.
@@ -350,7 +352,7 @@ class ChessState {
 
             let direction: Directions = Directions.Null
 
-//TODO: Be sure to test later
+            //TODO: Be sure to test later
             // If the attacking piece is NorthWest of the King // TODO: make sure this isn't flipped based on the distance variable
             if (distance.row = 0 && distance.row < 8 && distance.column > 0 && distance.column < 8) {
                 if (this.debug && !this.hideOutput)
@@ -360,7 +362,7 @@ class ChessState {
             //West
             else if (distance.row === 0 && distance.column >= 0 && distance.column < 8) {
                 if (this.debug && !this.hideOutput)
-                    console.log("Attacker is East of the king.") 
+                    console.log("Attacker is East of the king.")
                 direction = Directions.East
             } //SouthWest
 
@@ -372,9 +374,9 @@ class ChessState {
 
             else if (distance.row < 0 && distance.row > -8 && distance.column === 0) {
                 if (this.debug && !this.hideOutput)
-                    console.log("Attacker is North of the king")  
+                    console.log("Attacker is North of the king")
                 direction = Directions.North
-            } 
+            }
 
             else if (distance.row < 0 && distance.row > -8 && distance.column < 0 && distance.column > -8) {
                 if (this.debug && !this.hideOutput)
@@ -384,7 +386,7 @@ class ChessState {
 
             else if (distance.row === 0 && distance.column < 0 && distance.column > -8) {
                 if (this.debug && !this.hideOutput)
-                    console.log("Attacker is West") 
+                    console.log("Attacker is West")
                 direction = Directions.West
             }
 
@@ -413,8 +415,8 @@ class ChessState {
             console.log("---------Checking for capture-------------")
 
         let resultt = this.squareIsSafeForKing(moveResult.movedPieceDest, (this.getTurn() === StandardTurns.white) ? StandardTurns.black : StandardTurns.white,
-                            this.gameType, this.debug)
-        
+            this.gameType, this.debug)
+
         if (resultt === true) {
             // The piece can't be captured, thus checkmate.
             return true
@@ -422,7 +424,7 @@ class ChessState {
 
         return isCheckmate
     }
- 
+
     // Iteratively check all the surrounding squares to see if a square is safe for the king
     squareIsSafeForKing(kingSquare: BoardLocation, color: StandardTurns, gameType: GameType, debug?: boolean): boolean {
         switch (gameType) {
@@ -460,6 +462,79 @@ class ChessState {
         this.state.winner = this.getTurn()  // The turn hasn't updated yet.
     }
 
+    getAllPossibleMovesForColor(desiredColor?: string) {
+        let color = this.state.fenExtras.turn
+
+        if (desiredColor === 'w')
+            color = StandardTurns.white
+        else if (desiredColor === 'b')
+            color = StandardTurns.black
+        else
+            exception("Color '" + desiredColor + "' not recognized")
+
+        const pieceLocations = BoardAnalyzer.getAllPieceLocations(this.state.board, color);
+
+        pieceLocations.forEach(location => {
+            this.getAllPossibleMovesForPiece(location)
+
+        });
+
+    }
+
+    // For algebric notation
+    getAllPossibleMovesForPiece(pieceLocation: string): Array<string> {
+        // TODO: Verify pieceLocation
+
+        // Convert location to cordinates
+        const source = HelperFunctions.mapChessNotationToBoardPosition(pieceLocation)
+
+        const piece = this.state.board[source.row][source.column]
+        const pieceName = constants["PiecePGNToName"][piece]
+        const pieceType = constants["PieceTypes"][piece]
+        const color: StandardTurns = constants["PiecePGNToColor"][piece]
+
+        let possibleMoves: Array<string> = []
+
+        // Check possible moves for pawns seperately
+        if (pieceName === "Pawn") {
+
+            // Apply all the pawn moves
+            possibleMoves.push.apply(possibleMoves, BoardAnalyzer.getAllPossibleMovesForAPawn(this.state.board, source, color, this.state.fenExtras.enPassant, this.gameType))
+
+        } else {
+            for (let squareRulesOfInterest of constants["PieceLogic"][pieceName]) {
+
+                // If the square is on the board
+                if (source.column + squareRulesOfInterest.column < constants["BoardWidth"] &&
+                    source.column + squareRulesOfInterest.column >= 0 &&
+                    source.row + squareRulesOfInterest.row < constants["BoardHeight"] &&
+                    source.row + squareRulesOfInterest.row >= 0) {
+                    let possibleDest = {
+                        row: source.column + squareRulesOfInterest.column,
+                        column: source.row + squareRulesOfInterest.row
+                    }
+
+                    // Check if there is a piece and check if the location is good
+                    // If knight/king no need to check for interfering pieces
+                    if (pieceType === PieceTypes.Knight || pieceType === PieceTypes.King) {
+                        // If there is a piece in the dest and it is of opposite type and king isn't getting into check
+
+                        // Knight check for the dest being an empty square or of a different color and not exposing the king to check
+                        console.log("knight")
+                    }
+
+                    // Check for pieces being in the way of the source/dest of the move
+                    else {
+                        console.log("Piece: " + piece + " possibleDests:" + JSON.stringify(possibleDest))
+
+                    }
+                }
+            }
+        }
+        console.log(possibleMoves)
+        return possibleMoves
+    }
+
     // NOTE: function is not designed for non-standard board sizes.
     private squareIsSafeFromPiece(kingSquare: BoardLocation, color: StandardTurns, pieceName: string, debug?: boolean): boolean {
         let pieceSymbolWhite: string
@@ -477,7 +552,7 @@ class ChessState {
         let sublist: BoardLocation[] = []
 
         // Only needs to check against Rooks, Knights, and Bishops.
-        switch (pieceName) { 
+        switch (pieceName) {
             case "Rook":
                 pieceSymbolWhite = constants["PieceNameToPGN"]["Rook"][StandardTurns.white]
                 pieceSymbolBlack = constants["PieceNameToPGN"]["Rook"][StandardTurns.black]
@@ -493,18 +568,18 @@ class ChessState {
             case "Knight":
                 pieceSymbolWhite = constants["PieceNameToPGN"]["Knight"][StandardTurns.white]
                 pieceSymbolBlack = constants["PieceNameToPGN"]["Knight"][StandardTurns.black]
-                
+
                 // Just stuff it the list.
                 for (let j = 0; j < 8; j++) {
                     sublist.push(constants.PieceLogic[pieceName][j])
                 }
                 list.push(sublist)
-            
+
                 break
             case "Bishop":
                 pieceSymbolWhite = constants["PieceNameToPGN"]["Bishop"][StandardTurns.white]
                 pieceSymbolBlack = constants["PieceNameToPGN"]["Bishop"][StandardTurns.black]
-                
+
                 for (let i = 0; i < 4; i++) {
                     for (let j = 0; j < 7; j++) {
                         sublist.push(constants.PieceLogic[pieceName][i * j])
@@ -518,14 +593,14 @@ class ChessState {
                     if ((kingSquare.row - 1) >= 0 && (kingSquare.column - 1) >= 0 && this.getBoardArray()[kingSquare.row - 1][kingSquare.column - 1] !== "p" &&
                         (kingSquare.column + 1) < 8 && this.getBoardArray()[kingSquare.row - 1][kingSquare.column + 1] === "p")
                         return true
-                    else 
+                    else
                         return false
                 }
                 else {
                     if ((kingSquare.row + 1) < 8 && (kingSquare.column - 1) >= 0 && this.getBoardArray()[kingSquare.row + 8][kingSquare.column - 1] !== "p" &&
                         (kingSquare.column + 1) < 8 && this.getBoardArray()[kingSquare.row + 1][kingSquare.column + 1] === "p")
                         return true
-                    else 
+                    else
                         return false
                 }
             default:
@@ -540,22 +615,22 @@ class ChessState {
                     attackerSquare.row + kingSquare.row < 8 &&
                     attackerSquare.row + kingSquare.row >= 0) {
 
-                        // This break will require there to be a clear path for non-jumping pieces to be a threat.
-                        if ((this.state.board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== pieceSymbolWhite ||
-                            this.state.board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== pieceSymbolBlack ||
-                            this.state.board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== "X") && 
-                            pieceName !== "Knight" // Knights are allowed to jump
-                            )
-                            break
+                    // This break will require there to be a clear path for non-jumping pieces to be a threat.
+                    if ((this.state.board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== pieceSymbolWhite ||
+                        this.state.board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== pieceSymbolBlack ||
+                        this.state.board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] !== "X") &&
+                        pieceName !== "Knight" // Knights are allowed to jump
+                    )
+                        break
 
-                        // If the correct piece appears, then the square is not safe.
-                        if (color === StandardTurns.white && this.state.board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] === pieceSymbolWhite) {
-                            return false
-                        }
-                        else if (color === StandardTurns.black && this.state.board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] === pieceSymbolBlack) {
-                            return false
-                        }
+                    // If the correct piece appears, then the square is not safe.
+                    if (color === StandardTurns.white && this.state.board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] === pieceSymbolWhite) {
+                        return false
                     }
+                    else if (color === StandardTurns.black && this.state.board[attackerSquare.row + kingSquare.row][attackerSquare.column + kingSquare.column] === pieceSymbolBlack) {
+                        return false
+                    }
+                }
             }
         }
 
@@ -565,7 +640,7 @@ class ChessState {
     // Returns false if it's not checkmate because there is a possible block
     // returning true signals nothing definitive.
     private checkForBlockableSquares(kingLocation: BoardLocation, direction: Directions): boolean {
-        let rowInc: number 
+        let rowInc: number
         let colInc: number
 
         switch (direction) {
@@ -605,10 +680,10 @@ class ChessState {
                 throw new Error("Directional error 1.")
         }
 
-         // Check for open squares
-         for (let i = 1; i < 8; i++) {
+        // Check for open squares
+        for (let i = 1; i < 8; i++) {
             // If found empty square
-            if (this.getBoardArray()[kingLocation.row + rowInc][kingLocation.column + colInc] === "X") { 
+            if (this.getBoardArray()[kingLocation.row + rowInc][kingLocation.column + colInc] === "X") {
                 let tempLoc = {
                     row: kingLocation.row + i,
                     column: kingLocation.column + i
@@ -673,7 +748,7 @@ class ChessState {
 
 }
 
- export default ChessState
+export default ChessState
 //module.exports.ChessState = ChessState
 exports.ChessState = ChessState;
 

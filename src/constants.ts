@@ -1,5 +1,7 @@
-import BoardLoaction from "./Interfaces/BoardLocation";
-import GameTypes from "./Interfaces/Enums/GameTypes";
+import BoardLoaction from "./Interfaces/BoardLocation"
+import GameTypes from "./Interfaces/Enums/GameTypes"
+import PieceTypes from "./Interfaces/Enums/PieceTypes"
+import StandardTurns from "./Interfaces/Enums/StandardTurns"
 
 const constants = {
     /* Default config object */
@@ -170,6 +172,21 @@ const constants = {
     "BoardWidth": 8,
     "BoardHeight": 8,
 
+    "PieceTypes": {
+        "p": PieceTypes.Pawn,
+        "P": PieceTypes.Pawn,
+        "n": PieceTypes.Knight,
+        "N": PieceTypes.Knight,
+        "b": PieceTypes.Bishop,
+        "B": PieceTypes.Bishop,
+        "r": PieceTypes.Rook,
+        "R": PieceTypes.Rook,
+        "q": PieceTypes.Queen,
+        "Q": PieceTypes.Queen,
+        "k": PieceTypes.King,
+        "K": PieceTypes.King
+    },
+
     "PiecePGNToName": {
         "p": "Pawn",
         "P": "Pawn",
@@ -183,6 +200,22 @@ const constants = {
         "Q": "Queen",
         "k": "King",
         "K": "King",
+    },
+
+
+    "PiecePGNToColor": {
+        "p": StandardTurns.black,
+        "P": StandardTurns.white,
+        "n": StandardTurns.black,
+        "N": StandardTurns.white,
+        "b": StandardTurns.black,
+        "B": StandardTurns.white,
+        "r": StandardTurns.black,
+        "R": StandardTurns.white,
+        "q": StandardTurns.black,
+        "Q": StandardTurns.white,
+        "k": StandardTurns.black,
+        "K": StandardTurns.white
     },
 
     // NOTE: 0 is the enum value for white and 1 is for black from the StandardTurns file.
