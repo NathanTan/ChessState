@@ -1,11 +1,14 @@
 var debug = process.env.NODE_ENV !== "production";
 var webpack = require('webpack');
+if (debug) console.log("DEBUG MODE")
+
+const outputFolder = debug ? "/bundles" : "/dist"
 
 module.exports = {
   context: __dirname,
   devtool: debug ? "inline-sourcemap" : null,
   
-  entry: "./lib/src/ChessState.js",
+  entry: "./src/ChessState.ts",
   module: {
      rules: [
      {
@@ -16,13 +19,13 @@ module.exports = {
      ]
   },
   optimization: {
-    minimize: false
+    minimize: !debug
   },
   resolve: {
      extensions: ['.ts', '.js']
   },
   output: {
-    path: __dirname ,//+ "/bundles",
+    path: __dirname + outputFolder,
     filename: "ChessState.js"
   },
   plugins: debug ? [] : [
