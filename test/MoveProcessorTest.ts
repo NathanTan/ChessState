@@ -47,7 +47,7 @@ describe('Move Execution: e4 e5', function () {
             whiteQueenSideCastle:   false,
             blackKingSideCastle:    false,
             blackQueenSideCastle:   false,
-            kingLocation:           null,
+            kingLocation:           {"row":7,"column":4},
             movedPiece:             PieceTypes.Pawn,
             movedPieceDest:         { row: 4, column: 4}, // e4  
             check:                  false,
@@ -62,7 +62,7 @@ describe('Move Execution: e4 e5', function () {
             whiteQueenSideCastle:   false,
             blackKingSideCastle:    false,
             blackQueenSideCastle:   false,
-            kingLocation:           null,
+            kingLocation:           {"row":0,"column":4},
             movedPiece:             PieceTypes.Pawn,
             movedPieceDest:         { row: 3, column: 4}, // e5
             check:                  false,

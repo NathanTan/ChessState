@@ -65,7 +65,7 @@ const TestGames = {
             { board: 0, move: "f3" },
             { board: 0, move: "e6" },
             { board: 0, move: "g4" },
-            { board: 0, move: "Qh4" },
+            { board: 0, move: "Qh4#" },
         ]
     }
 }

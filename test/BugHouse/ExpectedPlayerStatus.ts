@@ -98,9 +98,13 @@ const ExpectedPlayerStatus = {
         { id: 0, isPlayersTurn: false, extraPieces: [], capturedPieces: [] },
         { id: 1, isPlayersTurn: true, extraPieces: [], capturedPieces: [] },
         { id: 2, isPlayersTurn: true, extraPieces: [], capturedPieces: [] },
-        { id: 3, isPlayersTurn: false, extraPieces: [], capturedPieces: [] }
+        { id: 3, isPlayersTurn: false, extraPieces: [], capturedPieces: [] },
 
         // 4 Moves Executed
+        { id: 0, isPlayersTurn: true, extraPieces: [], capturedPieces: [] },
+        { id: 1, isPlayersTurn: false, extraPieces: [], capturedPieces: [] },
+        { id: 2, isPlayersTurn: true, extraPieces: [], capturedPieces: [] },
+        { id: 3, isPlayersTurn: false, extraPieces: [], capturedPieces: [] }
     ]
 }
 

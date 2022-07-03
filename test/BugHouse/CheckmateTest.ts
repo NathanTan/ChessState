@@ -8,16 +8,14 @@ import ExpectedPlayerStatus from "./ExpectedPlayerStatus";
 const config: Config = {
     gameType:   GameTypes.bughouse,
     fen:        null,
-    debug:      true,
-    hideOutput: false
+    debug:      false,
+    hideOutput: true
 }
 
 
-describe('BugHouse: Tests checkmate', () => {
+describe('BugHouse: Test checkmate', () => {
     it('Checks player status for 2 move checkmate', () => {
         const game = new ChessState(config)
-        const board0 = 0
-        const board1 = 1
         const gameName = "Test For Checkmate - Bughouse"
         const expectedStatus = ExpectedPlayerStatus[gameName]
 
@@ -32,8 +30,6 @@ describe('BugHouse: Tests checkmate', () => {
             game.move(move.move, move.board)
             counter++
             for (let i = 0; i < 4; i++) {
-                console.log(game.getPlayerStatus(i))
-                console.log(expectedStatus[i + (4 * counter)])
                 assert.strictEqual(JSON.stringify(expectedStatus[i + (4 * counter)]), 
                     JSON.stringify(game.getPlayerStatus(i)))
             } 

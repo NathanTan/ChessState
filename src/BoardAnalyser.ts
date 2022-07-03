@@ -24,7 +24,7 @@ module BoardAnalyser {
                 if (typeof (board) == undefined) throw new Error("Board undefined")
                 if (board < 0 || board > 1) throw new Error(`Board ${board} does not exists.`)
 
-                let isCheckmate = (moveResult.check && state.checkForCheckmate(moveResult))
+                return (moveResult.check && state.checkForCheckmate(moveResult))
 
         }
     }
@@ -40,6 +40,9 @@ module BoardAnalyser {
     }
 
     export function canAvoidCheckmate(state: ChessState, board?: number): boolean {
+        if (state.debug && !state.hideOutput)
+            console.log("---------Checking for avoiding-------------")
+
         // A - Avoid
         const localBoard = HelperFunctions.getLocalBoard(board)
 
@@ -98,6 +101,9 @@ module BoardAnalyser {
     }
 
     export function canBlockCheckmate(state: ChessState, moveResult: MoveResult, board?: number): boolean {
+        if (state.debug && !state.hideOutput)
+            console.log("---------Checking for blocking-------------")
+
         const localBoard = HelperFunctions.getLocalBoard(board)
 
         // Find the location of the king.
@@ -189,7 +195,7 @@ module BoardAnalyser {
             (state.getTurn(localBoard) === StandardTurns.white) ? StandardTurns.black : StandardTurns.white,
             state.getGameType(), localBoard, state.debug)
 
-        return result
+        return !result
     }
 
     export function canDropOnSquare(state: ChessState, location: BoardLocation, piece: string, board?: number): boolean {

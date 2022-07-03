@@ -33,7 +33,7 @@ describe('Pawn Movement: Normal', () => {
             whiteQueenSideCastle: false,
             blackKingSideCastle: false,
             blackQueenSideCastle: false,
-            kingLocation: null,
+            kingLocation: {"row":7,"column":4},
             movedPiece: 0,
             movedPieceDest: { row: 4, column: 4 },
             check: false,

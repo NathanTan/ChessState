@@ -40,16 +40,21 @@ module MoveProcessor {
 
         let capturedPiece: string
 
+        // Find past king location
+        let localKingLocation = (turn === StandardTurns.white) ? state.whiteKingLocation : state.blackKingLocation
+        // if (localKingLocation === null) {
+
+        // }
 
         let result: MoveResult = {
             whiteKingSideCastle: false,
             whiteQueenSideCastle: false,
             blackKingSideCastle: false,
             blackQueenSideCastle: false,
-            kingLocation: null,
+            kingLocation: localKingLocation,
             movedPiece: null,
             movedPieceDest: null,
-            check: (pgn == null) ? null : (pgn.indexOf("+") !== -1),   // Check if pgn delairs check
+            check: (pgn == null) ? null : (pgn.indexOf("+") !== -1 || pgn.indexOf("#") !== -1),   // Check if pgn declairs check
             gameIsOver: false,
             moveIsInvalid: false,
             invalidMove: null,

@@ -8,7 +8,7 @@ import TestGames from "./TestGames"
 const config: Config = {
     gameType:   GameTypes.bughouse,
     fen:        null,
-    debug:      true,
+    debug:      false,
     hideOutput: true
 }
 
@@ -16,9 +16,7 @@ const config: Config = {
 describe('BugHouse: Handling basic piece drops', () => {
     it('Handles earliest piece drop on board 0', () => {
         let temp = config
-        temp.hideOutput = false
         const game = new ChessState(temp)
-        temp.hideOutput = true
         const board0 = 0
         const board1 = 1
         const gameName = "Basic pawn drop - Bughouse"

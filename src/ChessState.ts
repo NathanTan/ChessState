@@ -340,7 +340,7 @@ class ChessState {
             this.state[localBoard].gameOver = true
         }
 
-        if (this.checkForEndOfGame(result, localBoard)) {
+        if (this.checkAndUpdateEndOfGame(result, localBoard)) {
             if (!this.hideOutput)
                 console.log("GAME OVER")
             this.state[localBoard].gameOver = true // For testing purposes
@@ -508,11 +508,12 @@ class ChessState {
             console.log("checkForEnPassant Not Yet Implemented")
     }
 
-    checkForEndOfGame(moveResult: MoveResult, board: number) {
+    checkAndUpdateEndOfGame(moveResult: MoveResult, board: number): Boolean {
+        const localBoard = (board == null) ? 0 : board
+
         switch (this.gameType) {
             case GameType.standard:
-               const localBoard = (board == null) ? 0 : board
-                if( BoardAnalyser.isCheckmate(this, moveResult, board)) {
+                if (BoardAnalyser.isCheckmate(this, moveResult, board)) {
                     if (this.getTurn(localBoard) === StandardTurns.black)
                         this.state[localBoard].winner = StandardTurns.white
                        else
@@ -524,16 +525,14 @@ class ChessState {
                 // TODO: add resign functionality.
             case GameType.bughouse:
                 //  // If null use zero, else use the specified board
-                //  const localBoard = (board == null) ? 0 : board
-                //  if (localBoard < 0 || localBoard > 1) throw new Error(`Board ${localBoard} does not exists.`)
-                 
-                //  if (moveResult.check === true && this.checkForCheckmate(moveResult) === true) {
-                //      if (this.getTurn(localBoard) === StandardTurns.black)
-                //      this.state[localBoard].winner = StandardTurns.white
-                //      else 
-                //      this.state[localBoard].winner = StandardTurns.black
-                //      return true
-                //  }
+                 if (moveResult.check === true && this.checkForCheckmate(moveResult) === true) {
+                    if (this.getTurn(localBoard) === StandardTurns.black) {
+                        this.state[localBoard].winner = StandardTurns.white
+                    } else {
+                        this.state[localBoard].winner = StandardTurns.black
+                    }
+                    return true
+                 }
                  
                 //  //this.checkForStalemate() 
                 //  // TODO: add resign functionality.
@@ -564,7 +563,11 @@ class ChessState {
         // C - Capture
         let foobar = BoardAnalyser.canCaptureCheckmate(this, moveResult, board)
 
-        return foofoo && fooque && foobar
+        if (this.debug && !this.hideOutput)
+            console.log(`Checking for checkmate\nCan Avoid:\t\t${foofoo}\nCan Block:\t\t${fooque}\nCan Capture:\t\t${foobar}`)
+
+
+        return !(foofoo && fooque && foobar)
     }
  
     // Iteratively check all the surrounding squares to see if a square is safe for the king
@@ -697,11 +700,11 @@ class ChessState {
 
         // TODO: The problem is that the bishops and rooks don't stop after they find a piece that is in the way.
 
-        if (debug && !this.hideOutput) {
-            console.log(kingSquare)
-            console.log(color)
-            console.log("pieceName: " + pieceName)
-        }
+        // if (debug && !this.hideOutput) {
+        //     console.log(kingSquare)
+        //     console.log(color)
+        //     console.log("pieceName: " + pieceName)
+        // }
 
         let list: BoardLocation[][] = []
         let sublist: BoardLocation[] = []
@@ -858,7 +861,7 @@ class ChessState {
             else {
                 if (this.debug && !this.hideOutput)
                     console.log("Blocking checkmate not possible.")
-                break
+                return false
             }
 
             switch (direction) {
