@@ -35,7 +35,7 @@ describe('Board Printer', function () {
 `
 
         // Check board position to make sure the pawn was moved.
-        assert.strictEqual(expected, BoardPrinter.printBoard(game, StandardTurns.white, true))
+        assert.strictEqual(expected, BoardPrinter.printBoard(game.getBoardArray(0), StandardTurns.white, true))
     })
 
     it(`Displays the board with a starting position from black's perspective.`, () => {
@@ -60,7 +60,7 @@ describe('Board Printer', function () {
 `
 
         // Check board position to make sure the pawn was moved.
-        assert.strictEqual(expected, BoardPrinter.printBoard(game, StandardTurns.black, true))
+        assert.strictEqual(expected, BoardPrinter.printBoard(game.getBoardArray(0), StandardTurns.black, true))
     })
 
     it(`Displays the board with a starting position from white's perspective for debugging.`, () => {

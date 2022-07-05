@@ -33,7 +33,7 @@ describe('Pawn Movement: Normal', () => {
             whiteQueenSideCastle: false,
             blackKingSideCastle: false,
             blackQueenSideCastle: false,
-            kingLocation: null,
+            kingLocation: {"row":7,"column":4},
             movedPiece: 0,
             movedPieceDest: { row: 4, column: 4 },
             check: false,
@@ -41,7 +41,8 @@ describe('Pawn Movement: Normal', () => {
             moveIsInvalid: false,
             invalidMove: null,
             enableEnPassant: 'e3',
-            executeEnPassant: false }
+            executeEnPassant: false,
+            wasPieceDrop: null }
 
         let result = game.move('e4')
 

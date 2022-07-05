@@ -39,7 +39,7 @@ class FenLogic {
      *      - Extra fen information as an object
      * Returns: A fen string representing the game
      */
-    static BoardToFen(board: Array<Array<string>>, extraFenData: ExtraFenData, debug?: boolean): string {
+    static BoardToFen(board: Array<Array<string>>, extraFenData: ExtraFenData, debug?: boolean, hideInput?: boolean): string {
       
         let fen = ""
         let rowNum = 0
@@ -82,7 +82,7 @@ class FenLogic {
             fen += fenRow
         })
 
-        if (debug)
+        if (debug && !hideInput)
             console.log("Built Fen: " + fen)
         return fen
     }

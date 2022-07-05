@@ -1,20 +1,20 @@
 var assert = require('assert')
-import ChessState from "../src/ChessState"
-import GameTypes from "../src/Interfaces/Enums/GameTypes"
-import BoardLoaction from "../src/Interfaces/BoardLocation"
-import StandardTurns from "../src/Interfaces/Enums/StandardTurns"
-import Config from "../src/Interfaces/Config"
-import GameStatus from "../src/Interfaces/GameStatus";
-import TestGames from "./TestGames";
+import ChessState from "../../src/ChessState"
+import GameTypes from "../../src/Interfaces/Enums/GameTypes"
+import BoardLoaction from "../../src/Interfaces/BoardLocation"
+import StandardTurns from "../../src/Interfaces/Enums/StandardTurns"
+import Config from "../../src/Interfaces/Config"
+import GameStatus from "../../src/Interfaces/GameStatus";
+import TestGames from "./../TestGames";
 
 const config: Config = {
-    gameType:   GameTypes.standard,
+    gameType:   GameTypes.bughouse,
     fen:        null,
     debug:      true,
     hideOutput: true
 }
 
-describe('ChessState config handling', () => {
+describe('BugHouse: ChessState config handling', () => {
     it('Handles null config', () => {
         const game = new ChessState(null)
         const expectedStatus = {
@@ -28,7 +28,7 @@ describe('ChessState config handling', () => {
     })
 }) 
 
-describe('ChessState squareIsSafeForKing function', function () {
+describe('BugHouse: ChessState squareIsSafeForKing function', function () {
     it(`Indicates that the square 0, 0 (A8) is safe from white's pieces on turn 1`, () => {
         const game = new ChessState(config)
         let squareOfInterest: BoardLoaction = {
@@ -60,11 +60,13 @@ describe('ChessState squareIsSafeForKing function', function () {
     })
 })
 
-describe('ChessState games', () => {
+describe('BugHouse: ChessState games', () => {
     it(`Properly handles the '4 Move Checkmate'`, () => {
         const game = new ChessState(config)
+        const board1 = 0
+
         for (let move of TestGames["4 Move Checkmate"]) {
-            game.move(move)
+            game.move(move, board1)
         }
         let expectedStatus = {
             gameOver: true,
@@ -78,8 +80,10 @@ describe('ChessState games', () => {
 
     it(`Properly handles the 'The Immortal Game'`, () => {
         const game = new ChessState(config)
+        const board1 = 1
+
         for (let move of TestGames["The Immortal Game"]) {
-            game.move(move)
+            game.move(move, board1)
         }
         let expectedStatus = {
             gameOver: true,

@@ -3,7 +3,7 @@
       "outDir": "./lib",
       "noImplicitAny": false, // Change to true later
       "module": "commonjs",
-      "target": "es5", 
+      "target": "es6", 
       "declaration": true,
       "allowJs": false,
    },

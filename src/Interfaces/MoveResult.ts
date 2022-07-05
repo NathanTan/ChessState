@@ -13,9 +13,11 @@ interface MoveResult {
     gameIsOver:             boolean
     moveIsInvalid:          boolean
     invalidMove?:           string
-    enableEnPassant?:       string	        // If En Passant is allowed as a result of this move,
+    enableEnPassant:        string	        // If En Passant is allowed as a result of this move,
                                             //      fill with the proper string, else null
-    executeEnPassant:       boolean
+    executeEnPassant?:      boolean
+    wasCapture?:            string	        // Null if no piece was captured, else the piece type that was captured.
+    wasPieceDrop?:          string	        // Null if no piece was dropped, else the piece type that was dropped.
 }
 
 export default MoveResult
