@@ -4,6 +4,7 @@ import GameTypes from "../../src/Interfaces/Enums/GameTypes"
 import Config from "../../src/Interfaces/Config"
 import GameStatus from "../../src/Interfaces/GameStatus"
 import TestGames from "./TestGames"
+import StandardTurns from "../../src/Interfaces/Enums/StandardTurns"
 
 const config: Config = {
     gameType:   GameTypes.bughouse,
@@ -51,9 +52,18 @@ describe('BugHouse: Handling basic piece drops', () => {
         const board0 = 0
         const board1 = 1
         const gameName = "Basic pawn drop on board1 - Bughouse"
+        let i = 0
 
         for (let move of TestGames[gameName].moves) {
             game.move(move.move, move.board)
+
+            if (i === 2 || i === 3) {
+                assert.strictEqual(0, game.getExtraPieces(board0, StandardTurns.white).length)
+                assert.strictEqual('p', game.getExtraPieces(board0, StandardTurns.black)[0])
+                assert.strictEqual(0, game.getExtraPieces(board1, StandardTurns.white).length)
+                assert.strictEqual(0, game.getExtraPieces(board1, StandardTurns.black).length)
+            }
+            i++
         }
 
         let expectedStatus = {

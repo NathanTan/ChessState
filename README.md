@@ -106,6 +106,28 @@ A FEN string represents a standard chess board and includes information about th
 
 A PGN string represents an individual chess move.
 
+## Supported Varients
+### Bughouse
+Description:
+
+Bughouse is a 4 player, 2v2 version of chess where 2 seperate games of chess happen simultaneously. But you and your teammate play opposite colors and when you capture a piece on your board, you pass it to your teammate where they can spend a turn placing it on their board.
+
+#### Varient Usage
+
+When placing a piece on the board that was captured by a teammate, add a tilda to the pgn.
+Example:
+```
+> game.move("e4~")
+```
+
+Use the function "getExtraPieces" to get the extra pieces a player has available to them.
+Example:
+```
+// Get the extra pieces for the first board that white can use
+> game.getExtraPieces(0, StandardTurns.white)
+```
+
+
 ## Notes
 This library has no dependencies.
 

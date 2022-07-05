@@ -686,6 +686,21 @@ class ChessState {
         this.state[localBoard].winner = this.getTurn(localBoard)  // The turn hasn't updated yet.
     }
 
+    getExtraPieces(board: number, player: StandardTurns): String[] {
+        if (this.gameType !== GameType.bughouse) 
+            return []
+
+        // Make sure it's a legal bughouse board
+        if (board < 0 || board > 1)
+            return []
+
+        if (player === StandardTurns.white) {
+            return this.state[board].extraPiecesWhite
+        } else {
+            return this.state[board].extraPiecesBlack
+        }
+    }
+
     // NOTE: function is not designed for non-standard board sizes.
     private squareIsSafeFromPiece(kingSquare: BoardLocation, color: StandardTurns, pieceName: string, board?: number, debug?: boolean): boolean {
         // If null use zero, else use the specified board
