@@ -60,7 +60,7 @@ class ChessState {
         let fenExtras
         let fenExtras2
 
-        if (this.config.fen == null) {
+        if (this.config.fen == null || this.config.fen == undefined) {
             // No provided fen string means a default start.
             this.config.fen = constants.startingFen
         }

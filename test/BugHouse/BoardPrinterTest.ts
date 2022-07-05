@@ -7,7 +7,7 @@ import StandardTurns from "../../src/Interfaces/Enums/StandardTurns";
 
 const config: Config = {
     gameType:   GameTypes.bughouse,
-    fen:        null,
+    fen:        undefined,
     debug:      false,
     hideOutput: false
 }
