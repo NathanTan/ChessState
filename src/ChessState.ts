@@ -913,5 +913,9 @@ class ChessState {
     }
 }
 
-export default ChessState
+// export default ChessState
+// testtest
 exports.ChessState = ChessState;
+// Should be done one of the following 2 ways below...
+// exports.chessstate = ChessState;
+// module.exports = { ChessState, ...module.exports }

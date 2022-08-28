@@ -1,9 +1,9 @@
 {
    "compilerOptions": {
-      "outDir": "./dist",
+      "outDir": "./lib",
       "noImplicitAny": false, // Change to true later
-      "module": "commonjs",
-      "target": "es6", 
+      "module": "es6",
+      "target": "es5", 
       "declaration": true,
       "allowJs": false,
    },
