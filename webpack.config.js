@@ -33,6 +33,11 @@ module.exports = {
     filename: "ChessState.js"
   },
   plugins: debug ? [] : [
+    new webpack.ProgressPlugin({
+      handler: (percentage, message ) => {
+        console.info(percentage, message);
+      },
+    }),
     new webpack.optimize.DedupePlugin(),
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.optimize.UglifyJsPlugin({ mangle: false, sourcemap: false }),
