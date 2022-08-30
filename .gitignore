@@ -4,3 +4,6 @@ bundles/*
 dist
 dist/*
 lib
+
+testLib
+WorkingVersion.js

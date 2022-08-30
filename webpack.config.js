@@ -6,13 +6,13 @@ const outputFolder = debug ? "/bundles" : "/dist"
 
 module.exports = {
   context: __dirname,
-  devtool: debug ? "inline-sourcemap" : null,
+  devtool: 'inline-source-map',
   
-  entry: "./src/ChessState.ts",
+  entry: "./lib/src/ChessState.js",
   module: {
      rules: [
      {
-        test: "/\.ts?$",
+        test: /\.ts$/, 
         use: 'ts-loader',
         exclude: /node_modules/
      }
@@ -29,6 +29,11 @@ module.exports = {
     filename: "ChessState.js"
   },
   plugins: debug ? [] : [
+    new webpack.ProgressPlugin({
+      handler: (percentage, message ) => {
+        console.info(percentage, message);
+      },
+    }),
     new webpack.optimize.DedupePlugin(),
     new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.optimize.UglifyJsPlugin({ mangle: false, sourcemap: false }),
