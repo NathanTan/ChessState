@@ -1,8 +1,8 @@
 {
   "name": "chessstate",
-  "version": "1.1.3",
+  "version": "1.1.3.1",
   "description": "A chess game state manager",
-  "main": "ChessState.js",
+  "main": "bundles/ChessState.js",
   "types": "ChessState.d.ts",
   "scripts": {
     "test": "./node_modules/.bin/mocha --compilers ts:ts-node/register test test/**/*Test.ts",
