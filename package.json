@@ -41,7 +41,7 @@
     "@types/node": "^10.12.18",
     "babel": "^6.23.0",
     "babel-cli": "^6.26.0",
-    "mocha": "^5.2.0",
+    "mocha": "^10.2.0",
     "ts-loader": "^5.4.5",
     "ts-node": "^8.0.2",
     "typescript": "^3.9.10",
